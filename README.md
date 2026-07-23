@@ -182,6 +182,10 @@ Das Projekt wird mit modernen Webtechnologien entwickelt.
 
 ## 📂 Projektstruktur
 
+Die grundlegende Architektur wurde vom Open-Source-Projekt
+[`willidevac/Little-Bolt-Big-Moon`](https://github.com/willidevac/Little-Bolt-Big-Moon)
+übernommen und für **BULLDOG: DARK CITY**, Phaser 3 und Vite angepasst.
+
 ```text
 bulldog-dark-city/
 ├── classes/
