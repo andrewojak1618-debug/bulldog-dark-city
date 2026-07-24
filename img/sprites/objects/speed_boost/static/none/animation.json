@@ -1,10 +1,12 @@
 {
   "animation": "static",
   "direction": "none",
-  "frameWidth": 128,
-  "frameHeight": 128,
+  "frameWidth": 552,
+  "frameHeight": 409,
   "frames": 1,
   "files": [
     "speed_boost_static_none_01.png"
-  ]
+  ],
+  "source": "Power_Ups-Panzer_Schild-Speed_Boost-Jump_Boost.png",
+  "scaled": false
 }

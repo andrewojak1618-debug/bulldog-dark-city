@@ -1,0 +1,17 @@
+{
+  "asset": "dark_city_atmosphere_set_01",
+  "layer": "atmosphere",
+  "type": "static_atmosphere_variants",
+  "frameWidth": 1738,
+  "frameHeight": 200,
+  "frames": 4,
+  "files": [
+    "dark_city_atmosphere_set_01_static_none_01.png",
+    "dark_city_atmosphere_set_01_static_none_02.png",
+    "dark_city_atmosphere_set_01_static_none_03.png",
+    "dark_city_atmosphere_set_01_static_none_04.png"
+  ],
+  "source": "Clouds_and_atmosphere1.png",
+  "transparent": true,
+  "scaled": false
+}

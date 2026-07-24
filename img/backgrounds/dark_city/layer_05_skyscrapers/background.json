@@ -1,0 +1,17 @@
+{
+  "asset": "dark_city_background_skyscraper",
+  "layer": "background_05",
+  "type": "static_background_variants",
+  "frameWidth": 509,
+  "frameHeight": 451,
+  "frames": 4,
+  "files": [
+    "dark_city_background_skyscraper_static_none_01.png",
+    "dark_city_background_skyscraper_static_none_02.png",
+    "dark_city_background_skyscraper_static_none_03.png",
+    "dark_city_background_skyscraper_static_none_04.png"
+  ],
+  "source": "Layer5_Hintergrund_Skyscraper.png",
+  "transparent": true,
+  "scaled": false
+}

@@ -1,0 +1,15 @@
+{
+  "asset": "dark_city_elevated_roads",
+  "layer": "midground_02",
+  "type": "static_elevated_road_variants",
+  "frameWidth": 782,
+  "frameHeight": 355,
+  "frames": 3,
+  "files": [
+    "dark_city_elevated_roads_static_none_01.png",
+    "dark_city_elevated_roads_static_none_02.png",
+    "dark_city_elevated_roads_static_none_03.png"
+  ],
+  "source": "Layer4_Mittelgrund2_Hochstrassen.png",
+  "scaled": false
+}

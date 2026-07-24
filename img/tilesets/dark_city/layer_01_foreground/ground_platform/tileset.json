@@ -1,0 +1,16 @@
+{
+  "asset": "dark_city_ground_platform",
+  "layer": "foreground_01",
+  "type": "static_platform_variants",
+  "frameWidth": 513,
+  "frameHeight": 306,
+  "frames": 4,
+  "files": [
+    "dark_city_ground_platform_static_none_01.png",
+    "dark_city_ground_platform_static_none_02.png",
+    "dark_city_ground_platform_static_none_03.png",
+    "dark_city_ground_platform_static_none_04.png"
+  ],
+  "source": "Layer1_Vordergrund1_Boden_Plattform.png",
+  "scaled": false
+}

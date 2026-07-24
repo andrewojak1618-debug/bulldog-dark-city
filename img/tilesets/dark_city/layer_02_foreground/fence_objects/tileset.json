@@ -1,0 +1,16 @@
+{
+  "asset": "dark_city_fence_objects",
+  "layer": "foreground_02",
+  "type": "static_fence_object_variants",
+  "frameWidth": 512,
+  "frameHeight": 248,
+  "frames": 4,
+  "files": [
+    "dark_city_fence_objects_static_none_01.png",
+    "dark_city_fence_objects_static_none_02.png",
+    "dark_city_fence_objects_static_none_03.png",
+    "dark_city_fence_objects_static_none_04.png"
+  ],
+  "source": "Layer2_Vordergrund2_Z\u00e4une_Objekte.png",
+  "scaled": false
+}

@@ -685,8 +685,8 @@
     {
       "animation": "static",
       "direction": "none",
-      "frameWidth": 128,
-      "frameHeight": 128,
+      "frameWidth": 498,
+      "frameHeight": 391,
       "frames": 1,
       "files": [
         "nuclear_bone_static_none_01.png"
@@ -696,8 +696,8 @@
     {
       "animation": "static",
       "direction": "none",
-      "frameWidth": 128,
-      "frameHeight": 128,
+      "frameWidth": 502,
+      "frameHeight": 387,
       "frames": 1,
       "files": [
         "health_bone_static_none_01.png"
@@ -707,8 +707,8 @@
     {
       "animation": "static",
       "direction": "none",
-      "frameWidth": 128,
-      "frameHeight": 128,
+      "frameWidth": 505,
+      "frameHeight": 390,
       "frames": 1,
       "files": [
         "energy_bone_static_none_01.png"
@@ -718,8 +718,8 @@
     {
       "animation": "static",
       "direction": "none",
-      "frameWidth": 128,
-      "frameHeight": 128,
+      "frameWidth": 552,
+      "frameHeight": 465,
       "frames": 1,
       "files": [
         "armor_shield_static_none_01.png"
@@ -729,8 +729,8 @@
     {
       "animation": "static",
       "direction": "none",
-      "frameWidth": 128,
-      "frameHeight": 128,
+      "frameWidth": 552,
+      "frameHeight": 409,
       "frames": 1,
       "files": [
         "speed_boost_static_none_01.png"
@@ -740,8 +740,8 @@
     {
       "animation": "static",
       "direction": "none",
-      "frameWidth": 128,
-      "frameHeight": 128,
+      "frameWidth": 434,
+      "frameHeight": 487,
       "frames": 1,
       "files": [
         "jump_boost_static_none_01.png"
@@ -751,8 +751,8 @@
     {
       "animation": "static",
       "direction": "none",
-      "frameWidth": 128,
-      "frameHeight": 128,
+      "frameWidth": 374,
+      "frameHeight": 493,
       "frames": 1,
       "files": [
         "mutation_serum_static_none_01.png"
@@ -762,8 +762,8 @@
     {
       "animation": "static",
       "direction": "none",
-      "frameWidth": 128,
-      "frameHeight": 128,
+      "frameWidth": 414,
+      "frameHeight": 378,
       "frames": 1,
       "files": [
         "extra_life_static_none_01.png"
@@ -773,19 +773,33 @@
     {
       "animation": "static",
       "direction": "none",
-      "frameWidth": 128,
-      "frameHeight": 128,
+      "frameWidth": 404,
+      "frameHeight": 401,
       "frames": 1,
       "files": [
         "point_coin_static_none_01.png"
       ],
       "path": "objects\\point_coin\\static\\none"
+    },
+    {
+      "animation": "flash",
+      "direction": "none",
+      "frameWidth": 344,
+      "frameHeight": 696,
+      "frames": 4,
+      "files": [
+        "dark_city_lightning_flash_none_01.png",
+        "dark_city_lightning_flash_none_02.png",
+        "dark_city_lightning_flash_none_03.png",
+        "dark_city_lightning_flash_none_04.png"
+      ],
+      "path": "effects\\weather\\lightning\\flash\\none"
     }
   ],
   "validation": {
-    "frames": 201,
-    "spritesheets": 58,
-    "animations": 58,
+    "frames": 205,
+    "spritesheets": 59,
+    "animations": 59,
     "issues": []
   }
 }

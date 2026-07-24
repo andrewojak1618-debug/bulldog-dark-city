@@ -1,10 +1,12 @@
 {
   "animation": "static",
   "direction": "none",
-  "frameWidth": 128,
-  "frameHeight": 128,
+  "frameWidth": 502,
+  "frameHeight": 387,
   "frames": 1,
   "files": [
     "health_bone_static_none_01.png"
-  ]
+  ],
+  "source": "Power_Ups-Nuklearer_Knochen-Gesundheits_Knochen-Energie_Knochen.png",
+  "scaled": false
 }

@@ -1,0 +1,15 @@
+{
+  "animation": "flash",
+  "direction": "none",
+  "frameWidth": 344,
+  "frameHeight": 696,
+  "frames": 4,
+  "files": [
+    "dark_city_lightning_flash_none_01.png",
+    "dark_city_lightning_flash_none_02.png",
+    "dark_city_lightning_flash_none_03.png",
+    "dark_city_lightning_flash_none_04.png"
+  ],
+  "source": "flashes_of_lightning.png",
+  "scaled": false
+}

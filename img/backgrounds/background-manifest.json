@@ -1,0 +1,108 @@
+{
+  "backgrounds": [
+    {
+      "asset": "dark_city_background_skyscraper",
+      "layer": "background_05",
+      "type": "static_background_variants",
+      "frameWidth": 509,
+      "frameHeight": 451,
+      "frames": 4,
+      "files": [
+        "dark_city_background_skyscraper_static_none_01.png",
+        "dark_city_background_skyscraper_static_none_02.png",
+        "dark_city_background_skyscraper_static_none_03.png",
+        "dark_city_background_skyscraper_static_none_04.png"
+      ],
+      "transparent": true,
+      "path": "dark_city\\layer_05_skyscrapers"
+    },
+    {
+      "asset": "dark_city_background_blue",
+      "layer": "background_full",
+      "type": "static_background_variants",
+      "frameWidth": 507,
+      "frameHeight": 567,
+      "frames": 4,
+      "files": [
+        "dark_city_background_blue_static_none_01.png",
+        "dark_city_background_blue_static_none_02.png",
+        "dark_city_background_blue_static_none_03.png",
+        "dark_city_background_blue_static_none_04.png"
+      ],
+      "transparent": false,
+      "path": "dark_city\\variations\\blue"
+    },
+    {
+      "asset": "dark_city_background_orange",
+      "layer": "background_full",
+      "type": "static_background_variants",
+      "frameWidth": 511,
+      "frameHeight": 562,
+      "frames": 4,
+      "files": [
+        "dark_city_background_orange_static_none_01.png",
+        "dark_city_background_orange_static_none_02.png",
+        "dark_city_background_orange_static_none_03.png",
+        "dark_city_background_orange_static_none_04.png"
+      ],
+      "transparent": false,
+      "path": "dark_city\\variations\\orange"
+    },
+    {
+      "asset": "dark_city_background_green",
+      "layer": "background_full",
+      "type": "static_background_variants",
+      "frameWidth": 504,
+      "frameHeight": 557,
+      "frames": 4,
+      "files": [
+        "dark_city_background_green_static_none_01.png",
+        "dark_city_background_green_static_none_02.png",
+        "dark_city_background_green_static_none_03.png",
+        "dark_city_background_green_static_none_04.png"
+      ],
+      "transparent": false,
+      "path": "dark_city\\variations\\green"
+    },
+    {
+      "asset": "dark_city_atmosphere_set_01",
+      "layer": "atmosphere",
+      "type": "static_atmosphere_variants",
+      "frameWidth": 1738,
+      "frameHeight": 200,
+      "frames": 4,
+      "files": [
+        "dark_city_atmosphere_set_01_static_none_01.png",
+        "dark_city_atmosphere_set_01_static_none_02.png",
+        "dark_city_atmosphere_set_01_static_none_03.png",
+        "dark_city_atmosphere_set_01_static_none_04.png"
+      ],
+      "transparent": true,
+      "overlay": true,
+      "path": "dark_city\\atmosphere\\set_01"
+    },
+    {
+      "asset": "dark_city_atmosphere_set_02",
+      "layer": "atmosphere",
+      "type": "static_atmosphere_variants",
+      "frameWidth": 1738,
+      "frameHeight": 193,
+      "frames": 4,
+      "files": [
+        "dark_city_atmosphere_set_02_static_none_01.png",
+        "dark_city_atmosphere_set_02_static_none_02.png",
+        "dark_city_atmosphere_set_02_static_none_03.png",
+        "dark_city_atmosphere_set_02_static_none_04.png"
+      ],
+      "transparent": true,
+      "overlay": true,
+      "path": "dark_city\\atmosphere\\set_02"
+    }
+  ],
+  "validation": {
+    "frames": 24,
+    "spritesheets": 6,
+    "backgroundSets": 6,
+    "issues": []
+  }
+}

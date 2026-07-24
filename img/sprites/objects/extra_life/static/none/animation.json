@@ -1,10 +1,12 @@
 {
   "animation": "static",
   "direction": "none",
-  "frameWidth": 128,
-  "frameHeight": 128,
+  "frameWidth": 414,
+  "frameHeight": 378,
   "frames": 1,
   "files": [
     "extra_life_static_none_01.png"
-  ]
+  ],
+  "source": "Power_Ups-Mutations_Serum-Extra_Leben-Punkte_M\u00fcnze.png",
+  "scaled": false
 }

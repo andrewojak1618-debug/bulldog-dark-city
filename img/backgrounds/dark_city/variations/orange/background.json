@@ -1,0 +1,17 @@
+{
+  "asset": "dark_city_background_orange",
+  "layer": "background_full",
+  "type": "static_background_variants",
+  "frameWidth": 511,
+  "frameHeight": 562,
+  "frames": 4,
+  "files": [
+    "dark_city_background_orange_static_none_01.png",
+    "dark_city_background_orange_static_none_02.png",
+    "dark_city_background_orange_static_none_03.png",
+    "dark_city_background_orange_static_none_04.png"
+  ],
+  "source": "Hintergrund_Variation1_Orange.png",
+  "transparent": false,
+  "scaled": false
+}

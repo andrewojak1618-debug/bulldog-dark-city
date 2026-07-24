@@ -1,0 +1,69 @@
+{
+  "tilesets": [
+    {
+      "asset": "dark_city_ground_platform",
+      "layer": "foreground_01",
+      "type": "static_platform_variants",
+      "frameWidth": 513,
+      "frameHeight": 306,
+      "frames": 4,
+      "files": [
+        "dark_city_ground_platform_static_none_01.png",
+        "dark_city_ground_platform_static_none_02.png",
+        "dark_city_ground_platform_static_none_03.png",
+        "dark_city_ground_platform_static_none_04.png"
+      ],
+      "path": "dark_city\\layer_01_foreground\\ground_platform"
+    },
+    {
+      "asset": "dark_city_fence_objects",
+      "layer": "foreground_02",
+      "type": "static_fence_object_variants",
+      "frameWidth": 512,
+      "frameHeight": 248,
+      "frames": 4,
+      "files": [
+        "dark_city_fence_objects_static_none_01.png",
+        "dark_city_fence_objects_static_none_02.png",
+        "dark_city_fence_objects_static_none_03.png",
+        "dark_city_fence_objects_static_none_04.png"
+      ],
+      "path": "dark_city\\layer_02_foreground\\fence_objects"
+    },
+    {
+      "asset": "dark_city_midground_buildings",
+      "layer": "midground_01",
+      "type": "static_building_variants",
+      "frameWidth": 508,
+      "frameHeight": 447,
+      "frames": 4,
+      "files": [
+        "dark_city_midground_buildings_static_none_01.png",
+        "dark_city_midground_buildings_static_none_02.png",
+        "dark_city_midground_buildings_static_none_03.png",
+        "dark_city_midground_buildings_static_none_04.png"
+      ],
+      "path": "dark_city\\layer_02_midground_01\\buildings"
+    },
+    {
+      "asset": "dark_city_elevated_roads",
+      "layer": "midground_02",
+      "type": "static_elevated_road_variants",
+      "frameWidth": 782,
+      "frameHeight": 355,
+      "frames": 3,
+      "files": [
+        "dark_city_elevated_roads_static_none_01.png",
+        "dark_city_elevated_roads_static_none_02.png",
+        "dark_city_elevated_roads_static_none_03.png"
+      ],
+      "path": "dark_city\\layer_04_midground_02\\elevated_roads"
+    }
+  ],
+  "validation": {
+    "frames": 15,
+    "spritesheets": 4,
+    "tilesets": 4,
+    "issues": []
+  }
+}
