@@ -478,6 +478,21 @@
       "path": "characters\\bulldog_normal\\transform\\front"
     },
     {
+      "animation": "transform",
+      "direction": "side",
+      "frameWidth": 303,
+      "frameHeight": 466,
+      "frames": 5,
+      "files": [
+        "bulldog_normal_transform_side_01.png",
+        "bulldog_normal_transform_side_02.png",
+        "bulldog_normal_transform_side_03.png",
+        "bulldog_normal_transform_side_04.png",
+        "bulldog_normal_transform_side_05.png"
+      ],
+      "path": "characters\\bulldog_normal\\transform\\side"
+    },
+    {
       "animation": "walk",
       "direction": "side",
       "frameWidth": 128,
@@ -768,9 +783,9 @@
     }
   ],
   "validation": {
-    "frames": 196,
-    "spritesheets": 57,
-    "animations": 57,
+    "frames": 201,
+    "spritesheets": 58,
+    "animations": 58,
     "issues": []
   }
 }
