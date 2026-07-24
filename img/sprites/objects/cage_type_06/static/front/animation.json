@@ -1,0 +1,10 @@
+{
+  "animation": "static",
+  "direction": "front",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 1,
+  "files": [
+    "cage_type_06_static_front_01.png"
+  ]
+}

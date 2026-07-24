@@ -1,0 +1,10 @@
+{
+  "animation": "turnaround",
+  "direction": "front",
+  "frameWidth": 625,
+  "frameHeight": 836,
+  "frames": 1,
+  "files": [
+    "bulldog_mutated_turnaround_front_01.png"
+  ]
+}

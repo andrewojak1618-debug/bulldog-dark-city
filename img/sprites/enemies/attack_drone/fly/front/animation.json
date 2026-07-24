@@ -1,0 +1,16 @@
+{
+  "animation": "fly",
+  "direction": "front",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 7,
+  "files": [
+    "attack_drone_fly_front_01.png",
+    "attack_drone_fly_front_02.png",
+    "attack_drone_fly_front_03.png",
+    "attack_drone_fly_front_04.png",
+    "attack_drone_fly_front_05.png",
+    "attack_drone_fly_front_06.png",
+    "attack_drone_fly_front_07.png"
+  ]
+}

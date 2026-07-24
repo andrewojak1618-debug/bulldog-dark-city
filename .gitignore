@@ -9,3 +9,6 @@ dist/
 .DS_Store
 Thumbs.db
 *.log
+
+# Lokale, nicht zu veröffentlichende Projektplanung
+docs/development-plan.md

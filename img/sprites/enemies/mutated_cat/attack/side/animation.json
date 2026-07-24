@@ -1,0 +1,15 @@
+{
+  "animation": "attack",
+  "direction": "side",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 6,
+  "files": [
+    "mutated_cat_attack_side_01.png",
+    "mutated_cat_attack_side_02.png",
+    "mutated_cat_attack_side_03.png",
+    "mutated_cat_attack_side_04.png",
+    "mutated_cat_attack_side_05.png",
+    "mutated_cat_attack_side_06.png"
+  ]
+}

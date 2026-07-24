@@ -1,0 +1,10 @@
+{
+  "animation": "turnaround",
+  "direction": "front",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 1,
+  "files": [
+    "mutated_cat_turnaround_front_01.png"
+  ]
+}

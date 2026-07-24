@@ -1,0 +1,12 @@
+{
+  "animation": "idle",
+  "direction": "front",
+  "frameWidth": 484,
+  "frameHeight": 660,
+  "frames": 1,
+  "files": [
+    "bulldog_mutated_idle_front_01.png"
+  ],
+  "source": "Mutated_Bulldog-Frond_and_Jump_and_Attack.png",
+  "scaled": false
+}

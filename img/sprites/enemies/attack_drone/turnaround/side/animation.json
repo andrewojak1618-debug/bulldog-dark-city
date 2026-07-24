@@ -1,0 +1,10 @@
+{
+  "animation": "turnaround",
+  "direction": "side",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 1,
+  "files": [
+    "attack_drone_turnaround_side_01.png"
+  ]
+}

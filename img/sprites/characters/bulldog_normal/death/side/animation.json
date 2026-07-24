@@ -1,0 +1,17 @@
+{
+  "animation": "death",
+  "direction": "side",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 8,
+  "files": [
+    "bulldog_normal_death_side_01.png",
+    "bulldog_normal_death_side_02.png",
+    "bulldog_normal_death_side_03.png",
+    "bulldog_normal_death_side_04.png",
+    "bulldog_normal_death_side_05.png",
+    "bulldog_normal_death_side_06.png",
+    "bulldog_normal_death_side_07.png",
+    "bulldog_normal_death_side_08.png"
+  ]
+}

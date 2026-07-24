@@ -1,0 +1,12 @@
+{
+  "animation": "attack",
+  "direction": "side",
+  "frameWidth": 577,
+  "frameHeight": 577,
+  "frames": 1,
+  "files": [
+    "bulldog_mutated_attack_side_01.png"
+  ],
+  "source": "Mutated_Bulldog-Frond_and_Jump_and_Attack.png",
+  "scaled": false
+}

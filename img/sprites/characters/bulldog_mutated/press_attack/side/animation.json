@@ -1,0 +1,14 @@
+{
+  "animation": "press_attack",
+  "direction": "side",
+  "frameWidth": 547,
+  "frameHeight": 427,
+  "frames": 3,
+  "files": [
+    "bulldog_mutated_press_attack_side_01.png",
+    "bulldog_mutated_press_attack_side_02.png",
+    "bulldog_mutated_press_attack_side_03.png"
+  ],
+  "source": "Mutated_Bulldog-Frond_and_Press_and_Attack.png",
+  "scaled": false
+}

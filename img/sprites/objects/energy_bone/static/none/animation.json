@@ -1,0 +1,10 @@
+{
+  "animation": "static",
+  "direction": "none",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 1,
+  "files": [
+    "energy_bone_static_none_01.png"
+  ]
+}

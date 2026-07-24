@@ -1,0 +1,17 @@
+{
+  "animation": "walk",
+  "direction": "side",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 8,
+  "files": [
+    "mutated_cat_walk_side_01.png",
+    "mutated_cat_walk_side_02.png",
+    "mutated_cat_walk_side_03.png",
+    "mutated_cat_walk_side_04.png",
+    "mutated_cat_walk_side_05.png",
+    "mutated_cat_walk_side_06.png",
+    "mutated_cat_walk_side_07.png",
+    "mutated_cat_walk_side_08.png"
+  ]
+}
