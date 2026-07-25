@@ -4,20 +4,13 @@ import { MenuScene } from "../../classes/core/scenes/menu-scene.class.js";
 import { LevelOneScene } from "../../classes/core/scenes/level-one-scene.class.js";
 import { BossScene } from "../../classes/core/scenes/boss-scene.class.js";
 import { GameOverScene } from "../../classes/core/scenes/game-over-scene.class.js";
-
-export const SCENES = Object.freeze({
-  boot: "BootScene",
-  menu: "MenuScene",
-  levelOne: "LevelOneScene",
-  boss: "BossScene",
-  gameOver: "GameOverScene",
-});
+import { GAME_DIMENSIONS } from "./game-settings.js";
 
 export const GAME_CONFIG = {
   type: Phaser.AUTO,
   parent: "game",
-  width: 720,
-  height: 480,
+  width: GAME_DIMENSIONS.width,
+  height: GAME_DIMENSIONS.height,
   backgroundColor: "#10131a",
   physics: {
     default: "arcade",
