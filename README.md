@@ -171,6 +171,9 @@ Der Fokus liegt auf einer Mischung aus:
 Das Projekt wird mit modernen Webtechnologien entwickelt.
 
 - **Phaser 3 und HTML5 Canvas:** Darstellung, Spielschleife und Physik
+- **Canvas-Einbindung:** In `index.html` dient `<main id="game">` als
+  semantischer Spielcontainer. Phaser erzeugt und verwaltet das eigentliche
+  `<canvas>` darin automatisch über die Einstellung `parent: 'game'`.
 - **Objektorientiertes JavaScript:** Player, Gegner, Boss, Projektile,
   Plattformen, Level, UI und Animationen
 - **JSON:** Leveldaten, Gegnerpositionen, Upgrades, Assets und Balancing
