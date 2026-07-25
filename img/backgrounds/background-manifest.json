@@ -1,6 +1,20 @@
 {
   "backgrounds": [
     {
+      "asset": "menu_background",
+      "scene": "menu",
+      "layer": "background",
+      "type": "static_background",
+      "frameWidth": 1536,
+      "frameHeight": 1024,
+      "frames": 1,
+      "files": [
+        "menu-background.png"
+      ],
+      "transparent": false,
+      "path": "."
+    },
+    {
       "asset": "dark_city_background_skyscraper",
       "layer": "background_05",
       "type": "static_background_variants",
@@ -100,9 +114,9 @@
     }
   ],
   "validation": {
-    "frames": 24,
+    "frames": 25,
     "spritesheets": 6,
-    "backgroundSets": 6,
+    "backgroundSets": 7,
     "issues": []
   }
 }
