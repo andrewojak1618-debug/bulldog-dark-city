@@ -2,6 +2,9 @@ import Phaser from "phaser";
 import { MenuButton } from "../../ui/menu-button.class.js";
 import { QuickActionButton } from "../../ui/quick-action-button.class.js";
 import { SocialMediaButton } from "../../ui/social-media-button.class.js";
+import { MenuInputHint } from "../../ui/menu-input-hint.class.js";
+import { MenuInputController } from "../../input/menu-input-controller.class.js";
+import { MenuNavigationController } from "../controllers/menu-navigation-controller.class.js";
 import { getAssetPath } from "../../../js/config/asset-paths.js";
 import { MENU_BUTTONS } from "../../../js/config/menu-buttons.js";
 import { QUICK_ACTIONS } from "../../../js/config/quick-actions.js";
@@ -23,7 +26,7 @@ const MENU_LOGO_PATH = getAssetPath(
   "menu/logo/bulldog-dark-city-logo.png",
 );
 const MENU_ICON_PATH = "menu/icons";
-
+const MENU_ACTION_LOCK_MS = 180;
 /**
  * Stellt den Hintergrund und die interaktiven Bereiche des Hauptmenüs dar.
  */
@@ -79,6 +82,8 @@ export class MenuScene extends Phaser.Scene {
     this.createLogo();
     this.createVersionInfo();
     this.createMainMenu();
+    this.createMenuInput();
+    this.inputHint = new MenuInputHint(this, MENU_LAYOUT.inputHint);
     this.createQuickActions();
     this.createSocialMedia();
   }
@@ -156,6 +161,7 @@ export class MenuScene extends Phaser.Scene {
           size: MENU_LAYOUT.socialMedia.buttonSize,
           iconSize: MENU_LAYOUT.socialMedia.iconSize,
           textureKey: action.textureKey,
+          disabled: true,
         }),
     );
   }
@@ -212,6 +218,38 @@ export class MenuScene extends Phaser.Scene {
     this.menuButtons = MENU_BUTTONS.map((button, index) =>
       this.createMenuButton(button, index),
     );
+    this.createUnavailableLabels();
+  }
+
+  /**
+   * Kennzeichnet vorläufig gesperrte Menüpunkte direkt im Menü.
+   * @returns {void}
+   */
+  createUnavailableLabels() {
+    MENU_BUTTONS.forEach((config, index) => {
+      if (!config.disabled) return;
+      const position = this.getMenuButtonPosition(index);
+      const unavailableLabel = this.add
+        .text(
+          MENU_LAYOUT.areas.mainMenu.x +
+            MENU_LAYOUT.mainMenu.buttonWidth -
+            8,
+          position.y - 5,
+          "BALD",
+          {
+            fontFamily: "Arial",
+            fontSize: "16px",
+            color: "#ff2cb8",
+            backgroundColor: "rgba(5, 6, 10, 0.78)",
+            padding: { x: 3, y: 2 },
+          },
+        )
+        .setOrigin(1, 0.5)
+        .setAlpha(0.22);
+      this.menuButtons[index]
+        .on("pointerover", () => unavailableLabel.setAlpha(1))
+        .on("pointerout", () => unavailableLabel.setAlpha(0.22));
+    });
   }
 
   /**
@@ -230,6 +268,8 @@ export class MenuScene extends Phaser.Scene {
           iconCrop: action.iconCrop,
           iconDisplaySize: action.iconDisplaySize,
           iconOffsetY: action.iconOffsetY,
+          onActivate: () =>
+            this.menuNavigation.activateQuickAction(action),
         }),
     );
   }
@@ -268,7 +308,7 @@ export class MenuScene extends Phaser.Scene {
    */
   createMenuButton(buttonConfig, index) {
     const position = this.getMenuButtonPosition(index);
-    return new MenuButton(this, {
+    const menuButton = new MenuButton(this, {
       ...position,
       width: MENU_LAYOUT.mainMenu.buttonWidth,
       height: MENU_LAYOUT.mainMenu.buttonHeight,
@@ -280,7 +320,34 @@ export class MenuScene extends Phaser.Scene {
       selected: buttonConfig.selected,
       disabled: buttonConfig.disabled,
       onActivate: (button) => this.activateMenuButton(button),
+      onFocus: (button, pointer) =>
+        this.menuInput?.focusButton(
+          button,
+          pointer?.pointerType === "touch" ? "touch" : "mouse",
+        ),
     });
+    menuButton.menuAction = buttonConfig.action;
+    return menuButton;
+  }
+
+  /**
+   * Erstellt die zentrale Eingabesteuerung des Hauptmenüs.
+   * @returns {void}
+   */
+  createMenuInput() {
+    this.isMenuActionLocked = false;
+    this.menuInput = new MenuInputController(
+      this,
+      this.menuButtons,
+      (inputMode) => this.inputHint?.setInputMode(inputMode),
+    );
+    this.menuNavigation = new MenuNavigationController(
+      this,
+      this.menuInput,
+      () => {
+        this.isMenuActionLocked = false;
+      },
+    );
   }
 
   /**
@@ -303,7 +370,28 @@ export class MenuScene extends Phaser.Scene {
    * @returns {void}
    */
   activateMenuButton(activeButton) {
-    this.menuButtons.forEach((button) => button.setSelected(false));
-    activeButton.setSelected(true);
+    if (
+      this.isMenuActionLocked ||
+      this.menuNavigation.isTransitioning
+    ) {
+      return;
+    }
+
+    this.isMenuActionLocked = true;
+    this.menuNavigation.run(activeButton.menuAction);
+
+    if (!this.menuNavigation.isTransitioning) {
+      this.time.delayedCall(MENU_ACTION_LOCK_MS, () => {
+        this.isMenuActionLocked = false;
+      });
+    }
+  }
+
+  /**
+   * Aktualisiert die vorbereitete Gamepad-Steuerung.
+   * @returns {void}
+   */
+  update() {
+    this.menuInput?.update();
   }
 }

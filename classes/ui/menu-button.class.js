@@ -18,6 +18,7 @@ import { getTornButtonPoints } from "../../js/utils/menu-button-shape.js";
  * @property {{x: number, y: number, width: number, height: number}|null} [iconCrop=null] - Sichtbarer Bildausschnitt.
  * @property {number} [iconOffsetY=0] - Vertikale optische Korrektur des Symbols.
  * @property {Function|null} [onActivate=null] - Aktion bei erfolgreicher Aktivierung.
+ * @property {Function|null} [onFocus=null] - Aktion bei Maus- oder Touchfokus.
  * @property {boolean} [selected=false] - Anfänglicher Auswahlzustand.
  * @property {boolean} [disabled=false] - Anfänglicher Sperrzustand.
  */
@@ -37,6 +38,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
     this.buttonHeight = options.height;
     this.iconOffsetY = options.iconOffsetY ?? 0;
     this.onActivate = options.onActivate ?? null;
+    this.onFocus = options.onFocus ?? null;
     this.setInitialState(options);
     this.background = scene.add.graphics();
     this.label = this.createLabel(
@@ -198,7 +200,11 @@ export class MenuButton extends Phaser.GameObjects.Container {
    * Setzt den Hoverzustand, wenn der Zeiger den Button betritt.
    * @returns {void}
    */
-  handlePointerOver() {
+  handlePointerOver(pointer) {
+    if (!this.isDisabled) {
+      this.onFocus?.(this, pointer);
+    }
+
     this.isPointerOver = true;
     this.renderState();
   }
@@ -217,11 +223,12 @@ export class MenuButton extends Phaser.GameObjects.Container {
    * Aktiviert den gedrückten Zustand eines ausführbaren Buttons.
    * @returns {void}
    */
-  handlePointerDown() {
+  handlePointerDown(pointer) {
     if (this.isDisabled) {
       return;
     }
 
+    this.onFocus?.(this, pointer);
     this.isPressed = true;
     this.renderState();
   }
@@ -235,9 +242,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
       return;
     }
 
-    this.isPressed = false;
-    this.renderState();
-    this.onActivate?.(this);
+    this.activate();
   }
 
   /**
@@ -246,6 +251,21 @@ export class MenuButton extends Phaser.GameObjects.Container {
    */
   canActivate() {
     return !this.isDisabled && this.isPressed;
+  }
+
+  /**
+   * Führt die konfigurierte Buttonaktion aus, wenn der Button aktiv ist.
+   * @returns {boolean} `true`, wenn die Aktion ausgeführt wurde.
+   */
+  activate() {
+    if (this.isDisabled) {
+      return false;
+    }
+
+    this.isPressed = false;
+    this.renderState();
+    this.onActivate?.(this);
+    return true;
   }
 
   /**

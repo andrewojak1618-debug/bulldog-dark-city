@@ -27,7 +27,7 @@ export const MENU_LAYOUT = Object.freeze({
     iconSize: 26,
   }),
   version: Object.freeze({
-    text: "Vol. 1.0",
+    text: "v0.1.0",
     color: "#96919c",
     fontFamily: "Arial",
     fontSize: 10,
@@ -41,6 +41,13 @@ export const MENU_LAYOUT = Object.freeze({
     iconSize: 18,
     buttonGap: 6,
     headingGap: 10,
+  }),
+  inputHint: Object.freeze({
+    x: 360,
+    y: 457,
+    fontFamily: "Arial",
+    fontSize: 11,
+    color: "#c4bdca",
   }),
   areas: Object.freeze({
     logo: createArea(24, 20, 230, 112),

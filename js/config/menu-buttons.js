@@ -1,6 +1,7 @@
 /**
  * Beschreibt alle Hauptmenüpunkte und ihre zugehörigen Symbole.
  * @type {ReadonlyArray<{
+ *   action: string,
  *   label: string,
  *   iconKey: string,
  *   iconFile: string,
@@ -13,6 +14,7 @@
  */
 export const MENU_BUTTONS = Object.freeze([
   Object.freeze({
+    action: "start",
     label: "START",
     iconKey: "menu-start",
     iconFile: "start-paw.png",
@@ -25,6 +27,7 @@ export const MENU_BUTTONS = Object.freeze([
     iconOffsetY: 2,
   }),
   Object.freeze({
+    action: "options",
     label: "OPTIONEN",
     fontSize: "16px",
     iconKey: "menu-options",
@@ -38,6 +41,7 @@ export const MENU_BUTTONS = Object.freeze([
     iconOffsetY: 2,
   }),
   Object.freeze({
+    action: "upgrades",
     label: "UPGRADES",
     fontSize: "16px",
     iconKey: "menu-upgrades",
@@ -48,8 +52,10 @@ export const MENU_BUTTONS = Object.freeze([
       width: 651,
       height: 729,
     }),
+    disabled: true,
   }),
   Object.freeze({
+    action: "extras",
     label: "EXTRAS",
     fontSize: "16px",
     iconKey: "menu-extras",
@@ -63,6 +69,7 @@ export const MENU_BUTTONS = Object.freeze([
     disabled: true,
   }),
   Object.freeze({
+    action: "exit",
     label: "BEENDEN",
     fontSize: "16px",
     iconKey: "menu-exit",

@@ -9,6 +9,7 @@ import { ICON_BUTTON_STYLE } from "../../js/config/icon-button-style.js";
  * @property {number} iconSize - Kantenlänge des Symbols.
  * @property {string} textureKey - Phaser-Texturschlüssel des Symbols.
  * @property {Function|null} [onActivate=null] - Aktion beim Anklicken.
+ * @property {boolean} [disabled=false] - Sperrt eine noch nicht verfügbare Aktion.
  */
 
 /**
@@ -24,6 +25,7 @@ export class SocialMediaButton extends Phaser.GameObjects.Container {
     super(scene, options.x, options.y);
     this.buttonSize = options.size;
     this.onActivate = options.onActivate ?? null;
+    this.isDisabled = options.disabled ?? false;
     this.isPointerOver = false;
     this.background = scene.add.graphics();
     this.icon = scene.add
@@ -41,6 +43,11 @@ export class SocialMediaButton extends Phaser.GameObjects.Container {
    * @returns {void}
    */
   configureInteraction() {
+    if (this.isDisabled) {
+      this.setAlpha(0.45);
+      return;
+    }
+
     this.setInteractive({ useHandCursor: true });
     this.on("pointerover", () => {
       this.isPointerOver = true;

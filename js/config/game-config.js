@@ -12,6 +12,9 @@ export const GAME_CONFIG = {
   width: GAME_DIMENSIONS.width,
   height: GAME_DIMENSIONS.height,
   backgroundColor: "#10131a",
+  input: {
+    gamepad: true,
+  },
   physics: {
     default: "arcade",
     arcade: { gravity: { y: 900 }, debug: false },
