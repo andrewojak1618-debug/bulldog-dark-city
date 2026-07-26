@@ -13,6 +13,7 @@ import { getTornButtonPoints } from "../../js/utils/menu-button-shape.js";
  * @property {number} width - Breite des Buttons.
  * @property {number} height - Höhe des Buttons.
  * @property {string} label - Sichtbare Buttonbeschriftung.
+ * @property {string} [fontSize] - Optionale individuelle Schriftgröße.
  * @property {string|null} [iconKey=null] - Optionaler Phaser-Texturschlüssel.
  * @property {{x: number, y: number, width: number, height: number}|null} [iconCrop=null] - Sichtbarer Bildausschnitt.
  * @property {number} [iconOffsetY=0] - Vertikale optische Korrektur des Symbols.
@@ -38,7 +39,11 @@ export class MenuButton extends Phaser.GameObjects.Container {
     this.onActivate = options.onActivate ?? null;
     this.setInitialState(options);
     this.background = scene.add.graphics();
-    this.label = this.createLabel(scene, options.label);
+    this.label = this.createLabel(
+      scene,
+      options.label,
+      options.fontSize,
+    );
     this.icon = this.createIcon(
       scene,
       options.iconKey,
@@ -68,13 +73,14 @@ export class MenuButton extends Phaser.GameObjects.Container {
    * Erstellt die sichtbare Beschriftung des Buttons.
    * @param {Phaser.Scene} scene - Zugehörige Phaser-Szene.
    * @param {string} label - Sichtbare Buttonbeschriftung.
+   * @param {string|undefined} fontSize - Optionale Schriftgröße.
    * @returns {Phaser.GameObjects.Text} Erstelltes Textobjekt.
    */
-  createLabel(scene, label) {
+  createLabel(scene, label, fontSize) {
     return scene.add
       .text(0, 0, label, {
         fontFamily: MENU_BUTTON_CONTENT.fontFamily,
-        fontSize: MENU_BUTTON_CONTENT.fontSize,
+        fontSize: fontSize ?? MENU_BUTTON_CONTENT.fontSize,
         color: MENU_BUTTON_STYLE.normal.textColor,
       })
       .setOrigin(0, 0.5);

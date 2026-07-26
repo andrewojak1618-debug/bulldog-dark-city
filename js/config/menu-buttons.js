@@ -5,6 +5,7 @@
  *   iconKey: string,
  *   iconFile: string,
  *   iconCrop: {x: number, y: number, width: number, height: number},
+ *   fontSize?: string,
  *   iconOffsetY?: number,
  *   selected?: boolean,
  *   disabled?: boolean
@@ -25,6 +26,7 @@ export const MENU_BUTTONS = Object.freeze([
   }),
   Object.freeze({
     label: "OPTIONEN",
+    fontSize: "16px",
     iconKey: "menu-options",
     iconFile: "settings-gear.png",
     iconCrop: Object.freeze({
@@ -37,6 +39,7 @@ export const MENU_BUTTONS = Object.freeze([
   }),
   Object.freeze({
     label: "UPGRADES",
+    fontSize: "16px",
     iconKey: "menu-upgrades",
     iconFile: "upgrades-arrow.png",
     iconCrop: Object.freeze({
@@ -48,6 +51,7 @@ export const MENU_BUTTONS = Object.freeze([
   }),
   Object.freeze({
     label: "EXTRAS",
+    fontSize: "16px",
     iconKey: "menu-extras",
     iconFile: "extras-star.png",
     iconCrop: Object.freeze({
@@ -60,6 +64,7 @@ export const MENU_BUTTONS = Object.freeze([
   }),
   Object.freeze({
     label: "BEENDEN",
+    fontSize: "16px",
     iconKey: "menu-exit",
     iconFile: "exit-power.png",
     iconCrop: Object.freeze({

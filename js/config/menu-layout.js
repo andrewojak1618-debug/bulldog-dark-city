@@ -1,5 +1,3 @@
-import { GAME_DIMENSIONS } from "./game-settings.js";
-
 /**
  * Erstellt einen unveränderlichen rechteckigen Layoutbereich.
  * @param {number} x - Horizontale Startposition.
@@ -12,19 +10,44 @@ const createArea = (x, y, width, height) =>
   Object.freeze({ x, y, width, height });
 
 export const MENU_LAYOUT = Object.freeze({
-  canvas: GAME_DIMENSIONS,
+  logo: Object.freeze({
+    scale: 1.08,
+    extraWidth: 30,
+    angle: -6,
+    offsetX: 8,
+    offsetY: 15,
+  }),
   mainMenu: Object.freeze({
-    buttonWidth: 190,
+    buttonWidth: 176,
     buttonHeight: 38,
     buttonGap: 7,
   }),
+  quickActions: Object.freeze({
+    buttonGap: 6,
+    iconSize: 26,
+  }),
+  version: Object.freeze({
+    text: "Vol. 1.0",
+    color: "#96919c",
+    fontFamily: "Arial",
+    fontSize: 10,
+  }),
+  socialMedia: Object.freeze({
+    heading: "FOLGE UNS",
+    headingColor: "#ff2cb8",
+    headingFontFamily: "Permanent Marker",
+    headingFontSize: 16,
+    buttonSize: 24,
+    iconSize: 18,
+    buttonGap: 6,
+    headingGap: 10,
+  }),
   areas: Object.freeze({
     logo: createArea(24, 20, 230, 112),
-    mainMenu: createArea(24, 172, 190, 230),
-    quickActions: createArea(572, 20, 124, 48),
-    version: createArea(16, 442, 90, 22),
-    inputHint: createArea(250, 434, 220, 32),
-    socialMedia: createArea(574, 432, 130, 34),
+    mainMenu: createArea(30, 172, 176, 230),
+    quickActions: createArea(597, 30, 124, 48),
+    version: createArea(30, 442, 120, 22),
+    socialMedia: createArea(597, 437, 107, 34),
   }),
 });
 

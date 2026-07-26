@@ -69,9 +69,9 @@ export const MENU_BUTTON_STYLE = Object.freeze({
 export const MENU_BUTTON_CONTENT = Object.freeze({
   edgeDepth: 7,
   strokeWidth: 1,
-  horizontalPadding: 14,
+  horizontalPadding: 11,
   iconSize: 40,
-  iconTextGap: 12,
+  iconTextGap: 6,
   fontFamily: "Permanent Marker",
   fontSize: "20px",
 });
