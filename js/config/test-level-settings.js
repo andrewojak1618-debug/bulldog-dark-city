@@ -18,6 +18,8 @@ export const TEST_LEVEL = Object.freeze({
     bodyOffsetY: 60,
     moveSpeed: 250,
     jumpVelocity: -520,
+    fallGravityBoost: 150,
+    maxFallSpeed: 1050,
   }),
   camera: Object.freeze({
     lerpX: 0.1,
@@ -34,11 +36,4 @@ export const TEST_LEVEL = Object.freeze({
     Object.freeze({ x: 1850, y: 345, width: 250, height: 28 }),
     Object.freeze({ x: 2200, y: 465, width: 300, height: 28 }),
   ]),
-});
-
-export const BULLDOG_TEST_TEXTURE = Object.freeze({
-  key: "bulldog-test",
-  path:
-    "/img/sprites/characters/bulldog_normal/run/side/" +
-    "bulldog_normal_run_side_01.png",
 });

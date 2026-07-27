@@ -1,10 +1,9 @@
 import Phaser from "phaser";
 import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
-import {
-  BULLDOG_TEST_TEXTURE,
-  TEST_LEVEL,
-} from "../../../js/config/test-level-settings.js";
+import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
+import { BULLDOG_TEXTURES } from
+  "../../../js/config/bulldog-animation-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 
 /**
@@ -19,14 +18,35 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Lädt den vorläufigen Bulldog-Frame für den Mechaniktest.
+   * Lädt die aktuell benötigten Bulldog-Spritesheets.
    * @returns {void}
    */
   preload() {
-    this.load.image(
-      BULLDOG_TEST_TEXTURE.key,
-      BULLDOG_TEST_TEXTURE.path,
-    );
+    this.loadBulldogSpritesheets([
+      BULLDOG_TEXTURES.idle,
+      BULLDOG_TEXTURES.run,
+      BULLDOG_TEXTURES.jump,
+      BULLDOG_TEXTURES.land,
+    ]);
+  }
+
+  /**
+   * Registriert Bulldog-Spritesheets mit ihren zentralen Framewerten.
+   * @param {ReadonlyArray<{
+   *   key: string,
+   *   path: string,
+   *   frameWidth: number,
+   *   frameHeight: number
+   * }>} textures - Zu ladende Texturdaten.
+   * @returns {void}
+   */
+  loadBulldogSpritesheets(textures) {
+    textures.forEach((texture) => {
+      this.load.spritesheet(texture.key, texture.path, {
+        frameWidth: texture.frameWidth,
+        frameHeight: texture.frameHeight,
+      });
+    });
   }
 
   /**
@@ -116,7 +136,7 @@ export class LevelOneScene extends Phaser.Scene {
       this,
       settings.startX,
       settings.startY,
-      BULLDOG_TEST_TEXTURE.key,
+      BULLDOG_TEXTURES.idle.key,
     );
     this.inputSystem = new InputSystem(this);
     this.physics.add.collider(this.player, this.platforms);

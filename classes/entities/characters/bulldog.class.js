@@ -25,7 +25,7 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
       .setSize(settings.bodyWidth, settings.bodyHeight)
       .setOffset(settings.bodyOffsetX, settings.bodyOffsetY);
     this.setCollideWorldBounds(true);
-    this.setMaxVelocity(settings.moveSpeed, 900);
+    this.setMaxVelocity(settings.moveSpeed, settings.maxFallSpeed);
   }
 
   /**
@@ -35,7 +35,11 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    */
   updateMovement(input) {
     const direction = input.getHorizontalAxis();
+    const isFalling = this.body.velocity.y > 0;
     this.setVelocityX(direction * TEST_LEVEL.player.moveSpeed);
+    this.setGravityY(
+      isFalling ? TEST_LEVEL.player.fallGravityBoost : 0,
+    );
 
     if (direction !== 0) {
       this.setFlipX(direction < 0);
