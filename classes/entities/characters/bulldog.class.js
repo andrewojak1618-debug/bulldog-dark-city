@@ -1,5 +1,9 @@
 import Phaser from "phaser";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
+import {
+  BULLDOG_ANIMATION_KEYS,
+  BULLDOG_ANIMATION_TIMING,
+} from "../../../js/config/bulldog-animation-settings.js";
 
 /**
  * Bildet die steuerbare Bulldogge des technischen Prototyps ab.
@@ -26,6 +30,7 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
       .setOffset(settings.bodyOffsetX, settings.bodyOffsetY);
     this.setCollideWorldBounds(true);
     this.setMaxVelocity(settings.moveSpeed, settings.maxFallSpeed);
+    this.idleStartedAt = null;
   }
 
   /**
@@ -47,6 +52,57 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
 
     if (input.consumeJump() && this.isGrounded()) {
       this.setVelocityY(TEST_LEVEL.player.jumpVelocity);
+    }
+
+    this.updateIdleAnimation(direction);
+  }
+
+  /**
+   * Spielt Idle nach ausreichend langer Ruhe am Boden ab.
+   * @param {number} direction - Aktuelle horizontale Bewegungsrichtung.
+   * @returns {void}
+   */
+  updateIdleAnimation(direction) {
+    const isStanding =
+      direction === 0 &&
+      this.body.velocity.y === 0 &&
+      this.isGrounded();
+
+    if (isStanding) {
+      this.idleStartedAt ??= this.scene.time.now;
+      const idleDuration = this.scene.time.now - this.idleStartedAt;
+
+      if (idleDuration < BULLDOG_ANIMATION_TIMING.idleDelayMs) {
+        return;
+      }
+
+      const cycleDuration =
+        BULLDOG_ANIMATION_TIMING.idleActiveDurationMs +
+        BULLDOG_ANIMATION_TIMING.idlePauseDurationMs;
+      const cycleElapsed =
+        (idleDuration - BULLDOG_ANIMATION_TIMING.idleDelayMs) %
+        cycleDuration;
+
+      if (cycleElapsed < BULLDOG_ANIMATION_TIMING.idleActiveDurationMs) {
+        this.play(BULLDOG_ANIMATION_KEYS.idle, true);
+      } else {
+        this.stopIdleAnimation();
+      }
+      return;
+    }
+
+    this.idleStartedAt = null;
+    this.stopIdleAnimation();
+  }
+
+  /**
+   * Stoppt Idle und stellt den neutralen Ausgangsframe wieder her.
+   * @returns {void}
+   */
+  stopIdleAnimation() {
+    if (this.anims.currentAnim?.key === BULLDOG_ANIMATION_KEYS.idle) {
+      this.anims.stop();
+      this.setFrame(0);
     }
   }
 

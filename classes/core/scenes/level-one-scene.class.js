@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
+import { BulldogAnimationSystem } from
+  "../../systems/bulldog-animation-system.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
 import { BULLDOG_TEXTURES } from
   "../../../js/config/bulldog-animation-settings.js";
@@ -57,6 +59,7 @@ export class LevelOneScene extends Phaser.Scene {
     this.configureWorld();
     this.createTechnicalBackground();
     this.createPlatforms();
+    BulldogAnimationSystem.register(this);
     this.createPlayer();
     this.configureCamera();
     this.createDebugOverlay();
