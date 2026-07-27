@@ -1,4 +1,78 @@
 /**
- * Bündelt später die gemeinsame Eingabesteuerung des Spiels.
+ * Bündelt Tastatur- und vorbereitete Gamepad-Eingaben des Spielers.
  */
-export class InputSystem {}
+export class InputSystem {
+  /**
+   * Registriert die Steuerung einer Spielszene.
+   * @param {Phaser.Scene} scene - Szene, die Eingaben empfängt.
+   */
+  constructor(scene) {
+    this.scene = scene;
+    this.jumpQueued = false;
+    this.cursors = scene.input.keyboard?.createCursorKeys();
+    this.keys = scene.input.keyboard?.addKeys({
+      left: "A",
+      right: "D",
+      jump: "W",
+    });
+    this.wasGamepadJumpPressed = false;
+    this.bindJumpKeys();
+  }
+
+  /**
+   * Puffert kurze Sprungeingaben bis zum nächsten Spiel-Update.
+   * @returns {void}
+   */
+  bindJumpKeys() {
+    const keyboard = this.scene.input.keyboard;
+
+    if (!keyboard) return;
+    this.queueJump = (event) => {
+      if (!event.repeat) this.jumpQueued = true;
+    };
+    keyboard.on("keydown-UP", this.queueJump);
+    keyboard.on("keydown-SPACE", this.queueJump);
+    keyboard.on("keydown-W", this.queueJump);
+    this.scene.events.once("shutdown", () => {
+      keyboard.off("keydown-UP", this.queueJump);
+      keyboard.off("keydown-SPACE", this.queueJump);
+      keyboard.off("keydown-W", this.queueJump);
+    });
+  }
+
+  /**
+   * Ermittelt die horizontale Bewegungsrichtung.
+   * @returns {-1|0|1} Linke, neutrale oder rechte Richtung.
+   */
+  getHorizontalAxis() {
+    const gamepad = this.scene.input.gamepad?.getPad(0);
+    const gamepadAxis = gamepad?.axes[0]?.getValue() ?? 0;
+    const leftPressed =
+      this.cursors?.left.isDown ||
+      this.keys?.left.isDown ||
+      gamepad?.left ||
+      gamepadAxis < -0.25;
+    const rightPressed =
+      this.cursors?.right.isDown ||
+      this.keys?.right.isDown ||
+      gamepad?.right ||
+      gamepadAxis > 0.25;
+
+    if (leftPressed === rightPressed) return 0;
+    return leftPressed ? -1 : 1;
+  }
+
+  /**
+   * Meldet einen neuen Sprungimpuls genau einmal pro Betätigung.
+   * @returns {boolean} `true` bei einem neuen Tastatur- oder Gamepadimpuls.
+   */
+  consumeJump() {
+    const gamepad = this.scene.input.gamepad?.getPad(0);
+    const gamepadJumpPressed = Boolean(gamepad?.buttons[0]?.pressed);
+    const newGamepadJump = gamepadJumpPressed && !this.wasGamepadJumpPressed;
+    this.wasGamepadJumpPressed = gamepadJumpPressed;
+    const shouldJump = this.jumpQueued || newGamepadJump;
+    this.jumpQueued = false;
+    return shouldJump;
+  }
+}

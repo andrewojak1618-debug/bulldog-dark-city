@@ -27,7 +27,7 @@ export const MENU_LAYOUT = Object.freeze({
     iconSize: 26,
   }),
   version: Object.freeze({
-    text: "v0.1.0",
+    text: "vol.1.0",
     color: "#96919c",
     fontFamily: "Arial",
     fontSize: 10,
@@ -44,7 +44,7 @@ export const MENU_LAYOUT = Object.freeze({
   }),
   inputHint: Object.freeze({
     x: 360,
-    y: 457,
+    y: 453,
     fontFamily: "Arial",
     fontSize: 11,
     color: "#c4bdca",
@@ -53,7 +53,7 @@ export const MENU_LAYOUT = Object.freeze({
     logo: createArea(24, 20, 230, 112),
     mainMenu: createArea(30, 172, 176, 230),
     quickActions: createArea(597, 30, 124, 48),
-    version: createArea(30, 442, 120, 22),
+    version: createArea(33, 442, 120, 22),
     socialMedia: createArea(597, 437, 107, 34),
   }),
 });
