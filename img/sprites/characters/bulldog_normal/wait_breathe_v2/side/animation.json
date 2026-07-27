@@ -1,0 +1,12 @@
+{
+  "animation": "wait_breathe_v2",
+  "direction": "side",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 3,
+  "files": [
+    "bulldog_normal_wait_breathe_v2_side_01.png",
+    "bulldog_normal_wait_breathe_v2_side_02.png",
+    "bulldog_normal_wait_breathe_v2_side_03.png"
+  ]
+}

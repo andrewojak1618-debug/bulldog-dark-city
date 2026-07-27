@@ -25,9 +25,12 @@ export class LevelOneScene extends Phaser.Scene {
    */
   preload() {
     this.loadBulldogSpritesheets([
-      BULLDOG_TEXTURES.idle,
+      BULLDOG_TEXTURES.stand,
+      BULLDOG_TEXTURES.sit,
+      BULLDOG_TEXTURES.waitBreathe,
       BULLDOG_TEXTURES.run,
       BULLDOG_TEXTURES.jump,
+      BULLDOG_TEXTURES.fall,
       BULLDOG_TEXTURES.land,
     ]);
   }
@@ -139,7 +142,7 @@ export class LevelOneScene extends Phaser.Scene {
       this,
       settings.startX,
       settings.startY,
-      BULLDOG_TEXTURES.idle.key,
+      BULLDOG_TEXTURES.stand.key,
     );
     this.inputSystem = new InputSystem(this);
     this.physics.add.collider(this.player, this.platforms);

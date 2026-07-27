@@ -16,15 +16,22 @@ export class BulldogAnimationSystem {
         return;
       }
 
-      scene.anims.create({
-        key: animation.key,
-        frames: scene.anims.generateFrameNumbers(
+      const frames = scene.anims
+        .generateFrameNumbers(
           animation.textureKey,
           {
             start: animation.startFrame,
             end: animation.endFrame,
           },
-        ),
+        )
+        .map((frame, index) => ({
+          ...frame,
+          duration: animation.frameDurations?.[index] ?? 0,
+        }));
+
+      scene.anims.create({
+        key: animation.key,
+        frames,
         frameRate: animation.frameRate,
         repeat: animation.repeat,
       });

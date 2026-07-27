@@ -3,6 +3,7 @@ import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_ANIMATION_TIMING,
+  BULLDOG_TEXTURES,
 } from "../../../js/config/bulldog-animation-settings.js";
 
 /**
@@ -30,7 +31,9 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
       .setOffset(settings.bodyOffsetX, settings.bodyOffsetY);
     this.setCollideWorldBounds(true);
     this.setMaxVelocity(settings.moveSpeed, settings.maxFallSpeed);
-    this.idleStartedAt = null;
+    this.standingStartedAt = null;
+    this.wasFalling = false;
+    this.isLanding = false;
   }
 
   /**
@@ -54,56 +57,184 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityY(TEST_LEVEL.player.jumpVelocity);
     }
 
-    this.updateIdleAnimation(direction);
+    const isGrounded = this.isGrounded();
+    const verticalVelocity = this.body.velocity.y;
+    const isJumping = verticalVelocity < 0;
+    const isAirborneFalling = verticalVelocity > 0 && !isGrounded;
+
+    this.updateJumpAnimation(isJumping);
+    this.updateFallAnimation(isAirborneFalling);
+    const isLanding = this.updateLandingAnimation(
+      isAirborneFalling,
+      isGrounded,
+    );
+
+    if (isLanding) {
+      this.standingStartedAt = null;
+      return;
+    }
+
+    this.updateRunAnimation(direction, isGrounded);
+    this.updateWaitAnimation(direction, isGrounded);
   }
 
   /**
-   * Spielt Idle nach ausreichend langer Ruhe am Boden ab.
-   * @param {number} direction - Aktuelle horizontale Bewegungsrichtung.
+   * Spielt die Sprunganimation während der Aufwärtsbewegung ab.
+   * @param {boolean} isJumping - Ob sich die Bulldogge aufwärts bewegt.
    * @returns {void}
    */
-  updateIdleAnimation(direction) {
+  updateJumpAnimation(isJumping) {
+    if (isJumping) {
+      this.play(BULLDOG_ANIMATION_KEYS.jump, true);
+      return;
+    }
+
+    if (this.anims.currentAnim?.key === BULLDOG_ANIMATION_KEYS.jump) {
+      this.anims.stop();
+      this.showStandFrame();
+    }
+  }
+
+  /**
+   * Spielt die Fallanimation während der Abwärtsbewegung ab.
+   * @param {boolean} isFalling - Ob die Bulldogge frei abwärts fällt.
+   * @returns {void}
+   */
+  updateFallAnimation(isFalling) {
+    if (isFalling) {
+      this.play(BULLDOG_ANIMATION_KEYS.fall, true);
+      return;
+    }
+
+    if (this.anims.currentAnim?.key === BULLDOG_ANIMATION_KEYS.fall) {
+      this.anims.stop();
+      this.showStandFrame();
+    }
+  }
+
+  /**
+   * Spielt die Landesequenz einmal nach einer echten Fallbewegung ab.
+   * @param {boolean} isFalling - Ob die Bulldogge frei abwärts fällt.
+   * @param {boolean} isGrounded - Ob eine Kollisionsfläche berührt wird.
+   * @returns {boolean} `true`, solange die Landesequenz aktiv ist.
+   */
+  updateLandingAnimation(isFalling, isGrounded) {
+    const hasJustLanded = this.wasFalling && isGrounded;
+    this.wasFalling = isFalling;
+
+    if (hasJustLanded && !this.isLanding) {
+      this.isLanding = true;
+      this.play(BULLDOG_ANIMATION_KEYS.land);
+    }
+
+    if (!this.isLanding) {
+      return false;
+    }
+
+    const isLandAnimationPlaying =
+      this.anims.currentAnim?.key === BULLDOG_ANIMATION_KEYS.land &&
+      this.anims.isPlaying;
+
+    if (isLandAnimationPlaying) {
+      return true;
+    }
+
+    this.isLanding = false;
+    this.showStandFrame();
+    return false;
+  }
+
+  /**
+   * Spielt die Laufanimation nur während Bodenbewegung ab.
+   * @param {number} direction - Aktuelle horizontale Bewegungsrichtung.
+   * @param {boolean} isGrounded - Ob eine Kollisionsfläche berührt wird.
+   * @returns {void}
+   */
+  updateRunAnimation(direction, isGrounded) {
+    const isRunning =
+      direction !== 0 &&
+      this.body.velocity.y === 0 &&
+      isGrounded;
+
+    if (isRunning) {
+      this.play(BULLDOG_ANIMATION_KEYS.run, true);
+      return;
+    }
+
+    if (this.anims.currentAnim?.key === BULLDOG_ANIMATION_KEYS.run) {
+      this.anims.stop();
+      this.showStandFrame();
+    }
+  }
+
+  /**
+   * Spielt die Wartesequenz nach ausreichend langer Ruhe am Boden ab.
+   * @param {number} direction - Aktuelle horizontale Bewegungsrichtung.
+   * @param {boolean} isGrounded - Ob eine Kollisionsfläche berührt wird.
+   * @returns {void}
+   */
+  updateWaitAnimation(direction, isGrounded) {
     const isStanding =
       direction === 0 &&
       this.body.velocity.y === 0 &&
-      this.isGrounded();
+      isGrounded;
 
     if (isStanding) {
-      this.idleStartedAt ??= this.scene.time.now;
-      const idleDuration = this.scene.time.now - this.idleStartedAt;
+      this.standingStartedAt ??= this.scene.time.now;
+      const standingDuration =
+        this.scene.time.now - this.standingStartedAt;
 
-      if (idleDuration < BULLDOG_ANIMATION_TIMING.idleDelayMs) {
+      if (standingDuration < BULLDOG_ANIMATION_TIMING.waitDelayMs) {
         return;
       }
 
-      const cycleDuration =
-        BULLDOG_ANIMATION_TIMING.idleActiveDurationMs +
-        BULLDOG_ANIMATION_TIMING.idlePauseDurationMs;
-      const cycleElapsed =
-        (idleDuration - BULLDOG_ANIMATION_TIMING.idleDelayMs) %
-        cycleDuration;
+      const seatedDuration =
+        standingDuration - BULLDOG_ANIMATION_TIMING.waitDelayMs;
 
-      if (cycleElapsed < BULLDOG_ANIMATION_TIMING.idleActiveDurationMs) {
-        this.play(BULLDOG_ANIMATION_KEYS.idle, true);
+      if (seatedDuration < BULLDOG_ANIMATION_TIMING.waitSeatedPauseMs) {
+        this.showSeatedFrame();
       } else {
-        this.stopIdleAnimation();
+        this.play(BULLDOG_ANIMATION_KEYS.waitBreathe, true);
       }
       return;
     }
 
-    this.idleStartedAt = null;
-    this.stopIdleAnimation();
+    this.standingStartedAt = null;
+    this.stopWaitAnimation();
   }
 
   /**
-   * Stoppt Idle und stellt den neutralen Ausgangsframe wieder her.
+   * Stoppt die Wartesequenz und stellt den neutralen Frame wieder her.
    * @returns {void}
    */
-  stopIdleAnimation() {
-    if (this.anims.currentAnim?.key === BULLDOG_ANIMATION_KEYS.idle) {
+  stopWaitAnimation() {
+    const isWaitSequence =
+      this.texture.key === BULLDOG_TEXTURES.sit.key ||
+      this.texture.key === BULLDOG_TEXTURES.waitBreathe.key;
+
+    if (isWaitSequence) {
       this.anims.stop();
-      this.setFrame(0);
+      this.showStandFrame();
     }
+  }
+
+  /**
+   * Zeigt die erste ruhige Sitzhaltung vor der Atemschleife.
+   * @returns {void}
+   */
+  showSeatedFrame() {
+    if (this.texture.key !== BULLDOG_TEXTURES.sit.key) {
+      this.anims.stop();
+      this.setTexture(BULLDOG_TEXTURES.sit.key, 0);
+    }
+  }
+
+  /**
+   * Stellt den neutralen Standframe ohne laufende Animation dar.
+   * @returns {void}
+   */
+  showStandFrame() {
+    this.setTexture(BULLDOG_TEXTURES.stand.key, 0);
   }
 
   /**

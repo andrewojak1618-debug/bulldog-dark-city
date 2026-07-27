@@ -1,0 +1,10 @@
+{
+  "animation": "sit_v2",
+  "direction": "side",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 1,
+  "files": [
+    "bulldog_normal_sit_v2_side_01.png"
+  ]
+}

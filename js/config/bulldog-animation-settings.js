@@ -5,33 +5,56 @@ const BULLDOG_NORMAL_BASE_PATH =
  * Zentrale Texturschlüssel und Quelldaten der normalen Bulldogge.
  */
 export const BULLDOG_TEXTURES = Object.freeze({
-  idle: Object.freeze({
-    key: "bulldog-normal-idle-breathe-side",
-    path: `${BULLDOG_NORMAL_BASE_PATH}/idle_breathe/side/spritesheet.png`,
+  stand: Object.freeze({
+    key: "bulldog-normal-stand-v2-side",
+    path: `${BULLDOG_NORMAL_BASE_PATH}/stand_v2/side/spritesheet.png`,
     frameWidth: 128,
     frameHeight: 128,
-    frameCount: 7,
+    frameCount: 1,
+  }),
+  sit: Object.freeze({
+    key: "bulldog-normal-sit-v2-side",
+    path: `${BULLDOG_NORMAL_BASE_PATH}/sit_v2/side/spritesheet.png`,
+    frameWidth: 128,
+    frameHeight: 128,
+    frameCount: 1,
+  }),
+  waitBreathe: Object.freeze({
+    key: "bulldog-normal-wait-breathe-v2-side",
+    path:
+      `${BULLDOG_NORMAL_BASE_PATH}` +
+      "/wait_breathe_v2/side/spritesheet.png",
+    frameWidth: 128,
+    frameHeight: 128,
+    frameCount: 3,
   }),
   run: Object.freeze({
-    key: "bulldog-normal-run-side",
-    path: `${BULLDOG_NORMAL_BASE_PATH}/run/side/spritesheet.png`,
-    frameWidth: 128,
-    frameHeight: 128,
-    frameCount: 8,
-  }),
-  jump: Object.freeze({
-    key: "bulldog-normal-jump-side",
-    path: `${BULLDOG_NORMAL_BASE_PATH}/jump/side/spritesheet.png`,
-    frameWidth: 128,
-    frameHeight: 128,
-    frameCount: 6,
-  }),
-  land: Object.freeze({
-    key: "bulldog-normal-land-side",
-    path: `${BULLDOG_NORMAL_BASE_PATH}/land/side/spritesheet.png`,
+    key: "bulldog-normal-run-v2-side",
+    path: `${BULLDOG_NORMAL_BASE_PATH}/run_v2/side/spritesheet.png`,
     frameWidth: 128,
     frameHeight: 128,
     frameCount: 4,
+  }),
+  jump: Object.freeze({
+    key: "bulldog-normal-jump-up-v2-side",
+    path: `${BULLDOG_NORMAL_BASE_PATH}/jump_up_v2/side/spritesheet.png`,
+    frameWidth: 128,
+    frameHeight: 128,
+    frameCount: 4,
+  }),
+  fall: Object.freeze({
+    key: "bulldog-normal-fall-side",
+    path: `${BULLDOG_NORMAL_BASE_PATH}/fall/side/spritesheet.png`,
+    frameWidth: 128,
+    frameHeight: 128,
+    frameCount: 3,
+  }),
+  land: Object.freeze({
+    key: "bulldog-normal-land-v2-side",
+    path: `${BULLDOG_NORMAL_BASE_PATH}/land_v2/side/spritesheet.png`,
+    frameWidth: 128,
+    frameHeight: 128,
+    frameCount: 2,
   }),
 });
 
@@ -39,7 +62,7 @@ export const BULLDOG_TEXTURES = Object.freeze({
  * Eindeutige Phaser-Schlüssel für die Bewegungsanimationen.
  */
 export const BULLDOG_ANIMATION_KEYS = Object.freeze({
-  idle: "bulldog-idle",
+  waitBreathe: "bulldog-wait-breathe",
   run: "bulldog-run",
   jump: "bulldog-jump",
   fall: "bulldog-fall",
@@ -50,21 +73,8 @@ export const BULLDOG_ANIMATION_KEYS = Object.freeze({
  * Zeitabhängige Schwellenwerte der Bulldog-Animationen.
  */
 export const BULLDOG_ANIMATION_TIMING = Object.freeze({
-  idleDelayMs: 6000,
-  idleActiveDurationMs: 4000,
-  idlePauseDurationMs: 3000,
-});
-
-/**
- * Übergangslösungen für noch nicht vorhandene Animations-Assets.
- * Der vierte Sprungframe zeigt die Bulldogge bereits abwärts geneigt
- * und wird ersetzt, sobald das eigene Fall-Asset verfügbar ist.
- */
-export const BULLDOG_PLACEHOLDER_FRAMES = Object.freeze({
-  fall: Object.freeze({
-    textureKey: BULLDOG_TEXTURES.jump.key,
-    frame: 3,
-  }),
+  waitDelayMs: 6000,
+  waitSeatedPauseMs: 3000,
 });
 
 /**
@@ -72,11 +82,11 @@ export const BULLDOG_PLACEHOLDER_FRAMES = Object.freeze({
  */
 export const BULLDOG_ANIMATIONS = Object.freeze([
   Object.freeze({
-    key: BULLDOG_ANIMATION_KEYS.idle,
-    textureKey: BULLDOG_TEXTURES.idle.key,
+    key: BULLDOG_ANIMATION_KEYS.waitBreathe,
+    textureKey: BULLDOG_TEXTURES.waitBreathe.key,
     startFrame: 0,
-    endFrame: BULLDOG_TEXTURES.idle.frameCount - 1,
-    frameRate: 6,
+    endFrame: BULLDOG_TEXTURES.waitBreathe.frameCount - 1,
+    frameRate: 3,
     repeat: -1,
   }),
   Object.freeze({
@@ -91,16 +101,16 @@ export const BULLDOG_ANIMATIONS = Object.freeze([
     key: BULLDOG_ANIMATION_KEYS.jump,
     textureKey: BULLDOG_TEXTURES.jump.key,
     startFrame: 0,
-    endFrame: 2,
-    frameRate: 10,
+    endFrame: BULLDOG_TEXTURES.jump.frameCount - 1,
+    frameRate: 4,
     repeat: 0,
   }),
   Object.freeze({
     key: BULLDOG_ANIMATION_KEYS.fall,
-    textureKey: BULLDOG_PLACEHOLDER_FRAMES.fall.textureKey,
-    startFrame: BULLDOG_PLACEHOLDER_FRAMES.fall.frame,
-    endFrame: BULLDOG_PLACEHOLDER_FRAMES.fall.frame,
-    frameRate: 1,
+    textureKey: BULLDOG_TEXTURES.fall.key,
+    startFrame: 0,
+    endFrame: BULLDOG_TEXTURES.fall.frameCount - 1,
+    frameRate: 6,
     repeat: -1,
   }),
   Object.freeze({
@@ -108,7 +118,8 @@ export const BULLDOG_ANIMATIONS = Object.freeze([
     textureKey: BULLDOG_TEXTURES.land.key,
     startFrame: 0,
     endFrame: BULLDOG_TEXTURES.land.frameCount - 1,
-    frameRate: 12,
+    frameRate: 8,
+    frameDurations: Object.freeze([0, 175]),
     repeat: 0,
   }),
 ]);

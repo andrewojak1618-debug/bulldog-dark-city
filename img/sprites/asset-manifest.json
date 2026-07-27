@@ -258,52 +258,92 @@
       "path": "characters\\bulldog_normal\\walk\\side"
     },
     {
-      "animation": "run",
+      "animation": "stand_v2",
       "direction": "side",
       "frameWidth": 128,
       "frameHeight": 128,
-      "frames": 8,
+      "frames": 1,
       "files": [
-        "bulldog_normal_run_side_01.png",
-        "bulldog_normal_run_side_02.png",
-        "bulldog_normal_run_side_03.png",
-        "bulldog_normal_run_side_04.png",
-        "bulldog_normal_run_side_05.png",
-        "bulldog_normal_run_side_06.png",
-        "bulldog_normal_run_side_07.png",
-        "bulldog_normal_run_side_08.png"
+        "bulldog_normal_stand_v2_side_01.png"
       ],
-      "path": "characters\\bulldog_normal\\run\\side"
+      "path": "characters\\bulldog_normal\\stand_v2\\side"
     },
     {
-      "animation": "jump",
+      "animation": "sit_v2",
       "direction": "side",
       "frameWidth": 128,
       "frameHeight": 128,
-      "frames": 6,
+      "frames": 1,
       "files": [
-        "bulldog_normal_jump_side_01.png",
-        "bulldog_normal_jump_side_02.png",
-        "bulldog_normal_jump_side_03.png",
-        "bulldog_normal_jump_side_04.png",
-        "bulldog_normal_jump_side_05.png",
-        "bulldog_normal_jump_side_06.png"
+        "bulldog_normal_sit_v2_side_01.png"
       ],
-      "path": "characters\\bulldog_normal\\jump\\side"
+      "path": "characters\\bulldog_normal\\sit_v2\\side"
     },
     {
-      "animation": "land",
+      "animation": "wait_breathe_v2",
+      "direction": "side",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 3,
+      "files": [
+        "bulldog_normal_wait_breathe_v2_side_01.png",
+        "bulldog_normal_wait_breathe_v2_side_02.png",
+        "bulldog_normal_wait_breathe_v2_side_03.png"
+      ],
+      "path": "characters\\bulldog_normal\\wait_breathe_v2\\side"
+    },
+    {
+      "animation": "run_v2",
       "direction": "side",
       "frameWidth": 128,
       "frameHeight": 128,
       "frames": 4,
       "files": [
-        "bulldog_normal_land_side_01.png",
-        "bulldog_normal_land_side_02.png",
-        "bulldog_normal_land_side_03.png",
-        "bulldog_normal_land_side_04.png"
+        "bulldog_normal_run_v2_side_01.png",
+        "bulldog_normal_run_v2_side_02.png",
+        "bulldog_normal_run_v2_side_03.png",
+        "bulldog_normal_run_v2_side_04.png"
       ],
-      "path": "characters\\bulldog_normal\\land\\side"
+      "path": "characters\\bulldog_normal\\run_v2\\side"
+    },
+    {
+      "animation": "jump_up_v2",
+      "direction": "side",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4,
+      "files": [
+        "bulldog_normal_jump_up_v2_side_01.png",
+        "bulldog_normal_jump_up_v2_side_02.png",
+        "bulldog_normal_jump_up_v2_side_03.png",
+        "bulldog_normal_jump_up_v2_side_04.png"
+      ],
+      "path": "characters\\bulldog_normal\\jump_up_v2\\side"
+    },
+    {
+      "animation": "fall",
+      "direction": "side",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 3,
+      "files": [
+        "bulldog_normal_fall_side_01.png",
+        "bulldog_normal_fall_side_02.png",
+        "bulldog_normal_fall_side_03.png"
+      ],
+      "path": "characters\\bulldog_normal\\fall\\side"
+    },
+    {
+      "animation": "land_v2",
+      "direction": "side",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 2,
+      "files": [
+        "bulldog_normal_land_v2_side_01.png",
+        "bulldog_normal_land_v2_side_02.png"
+      ],
+      "path": "characters\\bulldog_normal\\land_v2\\side"
     },
     {
       "animation": "attack",
@@ -357,23 +397,6 @@
       "path": "characters\\bulldog_normal\\idle_scratch_ear\\side"
     },
     {
-      "animation": "idle_breathe",
-      "direction": "side",
-      "frameWidth": 128,
-      "frameHeight": 128,
-      "frames": 7,
-      "files": [
-        "bulldog_normal_idle_breathe_side_01.png",
-        "bulldog_normal_idle_breathe_side_02.png",
-        "bulldog_normal_idle_breathe_side_03.png",
-        "bulldog_normal_idle_breathe_side_04.png",
-        "bulldog_normal_idle_breathe_side_05.png",
-        "bulldog_normal_idle_breathe_side_06.png",
-        "bulldog_normal_idle_breathe_side_07.png"
-      ],
-      "path": "characters\\bulldog_normal\\idle_breathe\\side"
-    },
-    {
       "animation": "idle_head_shake",
       "direction": "side",
       "frameWidth": 128,
@@ -424,23 +447,6 @@
         "bulldog_normal_idle_scratch_ear_front_08.png"
       ],
       "path": "characters\\bulldog_normal\\idle_scratch_ear\\front"
-    },
-    {
-      "animation": "idle_breathe",
-      "direction": "front",
-      "frameWidth": 128,
-      "frameHeight": 128,
-      "frames": 7,
-      "files": [
-        "bulldog_normal_idle_breathe_front_01.png",
-        "bulldog_normal_idle_breathe_front_02.png",
-        "bulldog_normal_idle_breathe_front_03.png",
-        "bulldog_normal_idle_breathe_front_04.png",
-        "bulldog_normal_idle_breathe_front_05.png",
-        "bulldog_normal_idle_breathe_front_06.png",
-        "bulldog_normal_idle_breathe_front_07.png"
-      ],
-      "path": "characters\\bulldog_normal\\idle_breathe\\front"
     },
     {
       "animation": "idle_head_shake",
@@ -797,9 +803,9 @@
     }
   ],
   "validation": {
-    "frames": 205,
-    "spritesheets": 59,
-    "animations": 59,
+    "frames": 191,
+    "spritesheets": 61,
+    "animations": 61,
     "issues": []
   }
 }

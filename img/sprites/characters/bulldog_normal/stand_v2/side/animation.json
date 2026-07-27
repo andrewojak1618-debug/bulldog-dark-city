@@ -1,0 +1,10 @@
+{
+  "animation": "stand_v2",
+  "direction": "side",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 1,
+  "files": [
+    "bulldog_normal_stand_v2_side_01.png"
+  ]
+}
