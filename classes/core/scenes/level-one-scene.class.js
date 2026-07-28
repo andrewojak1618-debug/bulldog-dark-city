@@ -33,6 +33,24 @@ export class LevelOneScene extends Phaser.Scene {
       BULLDOG_TEXTURES.fall,
       BULLDOG_TEXTURES.land,
     ]);
+    this.loadLevelAssets();
+  }
+
+  /**
+   * Lädt die aktuell im Testlevel verwendeten Umgebungsgrafiken.
+   * @returns {void}
+   */
+  loadLevelAssets() {
+    const ground = TEST_LEVEL.assets.groundPlatform;
+    const floating = TEST_LEVEL.assets.floatingPlatform;
+    this.load.spritesheet(ground.key, ground.path, {
+      frameWidth: ground.frameWidth,
+      frameHeight: ground.frameHeight,
+    });
+    this.load.spritesheet(floating.key, floating.path, {
+      frameWidth: floating.frameWidth,
+      frameHeight: floating.frameHeight,
+    });
   }
 
   /**
@@ -116,20 +134,142 @@ export class LevelOneScene extends Phaser.Scene {
   createPlatforms() {
     this.platforms = this.physics.add.staticGroup();
     TEST_LEVEL.platforms.forEach((platformConfig, index) => {
-      const platform = this.add.rectangle(
-        platformConfig.x,
-        platformConfig.y,
-        platformConfig.width,
-        platformConfig.height,
-        index === 0 ? 0x192536 : 0x241b36,
-      );
-      platform.setStrokeStyle(
-        2,
-        index === 0 ? 0x35d9a5 : 0xff2cb8,
-        0.9,
-      );
-      this.platforms.add(platform);
+      const isGround = index === 0;
+      const hasPlatformVisual =
+        Number.isInteger(platformConfig.visualFrame);
+      const collisionAreas =
+        this.getPlatformCollisionAreas(platformConfig);
+
+      collisionAreas.forEach((collisionArea) => {
+        const platform = this.add.rectangle(
+          collisionArea.x,
+          collisionArea.y,
+          collisionArea.width,
+          collisionArea.height,
+          isGround ? 0x192536 : 0x241b36,
+        );
+        platform.setStrokeStyle(
+          2,
+          isGround ? 0x35d9a5 : 0xff2cb8,
+          0.9,
+        );
+        platform.setVisible(!isGround && !hasPlatformVisual);
+        this.platforms.add(platform);
+      });
+
+      if (isGround) {
+        this.createGroundVisual(platformConfig);
+      } else if (hasPlatformVisual) {
+        this.createRaisedPlatformVisual(platformConfig);
+      }
     });
+  }
+
+  /**
+   * Teilt abgestufte Plattformen in passende Kollisionsflächen auf.
+   * @param {{
+   *   x: number,
+   *   y: number,
+   *   width: number,
+   *   height: number,
+   *   stepDown?: {
+   *     splitRatio: number,
+   *     splitOffsetX?: number,
+   *     dropY: number
+   *   }
+   * }} platformConfig - Zentrale Plattformkonfiguration.
+   * @returns {Array<{x: number, y: number, width: number, height: number}>}
+   * Kollisionsflächen von links nach rechts.
+   */
+  getPlatformCollisionAreas(platformConfig) {
+    if (!platformConfig.stepDown) {
+      return [platformConfig];
+    }
+
+    const {
+      splitRatio,
+      splitOffsetX = 0,
+      dropY,
+    } = platformConfig.stepDown;
+    const leftEdge = platformConfig.x - platformConfig.width / 2;
+    const leftWidth =
+      platformConfig.width * splitRatio + splitOffsetX;
+    const rightWidth = platformConfig.width - leftWidth;
+
+    return [
+      {
+        x: leftEdge + leftWidth / 2,
+        y: platformConfig.y,
+        width: leftWidth,
+        height: platformConfig.height,
+      },
+      {
+        x: leftEdge + leftWidth + rightWidth / 2,
+        y: platformConfig.y + dropY,
+        width: rightWidth,
+        height: platformConfig.height,
+      },
+    ];
+  }
+
+  /**
+   * Verkleidet die Boden-Kollision mit der Cyber-City-Plattformgrafik.
+   * @param {{x: number, y: number, width: number, height: number}}
+   * platformConfig - Position und Maße der technischen Bodenfläche.
+   * @returns {void}
+   */
+  createGroundVisual(platformConfig) {
+    const ground = TEST_LEVEL.assets.groundPlatform;
+    const platformTop =
+      platformConfig.y - platformConfig.height / 2;
+    const visualTop =
+      platformTop -
+      ground.surfaceOffsetY -
+      ground.characterLaneOffsetY;
+
+    this.add
+      .tileSprite(
+        platformConfig.x,
+        visualTop,
+        platformConfig.width,
+        ground.frameHeight,
+        ground.key,
+        ground.frame,
+      )
+      .setOrigin(0.5, 0);
+  }
+
+  /**
+   * Verkleidet eine erhöhte Kollision mit einer Plattformvariante.
+   * @param {{
+   *   x: number,
+   *   y: number,
+   *   width: number,
+   *   height: number,
+   *   visualFrame: number
+   * }} platformConfig - Position, Maße und Grafikframe der Plattform.
+   * @returns {void}
+   */
+  createRaisedPlatformVisual(platformConfig) {
+    const floating = TEST_LEVEL.assets.floatingPlatform;
+    const scale = platformConfig.width / floating.frameWidth;
+    const platformTop =
+      platformConfig.y - platformConfig.height / 2;
+    const visualTop =
+      platformTop - floating.surfaceOffsetY * scale;
+
+    this.add
+      .image(
+        platformConfig.x,
+        visualTop,
+        floating.key,
+        platformConfig.visualFrame,
+      )
+      .setOrigin(0.5, 0)
+      .setDisplaySize(
+        platformConfig.width,
+        floating.frameHeight * scale,
+      );
   }
 
   /**

@@ -16,6 +16,21 @@
       "path": "dark_city\\layer_01_foreground\\ground_platform"
     },
     {
+      "asset": "floating_platform",
+      "layer": "foreground_01",
+      "type": "static_floating_platform_variants",
+      "frameWidth": 320,
+      "frameHeight": 192,
+      "frames": 4,
+      "files": [
+        "floating_platform_side_01.png",
+        "floating_platform_side_02.png",
+        "floating_platform_side_03.png",
+        "floating_platform_side_04.png"
+      ],
+      "path": "dark_city\\layer_01_foreground\\floating_platforms"
+    },
+    {
       "asset": "dark_city_fence_objects",
       "layer": "foreground_02",
       "type": "static_fence_object_variants",
@@ -61,9 +76,9 @@
     }
   ],
   "validation": {
-    "frames": 15,
-    "spritesheets": 4,
-    "tilesets": 4,
+    "frames": 19,
+    "spritesheets": 5,
+    "tilesets": 5,
     "issues": []
   }
 }

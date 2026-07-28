@@ -1,0 +1,15 @@
+{
+  "asset": "floating_platform",
+  "direction": "side",
+  "frameWidth": 320,
+  "frameHeight": 192,
+  "frames": 4,
+  "files": [
+    "floating_platform_side_01.png",
+    "floating_platform_side_02.png",
+    "floating_platform_side_03.png",
+    "floating_platform_side_04.png"
+  ],
+  "walkSurfaceOffsetY": 32,
+  "source": "floating_base_plate.png"
+}
