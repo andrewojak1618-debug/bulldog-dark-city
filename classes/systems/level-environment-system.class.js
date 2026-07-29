@@ -5,7 +5,7 @@ import { TEST_LEVEL } from "../../js/config/test-level-settings.js";
  */
 export class LevelEnvironmentSystem {
   /**
-   * Lädt alle Hintergründe, Parallax-Ebenen und Züge.
+   * Lädt alle Hintergründe, Parallax-Ebenen, Züge und Dekorationen.
    * @param {Phaser.Scene} scene - Aktive Levelszene.
    * @returns {void}
    */
@@ -25,6 +25,14 @@ export class LevelEnvironmentSystem {
       {
         frameWidth: assets.skyscraperParallax.frameWidth,
         frameHeight: assets.skyscraperParallax.frameHeight,
+      },
+    );
+    scene.load.spritesheet(
+      assets.fenceObjects.key,
+      assets.fenceObjects.path,
+      {
+        frameWidth: assets.fenceObjects.frameWidth,
+        frameHeight: assets.fenceObjects.frameHeight,
       },
     );
     [
@@ -56,6 +64,7 @@ export class LevelEnvironmentSystem {
     );
     this.createElevatedRoad(scene);
     this.createBridgeTrains(scene);
+    this.createFenceObjects(scene);
   }
 
   /**
@@ -172,6 +181,40 @@ export class LevelEnvironmentSystem {
       sprite: this.createMovingTrain(scene, settings),
       cooldownMs: 0,
     }));
+  }
+
+  /**
+   * Verbindet die Zaun- und Objektvarianten über die gesamte Levelbreite.
+   *
+   * Die Motive bleiben reine Dekoration und erhalten deshalb bewusst
+   * keinen Physikkörper. Ihre gemeinsame Größe und Bodenhöhe werden
+   * ausschließlich über die zentrale Levelkonfiguration gesteuert.
+   *
+   * @param {Phaser.Scene} scene - Aktive Levelszene.
+   * @returns {void}
+   */
+  static createFenceObjects(scene) {
+    const fences = TEST_LEVEL.assets.fenceObjects;
+    const displayWidth =
+      fences.frameWidth * (fences.displayHeight / fences.frameHeight);
+    const segmentStep = displayWidth - fences.seamOverlap;
+    const segmentCount =
+      Math.ceil(TEST_LEVEL.world.width / segmentStep) + 1;
+
+    scene.fenceObjects = Array.from(
+      { length: segmentCount },
+      (_, index) => {
+        const frame =
+          fences.frameSequence[index % fences.frameSequence.length];
+        const x = index * segmentStep;
+
+        return scene.add
+          .image(x, fences.groundY, fences.key, frame)
+          .setOrigin(0, 1)
+          .setDisplaySize(displayWidth, fences.displayHeight)
+          .setDepth(fences.depth);
+      },
+    );
   }
 
   /**

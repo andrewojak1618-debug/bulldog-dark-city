@@ -124,6 +124,19 @@ export const TEST_LEVEL = Object.freeze({
       resetPadding: 220,
       respawnDelayMs: 10000,
     }),
+    fenceObjects: Object.freeze({
+      key: "dark-city-fence-objects",
+      path:
+        "/img/tilesets/dark_city/layer_02_foreground/" +
+        "fence_objects/spritesheet.png",
+      frameWidth: 512,
+      frameHeight: 248,
+      displayHeight: 122,
+      groundY: 502,
+      depth: -0.5,
+      seamOverlap: 2,
+      frameSequence: Object.freeze([0, 2, 1, 3]),
+    }),
     groundPlatform: Object.freeze({
       key: "dark-city-ground-platform",
       path:
