@@ -3,6 +3,8 @@ import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
 import { BulldogAnimationSystem } from
   "../../systems/bulldog-animation-system.class.js";
+import { LevelEnvironmentSystem } from
+  "../../systems/level-environment-system.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
 import { BULLDOG_TEXTURES } from
   "../../../js/config/bulldog-animation-settings.js";
@@ -43,6 +45,7 @@ export class LevelOneScene extends Phaser.Scene {
   loadLevelAssets() {
     const ground = TEST_LEVEL.assets.groundPlatform;
     const floating = TEST_LEVEL.assets.floatingPlatform;
+    LevelEnvironmentSystem.load(this);
     this.load.spritesheet(ground.key, ground.path, {
       frameWidth: ground.frameWidth,
       frameHeight: ground.frameHeight,
@@ -78,7 +81,7 @@ export class LevelOneScene extends Phaser.Scene {
    */
   create() {
     this.configureWorld();
-    this.createTechnicalBackground();
+    LevelEnvironmentSystem.create(this);
     this.createPlatforms();
     BulldogAnimationSystem.register(this);
     this.createPlayer();
@@ -99,35 +102,6 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Zeichnet ein technisches Raster zur Orientierung in der Spielwelt.
-   * @returns {void}
-   */
-  createTechnicalBackground() {
-    const { width, height, backgroundColor } = TEST_LEVEL.world;
-    this.add.rectangle(
-      width / 2,
-      height / 2,
-      width,
-      height,
-      backgroundColor,
-    );
-    this.add
-      .grid(
-        width / 2,
-        height / 2,
-        width,
-        height,
-        80,
-        80,
-        0x0b1220,
-        1,
-        0x17243a,
-        0.5,
-      )
-      .setDepth(-1);
-  }
-
-  /**
    * Erstellt sichtbare statische Flächen mit Arcade-Kollisionen.
    * @returns {void}
    */
@@ -138,7 +112,10 @@ export class LevelOneScene extends Phaser.Scene {
       const hasPlatformVisual =
         Number.isInteger(platformConfig.visualFrame);
       const collisionAreas =
-        this.getPlatformCollisionAreas(platformConfig);
+        this.getPlatformCollisionAreas(
+          platformConfig,
+          isGround ? 0 : TEST_LEVEL.platformCollision.edgeInset,
+        );
 
       collisionAreas.forEach((collisionArea) => {
         const platform = this.add.rectangle(
@@ -178,12 +155,18 @@ export class LevelOneScene extends Phaser.Scene {
    *     dropY: number
    *   }
    * }} platformConfig - Zentrale Plattformkonfiguration.
+   * @param {number} edgeInset - Rücksprung an beiden Außenkanten.
    * @returns {Array<{x: number, y: number, width: number, height: number}>}
    * Kollisionsflächen von links nach rechts.
    */
-  getPlatformCollisionAreas(platformConfig) {
+  getPlatformCollisionAreas(platformConfig, edgeInset = 0) {
     if (!platformConfig.stepDown) {
-      return [platformConfig];
+      return [
+        {
+          ...platformConfig,
+          width: platformConfig.width - edgeInset * 2,
+        },
+      ];
     }
 
     const {
@@ -196,7 +179,7 @@ export class LevelOneScene extends Phaser.Scene {
       platformConfig.width * splitRatio + splitOffsetX;
     const rightWidth = platformConfig.width - leftWidth;
 
-    return [
+    const collisionAreas = [
       {
         x: leftEdge + leftWidth / 2,
         y: platformConfig.y,
@@ -210,6 +193,31 @@ export class LevelOneScene extends Phaser.Scene {
         height: platformConfig.height,
       },
     ];
+
+    return this.insetOuterCollisionEdges(collisionAreas, edgeInset);
+  }
+
+  /**
+   * Verkürzt nur die äußeren Enden abgestufter Kollisionsflächen.
+   * @param {Array<{x: number, y: number, width: number, height: number}>}
+   * collisionAreas - Kollisionsflächen von links nach rechts.
+   * @param {number} edgeInset - Rücksprung pro äußerer Kante.
+   * @returns {Array<{x: number, y: number, width: number, height: number}>}
+   * Angepasste Kollisionsflächen mit unveränderter innerer Fallkante.
+   */
+  insetOuterCollisionEdges(collisionAreas, edgeInset) {
+    return collisionAreas.map((area, index) => {
+      const isFirst = index === 0;
+      const isLast = index === collisionAreas.length - 1;
+      const leftInset = isFirst ? edgeInset : 0;
+      const rightInset = isLast ? edgeInset : 0;
+
+      return {
+        ...area,
+        x: area.x + (leftInset - rightInset) / 2,
+        width: area.width - leftInset - rightInset,
+      };
+    });
   }
 
   /**
@@ -354,8 +362,9 @@ export class LevelOneScene extends Phaser.Scene {
    * Aktualisiert Spielerbewegung und technische Positionsanzeige.
    * @returns {void}
    */
-  update() {
+  update(_time, delta) {
     this.player?.updateMovement(this.inputSystem);
+    LevelEnvironmentSystem.update(this, delta);
     this.positionText?.setText(
       `X ${Math.round(this.player.x)}  Y ${Math.round(this.player.y)}`,
     );

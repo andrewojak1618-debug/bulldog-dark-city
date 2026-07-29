@@ -27,7 +27,103 @@ export const TEST_LEVEL = Object.freeze({
     deadzoneWidth: 220,
     deadzoneHeight: 110,
   }),
+  platformCollision: Object.freeze({
+    edgeInset: 52,
+  }),
   assets: Object.freeze({
+    cityBackground: Object.freeze({
+      key: "dark-city-background-blue",
+      path:
+        "/img/backgrounds/dark_city/variations/blue/" +
+        "spritesheet.png",
+      frameWidth: 507,
+      frameHeight: 567,
+      visibleFrames: Object.freeze([1, 0]),
+      seamOverlap: 2,
+    }),
+    skyscraperParallax: Object.freeze({
+      key: "dark-city-skyscraper-parallax",
+      path:
+        "/img/backgrounds/dark_city/layer_05_skyscrapers/" +
+        "spritesheet.png",
+      frameWidth: 509,
+      frameHeight: 451,
+      visibleFrames: Object.freeze([0, 1, 2, 3]),
+      displayHeight: 330,
+      scrollFactor: 0.12,
+      seamOverlap: 2,
+    }),
+    cloudParallax: Object.freeze({
+      key: "dark-city-cloud-parallax",
+      path:
+        "/img/backgrounds/dark_city/atmosphere/set_02/" +
+        "dark_city_atmosphere_set_02_static_none_01.png",
+      sourceWidth: 1738,
+      sourceHeight: 193,
+      displayHeight: 150,
+      offsetX: -60,
+      offsetY: 14,
+      scrollFactor: 0.06,
+      alpha: 0.45,
+    }),
+    foregroundCloudParallax: Object.freeze({
+      key: "dark-city-foreground-cloud-parallax",
+      path:
+        "/img/backgrounds/dark_city/atmosphere/set_01/" +
+        "dark_city_atmosphere_set_01_static_none_02.png",
+      sourceWidth: 1738,
+      sourceHeight: 200,
+      displayHeight: 145,
+      offsetX: -80,
+      offsetY: 160,
+      scrollFactor: 0.2,
+      alpha: 0.32,
+    }),
+    elevatedRoadParallax: Object.freeze({
+      key: "dark-city-elevated-road-parallax",
+      path:
+        "/img/tilesets/dark_city/layer_04_midground_02/" +
+        "elevated_roads/elevated_road_continuous_v2.png",
+      sourceWidth: 2172,
+      sourceHeight: 375,
+      displayHeight: 230,
+      offsetY: 13,
+      scrollFactor: 0.32,
+    }),
+    bridgeTrain: Object.freeze({
+      key: "dark-city-bridge-train",
+      path:
+        "/img/sprites/environment/vehicles/trains/" +
+        "big_train_right_to_left_v2.png",
+      sourceWidth: 2148,
+      sourceHeight: 208,
+      displayHeight: 72,
+      trackY: 325,
+      scrollFactor: 0.32,
+      speed: 120,
+      direction: -1,
+      depth: -1,
+      startPadding: 120,
+      resetPadding: 180,
+      respawnDelayMs: 16000,
+    }),
+    secondaryBridgeTrain: Object.freeze({
+      key: "dark-city-secondary-bridge-train",
+      path:
+        "/img/sprites/environment/vehicles/trains/" +
+        "small_train_left_to_right_v2.png",
+      sourceWidth: 2124,
+      sourceHeight: 279,
+      displayHeight: 56,
+      trackY: 325,
+      scrollFactor: 0.32,
+      speed: 55,
+      direction: 1,
+      depth: -1.5,
+      startPadding: 1700,
+      resetPadding: 220,
+      respawnDelayMs: 10000,
+    }),
     groundPlatform: Object.freeze({
       key: "dark-city-ground-platform",
       path:
