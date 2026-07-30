@@ -28,6 +28,14 @@ export class LevelEnvironmentSystem {
       },
     );
     scene.load.spritesheet(
+      assets.midgroundBuildings.key,
+      assets.midgroundBuildings.path,
+      {
+        frameWidth: assets.midgroundBuildings.frameWidth,
+        frameHeight: assets.midgroundBuildings.frameHeight,
+      },
+    );
+    scene.load.spritesheet(
       assets.fenceObjects.key,
       assets.fenceObjects.path,
       {
@@ -57,6 +65,7 @@ export class LevelEnvironmentSystem {
     this.createCityBackground(scene);
     this.createCloudLayer(scene, TEST_LEVEL.assets.cloudParallax, -7);
     this.createSkyscrapers(scene);
+    this.createMidgroundBuildings(scene);
     this.createCloudLayer(
       scene,
       TEST_LEVEL.assets.foregroundCloudParallax,
@@ -145,6 +154,43 @@ export class LevelEnvironmentSystem {
         .setDepth(-5);
       x += frameWidth - skyscrapers.seamOverlap;
     });
+  }
+
+  /**
+   * Setzt die Gebäudevarianten als durchgehende Midground-Ebene zusammen.
+   * @param {Phaser.Scene} scene - Aktive Levelszene.
+   * @returns {void}
+   */
+  static createMidgroundBuildings(scene) {
+    const buildings = TEST_LEVEL.assets.midgroundBuildings;
+    const displayWidth =
+      buildings.frameWidth *
+      (buildings.displayHeight / buildings.frameHeight);
+    const segmentStep = displayWidth - buildings.seamOverlap;
+    const segmentCount =
+      Math.ceil(TEST_LEVEL.world.width / segmentStep) + 1;
+
+    scene.midgroundBuildings = Array.from(
+      { length: segmentCount },
+      (_, index) => {
+        const frame =
+          buildings.frameSequence[
+            index % buildings.frameSequence.length
+          ];
+
+        return scene.add
+          .image(
+            index * segmentStep,
+            buildings.bottomY,
+            buildings.key,
+            frame,
+          )
+          .setOrigin(0, 1)
+          .setScrollFactor(buildings.scrollFactor, 0)
+          .setDisplaySize(displayWidth, buildings.displayHeight)
+          .setDepth(buildings.depth);
+      },
+    );
   }
 
   /**

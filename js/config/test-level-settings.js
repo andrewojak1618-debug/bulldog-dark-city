@@ -53,6 +53,20 @@ export const TEST_LEVEL = Object.freeze({
       scrollFactor: 0.12,
       seamOverlap: 2,
     }),
+    midgroundBuildings: Object.freeze({
+      key: "dark-city-midground-buildings",
+      path:
+        "/img/tilesets/dark_city/layer_02_midground_01/" +
+        "buildings/spritesheet.png",
+      frameWidth: 508,
+      frameHeight: 447,
+      displayHeight: 300,
+      bottomY: 490,
+      scrollFactor: 0.22,
+      depth: -4,
+      seamOverlap: 2,
+      frameSequence: Object.freeze([0, 2, 1, 3]),
+    }),
     cloudParallax: Object.freeze({
       key: "dark-city-cloud-parallax",
       path:
