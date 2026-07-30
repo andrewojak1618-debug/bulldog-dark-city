@@ -1,13 +1,10 @@
 import Phaser from "phaser";
 import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
-import { BulldogAnimationSystem } from
-  "../../systems/bulldog-animation-system.class.js";
-import { LevelEnvironmentSystem } from
-  "../../systems/level-environment-system.class.js";
+import { BulldogAnimationSystem } from "../../systems/bulldog-animation-system.class.js";
+import { LevelEnvironmentSystem } from "../../systems/level-environment-system.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
-import { BULLDOG_TEXTURES } from
-  "../../../js/config/bulldog-animation-settings.js";
+import { BULLDOG_TEXTURES } from "../../../js/config/bulldog-animation-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 
 /**
@@ -109,13 +106,11 @@ export class LevelOneScene extends Phaser.Scene {
     this.platforms = this.physics.add.staticGroup();
     TEST_LEVEL.platforms.forEach((platformConfig, index) => {
       const isGround = index === 0;
-      const hasPlatformVisual =
-        Number.isInteger(platformConfig.visualFrame);
-      const collisionAreas =
-        this.getPlatformCollisionAreas(
-          platformConfig,
-          isGround ? 0 : TEST_LEVEL.platformCollision.edgeInset,
-        );
+      const hasPlatformVisual = Number.isInteger(platformConfig.visualFrame);
+      const collisionAreas = this.getPlatformCollisionAreas(
+        platformConfig,
+        isGround ? 0 : TEST_LEVEL.platformCollision.edgeInset,
+      );
 
       collisionAreas.forEach((collisionArea) => {
         const platform = this.add.rectangle(
@@ -125,11 +120,7 @@ export class LevelOneScene extends Phaser.Scene {
           collisionArea.height,
           isGround ? 0x192536 : 0x241b36,
         );
-        platform.setStrokeStyle(
-          2,
-          isGround ? 0x35d9a5 : 0xff2cb8,
-          0.9,
-        );
+        platform.setStrokeStyle(2, isGround ? 0x35d9a5 : 0xff2cb8, 0.9);
         platform.setVisible(!isGround && !hasPlatformVisual);
         this.platforms.add(platform);
       });
@@ -169,14 +160,9 @@ export class LevelOneScene extends Phaser.Scene {
       ];
     }
 
-    const {
-      splitRatio,
-      splitOffsetX = 0,
-      dropY,
-    } = platformConfig.stepDown;
+    const { splitRatio, splitOffsetX = 0, dropY } = platformConfig.stepDown;
     const leftEdge = platformConfig.x - platformConfig.width / 2;
-    const leftWidth =
-      platformConfig.width * splitRatio + splitOffsetX;
+    const leftWidth = platformConfig.width * splitRatio + splitOffsetX;
     const rightWidth = platformConfig.width - leftWidth;
 
     const collisionAreas = [
@@ -228,12 +214,9 @@ export class LevelOneScene extends Phaser.Scene {
    */
   createGroundVisual(platformConfig) {
     const ground = TEST_LEVEL.assets.groundPlatform;
-    const platformTop =
-      platformConfig.y - platformConfig.height / 2;
+    const platformTop = platformConfig.y - platformConfig.height / 2;
     const visualTop =
-      platformTop -
-      ground.surfaceOffsetY -
-      ground.characterLaneOffsetY;
+      platformTop - ground.surfaceOffsetY - ground.characterLaneOffsetY;
 
     this.add
       .tileSprite(
@@ -261,10 +244,8 @@ export class LevelOneScene extends Phaser.Scene {
   createRaisedPlatformVisual(platformConfig) {
     const floating = TEST_LEVEL.assets.floatingPlatform;
     const scale = platformConfig.width / floating.frameWidth;
-    const platformTop =
-      platformConfig.y - platformConfig.height / 2;
-    const visualTop =
-      platformTop - floating.surfaceOffsetY * scale;
+    const platformTop = platformConfig.y - platformConfig.height / 2;
+    const visualTop = platformTop - floating.surfaceOffsetY * scale;
 
     this.add
       .image(
@@ -274,10 +255,7 @@ export class LevelOneScene extends Phaser.Scene {
         platformConfig.visualFrame,
       )
       .setOrigin(0.5, 0)
-      .setDisplaySize(
-        platformConfig.width,
-        floating.frameHeight * scale,
-      );
+      .setDisplaySize(platformConfig.width, floating.frameHeight * scale);
   }
 
   /**
