@@ -3,6 +3,7 @@ import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
 import { BulldogAnimationSystem } from "../../systems/bulldog-animation-system.class.js";
 import { LevelEnvironmentSystem } from "../../systems/level-environment-system.class.js";
+import { LevelFlowSystem } from "../../systems/level-flow-system.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
 import { BULLDOG_TEXTURES } from "../../../js/config/bulldog-animation-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
@@ -343,8 +344,10 @@ export class LevelOneScene extends Phaser.Scene {
   update(_time, delta) {
     this.player?.updateMovement(this.inputSystem);
     LevelEnvironmentSystem.update(this, delta);
+    const currentZone = LevelFlowSystem.getZoneAt(this.player.x);
     this.positionText?.setText(
-      `X ${Math.round(this.player.x)}  Y ${Math.round(this.player.y)}`,
+      `X ${Math.round(this.player.x)}  Y ${Math.round(this.player.y)}` +
+        `\n${currentZone.label}`,
     );
   }
 }

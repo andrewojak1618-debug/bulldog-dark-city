@@ -1,3 +1,5 @@
+import { getAssetPath } from "./asset-paths.js";
+
 /**
  * Zentrale Werte des technischen Level-One-Prototyps.
  */
@@ -27,15 +29,50 @@ export const TEST_LEVEL = Object.freeze({
     deadzoneWidth: 220,
     deadzoneHeight: 110,
   }),
+  flow: Object.freeze({
+    zones: Object.freeze([
+      Object.freeze({
+        key: "start",
+        label: "STARTZONE",
+        startX: 0,
+        endX: 350,
+      }),
+      Object.freeze({
+        key: "introduction",
+        label: "EINFÜHRUNG",
+        startX: 350,
+        endX: 850,
+      }),
+      Object.freeze({
+        key: "escalation",
+        label: "STEIGERUNG",
+        startX: 850,
+        endX: 1400,
+      }),
+      Object.freeze({
+        key: "challenge",
+        label: "HERAUSFORDERUNG",
+        startX: 1400,
+        endX: 2000,
+      }),
+      Object.freeze({
+        key: "goal",
+        label: "ZIELZONE",
+        startX: 2000,
+        endX: 2400,
+      }),
+    ]),
+  }),
   platformCollision: Object.freeze({
     edgeInset: 52,
   }),
   assets: Object.freeze({
     cityBackground: Object.freeze({
       key: "dark-city-background-blue",
-      path:
-        "/img/backgrounds/dark_city/variations/blue/" +
-        "spritesheet.png",
+      path: getAssetPath(
+        "backgrounds",
+        "dark_city/variations/blue/spritesheet.png",
+      ),
       frameWidth: 507,
       frameHeight: 567,
       visibleFrames: Object.freeze([1, 0]),
@@ -43,9 +80,10 @@ export const TEST_LEVEL = Object.freeze({
     }),
     skyscraperParallax: Object.freeze({
       key: "dark-city-skyscraper-parallax",
-      path:
-        "/img/backgrounds/dark_city/layer_05_skyscrapers/" +
-        "spritesheet.png",
+      path: getAssetPath(
+        "backgrounds",
+        "dark_city/layer_05_skyscrapers/spritesheet.png",
+      ),
       frameWidth: 509,
       frameHeight: 451,
       visibleFrames: Object.freeze([0, 1, 2, 3]),
@@ -55,9 +93,10 @@ export const TEST_LEVEL = Object.freeze({
     }),
     midgroundBuildings: Object.freeze({
       key: "dark-city-midground-buildings",
-      path:
-        "/img/tilesets/dark_city/layer_02_midground_01/" +
-        "buildings/spritesheet.png",
+      path: getAssetPath(
+        "tilesets",
+        "dark_city/layer_02_midground_01/buildings/spritesheet.png",
+      ),
       frameWidth: 508,
       frameHeight: 447,
       displayHeight: 300,
@@ -69,9 +108,11 @@ export const TEST_LEVEL = Object.freeze({
     }),
     cloudParallax: Object.freeze({
       key: "dark-city-cloud-parallax",
-      path:
-        "/img/backgrounds/dark_city/atmosphere/set_02/" +
-        "dark_city_atmosphere_set_02_static_none_01.png",
+      path: getAssetPath(
+        "backgrounds",
+        "dark_city/atmosphere/set_02/" +
+          "dark_city_atmosphere_set_02_static_none_01.png",
+      ),
       sourceWidth: 1738,
       sourceHeight: 193,
       displayHeight: 150,
@@ -82,9 +123,11 @@ export const TEST_LEVEL = Object.freeze({
     }),
     foregroundCloudParallax: Object.freeze({
       key: "dark-city-foreground-cloud-parallax",
-      path:
-        "/img/backgrounds/dark_city/atmosphere/set_01/" +
-        "dark_city_atmosphere_set_01_static_none_02.png",
+      path: getAssetPath(
+        "backgrounds",
+        "dark_city/atmosphere/set_01/" +
+          "dark_city_atmosphere_set_01_static_none_02.png",
+      ),
       sourceWidth: 1738,
       sourceHeight: 200,
       displayHeight: 145,
@@ -95,9 +138,11 @@ export const TEST_LEVEL = Object.freeze({
     }),
     elevatedRoadParallax: Object.freeze({
       key: "dark-city-elevated-road-parallax",
-      path:
-        "/img/tilesets/dark_city/layer_04_midground_02/" +
-        "elevated_roads/elevated_road_continuous_v2.png",
+      path: getAssetPath(
+        "tilesets",
+        "dark_city/layer_04_midground_02/" +
+          "elevated_roads/elevated_road_continuous_v2.png",
+      ),
       sourceWidth: 2172,
       sourceHeight: 375,
       displayHeight: 230,
@@ -106,9 +151,10 @@ export const TEST_LEVEL = Object.freeze({
     }),
     bridgeTrain: Object.freeze({
       key: "dark-city-bridge-train",
-      path:
-        "/img/sprites/environment/vehicles/trains/" +
-        "big_train_right_to_left_v2.png",
+      path: getAssetPath(
+        "sprites",
+        "environment/vehicles/trains/big_train_right_to_left_v2.png",
+      ),
       sourceWidth: 2148,
       sourceHeight: 208,
       displayHeight: 72,
@@ -123,9 +169,10 @@ export const TEST_LEVEL = Object.freeze({
     }),
     secondaryBridgeTrain: Object.freeze({
       key: "dark-city-secondary-bridge-train",
-      path:
-        "/img/sprites/environment/vehicles/trains/" +
-        "small_train_left_to_right_v2.png",
+      path: getAssetPath(
+        "sprites",
+        "environment/vehicles/trains/small_train_left_to_right_v2.png",
+      ),
       sourceWidth: 2124,
       sourceHeight: 279,
       displayHeight: 56,
@@ -140,9 +187,10 @@ export const TEST_LEVEL = Object.freeze({
     }),
     fenceObjects: Object.freeze({
       key: "dark-city-fence-objects",
-      path:
-        "/img/tilesets/dark_city/layer_02_foreground/" +
-        "fence_objects/spritesheet.png",
+      path: getAssetPath(
+        "tilesets",
+        "dark_city/layer_02_foreground/fence_objects/spritesheet.png",
+      ),
       frameWidth: 512,
       frameHeight: 248,
       displayHeight: 122,
@@ -153,9 +201,10 @@ export const TEST_LEVEL = Object.freeze({
     }),
     groundPlatform: Object.freeze({
       key: "dark-city-ground-platform",
-      path:
-        "/img/tilesets/dark_city/layer_01_foreground/" +
-        "ground_platform/spritesheet.png",
+      path: getAssetPath(
+        "tilesets",
+        "dark_city/layer_01_foreground/ground_platform/spritesheet.png",
+      ),
       frameWidth: 513,
       frameHeight: 306,
       frame: 0,
@@ -164,9 +213,10 @@ export const TEST_LEVEL = Object.freeze({
     }),
     floatingPlatform: Object.freeze({
       key: "dark-city-floating-platform",
-      path:
-        "/img/tilesets/dark_city/layer_01_foreground/" +
-        "floating_platforms/spritesheet.png",
+      path: getAssetPath(
+        "tilesets",
+        "dark_city/layer_01_foreground/floating_platforms/spritesheet.png",
+      ),
       frameWidth: 320,
       frameHeight: 192,
       surfaceOffsetY: 32,

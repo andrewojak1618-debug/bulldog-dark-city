@@ -1,5 +1,9 @@
-const BULLDOG_NORMAL_BASE_PATH =
-  "/img/sprites/characters/bulldog_normal";
+import { getAssetPath } from "./asset-paths.js";
+
+const BULLDOG_NORMAL_BASE_PATH = getAssetPath(
+  "sprites",
+  "characters/bulldog_normal",
+);
 
 /**
  * Zentrale Texturschlüssel und Quelldaten der normalen Bulldogge.

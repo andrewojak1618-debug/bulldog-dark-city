@@ -1,8 +1,6 @@
 import { MenuDialog } from "../../ui/menu-dialog.class.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 
-const SCENE_TRANSITION_MS = 260;
-
 /**
  * Bündelt Menüaktionen, Dialoge und den Übergang zur Spielszene.
  */
@@ -36,23 +34,16 @@ export class MenuNavigationController {
   }
 
   /**
-   * Wechselt mit einer kurzen Überblendung zuverlässig in Level eins.
+   * Spielt die Intro-Sequenz ab und wechselt anschließend in Level eins.
    * @returns {void}
    */
   startLevelOne() {
     if (this.isTransitioning) return;
     this.isTransitioning = true;
     this.menuInput.setEnabled(false);
-    this.scene.cameras.main.fadeOut(
-      SCENE_TRANSITION_MS,
-      0,
-      0,
-      0,
-      (_camera, progress) => {
-        if (progress === 1) {
-          this.scene.scene.start(SCENES.levelOne);
-        }
-      },
+
+    this.scene.playStartSequence(() =>
+      this.scene.scene.start(SCENES.levelOne),
     );
   }
 

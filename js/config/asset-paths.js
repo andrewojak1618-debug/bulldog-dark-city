@@ -1,11 +1,12 @@
 export const ASSET_PATHS = Object.freeze({
-  images: "/img/images",
-  sprites: "/img/sprites",
-  tilesets: "/img/tilesets",
-  backgrounds: "/img/backgrounds",
-  ui: "/img/ui",
-  fonts: "/img/fonts",
-  audio: "/audio",
+  images: "img/images",
+  sprites: "img/sprites",
+  tilesets: "img/tilesets",
+  backgrounds: "img/backgrounds",
+  ui: "img/ui",
+  fonts: "fonts",
+  audio: "audio",
+  data: "data",
 });
 
 /**
@@ -15,4 +16,4 @@ export const ASSET_PATHS = Object.freeze({
  * @returns {string} Vollständiger öffentlicher Assetpfad.
  */
 export const getAssetPath = (group, fileName) =>
-  `${ASSET_PATHS[group]}/${fileName}`;
+  `${import.meta.env.BASE_URL}${ASSET_PATHS[group]}/${fileName}`;

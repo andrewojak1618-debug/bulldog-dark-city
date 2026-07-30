@@ -10,16 +10,11 @@ import { MENU_BUTTONS } from "../../../js/config/menu-buttons.js";
 import { QUICK_ACTIONS } from "../../../js/config/quick-actions.js";
 import { SOCIAL_ACTIONS } from "../../../js/config/social-actions.js";
 import { SCENES } from "../../../js/config/game-settings.js";
-import {
-  getAreaCenter,
-  MENU_LAYOUT,
-} from "../../../js/config/menu-layout.js";
+import { MENU_START_TRANSITION } from "../../../js/config/menu-transition-settings.js";
+import { getAreaCenter, MENU_LAYOUT } from "../../../js/config/menu-layout.js";
 
 const MENU_BACKGROUND_KEY = "menu-background";
-const MENU_BACKGROUND_PATH = getAssetPath(
-  "backgrounds",
-  "menu-background.png",
-);
+const MENU_BACKGROUND_PATH = getAssetPath("backgrounds", "menu-background.png");
 const MENU_LOGO_KEY = "menu-logo";
 const MENU_LOGO_PATH = getAssetPath(
   "ui",
@@ -45,19 +40,19 @@ export class MenuScene extends Phaser.Scene {
   preload() {
     this.load.image(MENU_BACKGROUND_KEY, MENU_BACKGROUND_PATH);
     this.load.image(MENU_LOGO_KEY, MENU_LOGO_PATH);
+    this.load.video(
+      MENU_START_TRANSITION.video.key,
+      MENU_START_TRANSITION.video.url,
+      MENU_START_TRANSITION.video.noAudio,
+    );
     SOCIAL_ACTIONS.forEach((action) =>
-      this.load.image(
-        action.textureKey,
-        getAssetPath("ui", action.iconFile),
-      ),
+      this.load.image(action.textureKey, getAssetPath("ui", action.iconFile)),
     );
     MENU_BUTTONS.forEach((button) => this.loadMenuIcon(button));
-    const menuIconKeys = new Set(
-      MENU_BUTTONS.map(({ iconKey }) => iconKey),
+    const menuIconKeys = new Set(MENU_BUTTONS.map(({ iconKey }) => iconKey));
+    QUICK_ACTIONS.filter(({ iconKey }) => !menuIconKeys.has(iconKey)).forEach(
+      (action) => this.loadMenuIcon(action),
     );
-    QUICK_ACTIONS.filter(
-      ({ iconKey }) => !menuIconKeys.has(iconKey),
-    ).forEach((action) => this.loadMenuIcon(action));
   }
 
   /**
@@ -66,10 +61,7 @@ export class MenuScene extends Phaser.Scene {
    * @returns {void}
    */
   loadMenuIcon({ iconKey, iconFile }) {
-    const iconPath = getAssetPath(
-      "ui",
-      `${MENU_ICON_PATH}/${iconFile}`,
-    );
+    const iconPath = getAssetPath("ui", `${MENU_ICON_PATH}/${iconFile}`);
     this.load.image(iconKey, iconPath);
   }
 
@@ -106,19 +98,14 @@ export class MenuScene extends Phaser.Scene {
   createLogo() {
     const area = MENU_LAYOUT.areas.logo;
     const center = getAreaCenter(area);
-    const source = this.textures
-      .get(MENU_LOGO_KEY)
-      .getSourceImage();
-    const scale = Math.min(
-      area.width / source.width,
-      area.height / source.height,
-    ) * MENU_LAYOUT.logo.scale;
-    const displayWidth =
-      source.width * scale + MENU_LAYOUT.logo.extraWidth;
-    const displayHeight =
-      displayWidth * (source.height / source.width);
+    const source = this.textures.get(MENU_LOGO_KEY).getSourceImage();
+    const scale =
+      Math.min(area.width / source.width, area.height / source.height) *
+      MENU_LAYOUT.logo.scale;
+    const displayWidth = source.width * scale + MENU_LAYOUT.logo.extraWidth;
+    const displayHeight = displayWidth * (source.height / source.width);
 
-    this.add
+    this.logo = this.add
       .image(
         center.x + MENU_LAYOUT.logo.offsetX,
         center.y + MENU_LAYOUT.logo.offsetY,
@@ -134,7 +121,7 @@ export class MenuScene extends Phaser.Scene {
    */
   createVersionInfo() {
     const { version, areas } = MENU_LAYOUT;
-    return this.add
+    this.versionInfo = this.add
       .text(
         areas.version.x,
         areas.version.y + areas.version.height / 2,
@@ -146,6 +133,7 @@ export class MenuScene extends Phaser.Scene {
         },
       )
       .setOrigin(0, 0.5);
+    return this.versionInfo;
   }
 
   /**
@@ -204,9 +192,7 @@ export class MenuScene extends Phaser.Scene {
 
     return {
       x: rowStartX + socialMedia.buttonSize / 2 + index * step,
-      y:
-        MENU_LAYOUT.areas.socialMedia.y +
-        socialMedia.buttonSize / 2,
+      y: MENU_LAYOUT.areas.socialMedia.y + socialMedia.buttonSize / 2,
     };
   }
 
@@ -226,14 +212,13 @@ export class MenuScene extends Phaser.Scene {
    * @returns {void}
    */
   createUnavailableLabels() {
+    this.unavailableLabels = [];
     MENU_BUTTONS.forEach((config, index) => {
       if (!config.disabled) return;
       const position = this.getMenuButtonPosition(index);
       const unavailableLabel = this.add
         .text(
-          MENU_LAYOUT.areas.mainMenu.x +
-            MENU_LAYOUT.mainMenu.buttonWidth -
-            8,
+          MENU_LAYOUT.areas.mainMenu.x + MENU_LAYOUT.mainMenu.buttonWidth - 8,
           position.y - 5,
           "BALD",
           {
@@ -246,6 +231,7 @@ export class MenuScene extends Phaser.Scene {
         )
         .setOrigin(1, 0.5)
         .setAlpha(0.22);
+      this.unavailableLabels.push(unavailableLabel);
       this.menuButtons[index]
         .on("pointerover", () => unavailableLabel.setAlpha(1))
         .on("pointerout", () => unavailableLabel.setAlpha(0.22));
@@ -268,8 +254,7 @@ export class MenuScene extends Phaser.Scene {
           iconCrop: action.iconCrop,
           iconDisplaySize: action.iconDisplaySize,
           iconOffsetY: action.iconOffsetY,
-          onActivate: () =>
-            this.menuNavigation.activateQuickAction(action),
+          onActivate: () => this.menuNavigation.activateQuickAction(action),
         }),
     );
   }
@@ -294,9 +279,7 @@ export class MenuScene extends Phaser.Scene {
         areas.quickActions.x +
         precedingWidth +
         action.buttonDisplaySize.width / 2,
-      y:
-        areas.quickActions.y +
-        action.buttonDisplaySize.height / 2,
+      y: areas.quickActions.y + action.buttonDisplaySize.height / 2,
     };
   }
 
@@ -370,10 +353,7 @@ export class MenuScene extends Phaser.Scene {
    * @returns {void}
    */
   activateMenuButton(activeButton) {
-    if (
-      this.isMenuActionLocked ||
-      this.menuNavigation.isTransitioning
-    ) {
+    if (this.isMenuActionLocked || this.menuNavigation.isTransitioning) {
       return;
     }
 
@@ -385,6 +365,126 @@ export class MenuScene extends Phaser.Scene {
         this.isMenuActionLocked = false;
       });
     }
+  }
+
+  /**
+   * Lässt die Menüoberfläche aus dem Bild fliegen und spielt das Introvideo ab.
+   * Nach dem Video oder bei einem Wiedergabefehler wird die übergebene Aktion
+   * genau einmal ausgeführt.
+   * @param {Function} onComplete - Aktion nach dem Ende der Intro-Sequenz.
+   * @returns {void}
+   */
+  playStartSequence(onComplete) {
+    const { width, height } = this.scale;
+    let isFinished = false;
+    const finish = () => {
+      if (isFinished) return;
+      isFinished = true;
+      onComplete();
+    };
+
+    this.introVideo = this.add
+      .video(width / 2, height / 2, MENU_START_TRANSITION.video.key)
+      .setDepth(MENU_START_TRANSITION.depths.video)
+      .setAlpha(0)
+      .setMute(false)
+      .setVolume(MENU_START_TRANSITION.video.volume);
+
+    this.isIntroVideoSized = false;
+    const sizeIntroVideo = () =>
+      this.sizeAndRevealIntroVideo(width, height);
+    this.introVideo.once("created", sizeIntroVideo);
+    this.introVideo.once("playing", sizeIntroVideo);
+    this.introVideo.once("complete", finish);
+    this.introVideo.once("error", finish);
+    this.animateMenuExit();
+
+    try {
+      this.introVideo.play(false);
+    } catch (error) {
+      console.error("Das Introvideo konnte nicht gestartet werden.", error);
+      finish();
+    }
+  }
+
+  /**
+   * Skaliert das Video erst, wenn Phaser den echten Videoframe erzeugt hat.
+   * Dadurch wird kein Skalierungsfaktor anhand der Platzhaltertextur berechnet.
+   * @param {number} width - Gewünschte Breite innerhalb des Canvas.
+   * @param {number} height - Gewünschte Höhe innerhalb des Canvas.
+   * @returns {void}
+   */
+  sizeAndRevealIntroVideo(width, height) {
+    if (this.isIntroVideoSized) return;
+
+    this.isIntroVideoSized = true;
+    this.introVideo.setDisplaySize(width, height);
+    this.revealIntroVideo();
+  }
+
+  /**
+   * Verteilt die sichtbaren Menüelemente auf drei zeitversetzte Flugrichtungen.
+   * @returns {void}
+   */
+  animateMenuExit() {
+    const interfaceDepth = MENU_START_TRANSITION.depths.interface;
+    const leftObjects = [
+      this.logo,
+      ...this.menuButtons,
+      ...this.unavailableLabels,
+      this.versionInfo,
+    ];
+    const rightObjects = [
+      ...this.quickActionButtons,
+      this.socialMediaHeading,
+      ...this.socialMediaButtons,
+    ];
+
+    [...leftObjects, ...rightObjects, this.inputHint].forEach((gameObject) =>
+      gameObject?.setDepth(interfaceDepth),
+    );
+    this.tweenExitGroup(leftObjects, {
+      x: `-=${MENU_START_TRANSITION.flyOut.leftDistance}`,
+    });
+    this.tweenExitGroup(rightObjects, {
+      x: `+=${MENU_START_TRANSITION.flyOut.rightDistance}`,
+    });
+    this.tweenExitGroup([this.inputHint], {
+      y: `+=${MENU_START_TRANSITION.flyOut.bottomDistance}`,
+    });
+  }
+
+  /**
+   * Animiert eine Gruppe mit kurzem zeitlichem Versatz aus dem Canvas.
+   * @param {Phaser.GameObjects.GameObject[]} targets - Zu animierende Elemente.
+   * @param {{x?: string, y?: string}} destination - Relative Zielposition.
+   * @returns {void}
+   */
+  tweenExitGroup(targets, destination) {
+    targets.filter(Boolean).forEach((target, index) => {
+      this.tweens.add({
+        targets: target,
+        ...destination,
+        alpha: 0,
+        duration: MENU_START_TRANSITION.flyOut.duration,
+        delay: index * MENU_START_TRANSITION.flyOut.stagger,
+        ease: MENU_START_TRANSITION.flyOut.ease,
+      });
+    });
+  }
+
+  /**
+   * Blendet das bereits gestartete Introvideo hinter der fliegenden UI ein.
+   * @returns {void}
+   */
+  revealIntroVideo() {
+    this.tweens.add({
+      targets: this.introVideo,
+      alpha: 1,
+      delay: MENU_START_TRANSITION.videoReveal.delay,
+      duration: MENU_START_TRANSITION.videoReveal.duration,
+      ease: MENU_START_TRANSITION.videoReveal.ease,
+    });
   }
 
   /**
