@@ -29,6 +29,33 @@ export const TEST_LEVEL = Object.freeze({
     deadzoneWidth: 220,
     deadzoneHeight: 110,
   }),
+  sceneFadeInMs: 260,
+  debugOverlay: Object.freeze({
+    depth: 100,
+    instructions: Object.freeze({
+      x: 18,
+      y: 16,
+      text:
+        "TECHNISCHER TESTLEVEL\nA/D oder ←/→ · Bewegung\nW, ↑ oder Leertaste · Sprung\nESC · Menü",
+      fontFamily: "Arial",
+      fontSize: 13,
+      color: "#d7d2dc",
+      backgroundColor: "rgba(4, 6, 12, 0.82)",
+      paddingX: 10,
+      paddingY: 8,
+      lineSpacing: 4,
+    }),
+    position: Object.freeze({
+      x: 702,
+      y: 18,
+      fontFamily: "Arial",
+      fontSize: 12,
+      color: "#35d9a5",
+      backgroundColor: "rgba(4, 6, 12, 0.82)",
+      paddingX: 8,
+      paddingY: 6,
+    }),
+  }),
   flow: Object.freeze({
     zones: Object.freeze([
       Object.freeze({

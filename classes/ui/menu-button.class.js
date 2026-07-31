@@ -198,6 +198,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
 
   /**
    * Setzt den Hoverzustand, wenn der Zeiger den Button betritt.
+   * @param {Phaser.Input.Pointer} pointer - Auslösender Maus- oder Touchzeiger.
    * @returns {void}
    */
   handlePointerOver(pointer) {
@@ -221,6 +222,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
 
   /**
    * Aktiviert den gedrückten Zustand eines ausführbaren Buttons.
+   * @param {Phaser.Input.Pointer} pointer - Auslösender Maus- oder Touchzeiger.
    * @returns {void}
    */
   handlePointerDown(pointer) {

@@ -5,6 +5,7 @@ import { SocialMediaButton } from "../../ui/social-media-button.class.js";
 import { MenuInputHint } from "../../ui/menu-input-hint.class.js";
 import { MenuInputController } from "../../input/menu-input-controller.class.js";
 import { MenuNavigationController } from "../controllers/menu-navigation-controller.class.js";
+import { MenuIntroController } from "../controllers/menu-intro-controller.class.js";
 import { getAssetPath } from "../../../js/config/asset-paths.js";
 import { MENU_BUTTONS } from "../../../js/config/menu-buttons.js";
 import { QUICK_ACTIONS } from "../../../js/config/quick-actions.js";
@@ -78,6 +79,7 @@ export class MenuScene extends Phaser.Scene {
     this.inputHint = new MenuInputHint(this, MENU_LAYOUT.inputHint);
     this.createQuickActions();
     this.createSocialMedia();
+    this.introController = new MenuIntroController(this);
   }
 
   /**
@@ -215,26 +217,33 @@ export class MenuScene extends Phaser.Scene {
     this.unavailableLabels = [];
     MENU_BUTTONS.forEach((config, index) => {
       if (!config.disabled) return;
+      const style = MENU_LAYOUT.unavailableLabel;
       const position = this.getMenuButtonPosition(index);
       const unavailableLabel = this.add
         .text(
-          MENU_LAYOUT.areas.mainMenu.x + MENU_LAYOUT.mainMenu.buttonWidth - 8,
-          position.y - 5,
-          "BALD",
+          MENU_LAYOUT.areas.mainMenu.x +
+            MENU_LAYOUT.mainMenu.buttonWidth -
+            style.offsetX,
+          position.y - style.offsetY,
+          style.text,
           {
-            fontFamily: "Arial",
-            fontSize: "16px",
-            color: "#ff2cb8",
-            backgroundColor: "rgba(5, 6, 10, 0.78)",
-            padding: { x: 3, y: 2 },
+            fontFamily: style.fontFamily,
+            fontSize: `${style.fontSize}px`,
+            color: style.color,
+            backgroundColor: style.backgroundColor,
+            padding: { x: style.paddingX, y: style.paddingY },
           },
         )
         .setOrigin(1, 0.5)
-        .setAlpha(0.22);
+        .setAlpha(style.idleAlpha);
       this.unavailableLabels.push(unavailableLabel);
       this.menuButtons[index]
-        .on("pointerover", () => unavailableLabel.setAlpha(1))
-        .on("pointerout", () => unavailableLabel.setAlpha(0.22));
+        .on("pointerover", () =>
+          unavailableLabel.setAlpha(style.hoverAlpha),
+        )
+        .on("pointerout", () =>
+          unavailableLabel.setAlpha(style.idleAlpha),
+        );
     });
   }
 
@@ -368,123 +377,12 @@ export class MenuScene extends Phaser.Scene {
   }
 
   /**
-   * Lässt die Menüoberfläche aus dem Bild fliegen und spielt das Introvideo ab.
-   * Nach dem Video oder bei einem Wiedergabefehler wird die übergebene Aktion
-   * genau einmal ausgeführt.
+   * Übergibt den Start des Vorspanns an den zuständigen Intro-Controller.
    * @param {Function} onComplete - Aktion nach dem Ende der Intro-Sequenz.
    * @returns {void}
    */
   playStartSequence(onComplete) {
-    const { width, height } = this.scale;
-    let isFinished = false;
-    const finish = () => {
-      if (isFinished) return;
-      isFinished = true;
-      onComplete();
-    };
-
-    this.introVideo = this.add
-      .video(width / 2, height / 2, MENU_START_TRANSITION.video.key)
-      .setDepth(MENU_START_TRANSITION.depths.video)
-      .setAlpha(0)
-      .setMute(false)
-      .setVolume(MENU_START_TRANSITION.video.volume);
-
-    this.isIntroVideoSized = false;
-    const sizeIntroVideo = () =>
-      this.sizeAndRevealIntroVideo(width, height);
-    this.introVideo.once("created", sizeIntroVideo);
-    this.introVideo.once("playing", sizeIntroVideo);
-    this.introVideo.once("complete", finish);
-    this.introVideo.once("error", finish);
-    this.animateMenuExit();
-
-    try {
-      this.introVideo.play(false);
-    } catch (error) {
-      console.error("Das Introvideo konnte nicht gestartet werden.", error);
-      finish();
-    }
-  }
-
-  /**
-   * Skaliert das Video erst, wenn Phaser den echten Videoframe erzeugt hat.
-   * Dadurch wird kein Skalierungsfaktor anhand der Platzhaltertextur berechnet.
-   * @param {number} width - Gewünschte Breite innerhalb des Canvas.
-   * @param {number} height - Gewünschte Höhe innerhalb des Canvas.
-   * @returns {void}
-   */
-  sizeAndRevealIntroVideo(width, height) {
-    if (this.isIntroVideoSized) return;
-
-    this.isIntroVideoSized = true;
-    this.introVideo.setDisplaySize(width, height);
-    this.revealIntroVideo();
-  }
-
-  /**
-   * Verteilt die sichtbaren Menüelemente auf drei zeitversetzte Flugrichtungen.
-   * @returns {void}
-   */
-  animateMenuExit() {
-    const interfaceDepth = MENU_START_TRANSITION.depths.interface;
-    const leftObjects = [
-      this.logo,
-      ...this.menuButtons,
-      ...this.unavailableLabels,
-      this.versionInfo,
-    ];
-    const rightObjects = [
-      ...this.quickActionButtons,
-      this.socialMediaHeading,
-      ...this.socialMediaButtons,
-    ];
-
-    [...leftObjects, ...rightObjects, this.inputHint].forEach((gameObject) =>
-      gameObject?.setDepth(interfaceDepth),
-    );
-    this.tweenExitGroup(leftObjects, {
-      x: `-=${MENU_START_TRANSITION.flyOut.leftDistance}`,
-    });
-    this.tweenExitGroup(rightObjects, {
-      x: `+=${MENU_START_TRANSITION.flyOut.rightDistance}`,
-    });
-    this.tweenExitGroup([this.inputHint], {
-      y: `+=${MENU_START_TRANSITION.flyOut.bottomDistance}`,
-    });
-  }
-
-  /**
-   * Animiert eine Gruppe mit kurzem zeitlichem Versatz aus dem Canvas.
-   * @param {Phaser.GameObjects.GameObject[]} targets - Zu animierende Elemente.
-   * @param {{x?: string, y?: string}} destination - Relative Zielposition.
-   * @returns {void}
-   */
-  tweenExitGroup(targets, destination) {
-    targets.filter(Boolean).forEach((target, index) => {
-      this.tweens.add({
-        targets: target,
-        ...destination,
-        alpha: 0,
-        duration: MENU_START_TRANSITION.flyOut.duration,
-        delay: index * MENU_START_TRANSITION.flyOut.stagger,
-        ease: MENU_START_TRANSITION.flyOut.ease,
-      });
-    });
-  }
-
-  /**
-   * Blendet das bereits gestartete Introvideo hinter der fliegenden UI ein.
-   * @returns {void}
-   */
-  revealIntroVideo() {
-    this.tweens.add({
-      targets: this.introVideo,
-      alpha: 1,
-      delay: MENU_START_TRANSITION.videoReveal.delay,
-      duration: MENU_START_TRANSITION.videoReveal.duration,
-      ease: MENU_START_TRANSITION.videoReveal.ease,
-    });
+    this.introController.play(onComplete);
   }
 
   /**

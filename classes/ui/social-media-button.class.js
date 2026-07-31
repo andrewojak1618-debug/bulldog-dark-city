@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { ICON_BUTTON_STYLE } from "../../js/config/icon-button-style.js";
+import { drawIconButtonBackground } from "../../js/utils/icon-button-background.js";
 
 /**
  * @typedef {Object} SocialMediaButtonOptions
@@ -44,7 +45,7 @@ export class SocialMediaButton extends Phaser.GameObjects.Container {
    */
   configureInteraction() {
     if (this.isDisabled) {
-      this.setAlpha(0.45);
+      this.setAlpha(ICON_BUTTON_STYLE.disabledAlpha);
       return;
     }
 
@@ -68,28 +69,12 @@ export class SocialMediaButton extends Phaser.GameObjects.Container {
     const style = this.isPointerOver
       ? ICON_BUTTON_STYLE.hover
       : ICON_BUTTON_STYLE.normal;
-    const halfSize = this.buttonSize / 2;
-
-    this.background.clear();
-    this.background.fillStyle(style.fillColor, style.fillAlpha);
-    this.background.fillRoundedRect(
-      -halfSize,
-      -halfSize,
+    drawIconButtonBackground(
+      this.background,
       this.buttonSize,
       this.buttonSize,
-      ICON_BUTTON_STYLE.borderRadius,
-    );
-    this.background.lineStyle(
-      ICON_BUTTON_STYLE.strokeWidth,
-      style.strokeColor,
-      style.strokeAlpha,
-    );
-    this.background.strokeRoundedRect(
-      -halfSize,
-      -halfSize,
-      this.buttonSize,
-      this.buttonSize,
-      ICON_BUTTON_STYLE.borderRadius,
+      style,
+      ICON_BUTTON_STYLE,
     );
     this.setScale(style.scale);
   }

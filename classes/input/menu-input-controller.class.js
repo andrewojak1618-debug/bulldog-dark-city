@@ -6,6 +6,7 @@ export class MenuInputController {
    * Erstellt die Eingabesteuerung für eine Liste von Menübuttons.
    * @param {Phaser.Scene} scene - Szene, die die Eingaben empfängt.
    * @param {import("../ui/menu-button.class.js").MenuButton[]} buttons - Steuerbare Buttons.
+   * @param {Function|null} [onInputModeChange=null] - Meldet die aktive Eingabeart.
    */
   constructor(scene, buttons, onInputModeChange = null) {
     this.scene = scene;
@@ -147,6 +148,7 @@ export class MenuInputController {
   /**
    * Übernimmt einen mit Maus oder Touch fokussierten Button.
    * @param {import("../ui/menu-button.class.js").MenuButton} button - Fokussierter Button.
+   * @param {"pointer"|"mouse"|"touch"} [inputMode="pointer"] - Aktive Zeigereingabe.
    * @returns {void}
    */
   focusButton(button, inputMode = "pointer") {

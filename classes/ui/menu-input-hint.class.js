@@ -21,8 +21,8 @@ export class MenuInputHint extends Phaser.GameObjects.Text {
       fontFamily: style.fontFamily,
       fontSize: `${style.fontSize}px`,
       color: style.color,
-      backgroundColor: "rgba(5, 6, 10, 0.72)",
-      padding: { x: 10, y: 5 },
+      backgroundColor: style.backgroundColor,
+      padding: { x: style.paddingX, y: style.paddingY },
     });
     this.setOrigin(0.5);
     scene.add.existing(this);

@@ -4,6 +4,7 @@
 export const ICON_BUTTON_STYLE = Object.freeze({
   borderRadius: 6,
   strokeWidth: 1,
+  disabledAlpha: 0.45,
   normal: Object.freeze({
     fillColor: 0x08060d,
     fillAlpha: 0.78,

@@ -86,7 +86,7 @@ export class LevelOneScene extends Phaser.Scene {
     this.configureCamera();
     this.createDebugOverlay();
     this.bindSceneControls();
-    this.cameras.main.fadeIn(260, 0, 0, 0);
+    this.cameras.main.fadeIn(TEST_LEVEL.sceneFadeInMs, 0, 0, 0);
   }
 
   /**
@@ -298,33 +298,37 @@ export class LevelOneScene extends Phaser.Scene {
    * @returns {void}
    */
   createDebugOverlay() {
+    const { depth, instructions, position } = TEST_LEVEL.debugOverlay;
     this.add
       .text(
-        18,
-        16,
-        "TECHNISCHER TESTLEVEL\nA/D oder ←/→ · Bewegung\nW, ↑ oder Leertaste · Sprung\nESC · Menü",
+        instructions.x,
+        instructions.y,
+        instructions.text,
         {
-          fontFamily: "Arial",
-          fontSize: "13px",
-          color: "#d7d2dc",
-          backgroundColor: "rgba(4, 6, 12, 0.82)",
-          padding: { x: 10, y: 8 },
-          lineSpacing: 4,
+          fontFamily: instructions.fontFamily,
+          fontSize: `${instructions.fontSize}px`,
+          color: instructions.color,
+          backgroundColor: instructions.backgroundColor,
+          padding: {
+            x: instructions.paddingX,
+            y: instructions.paddingY,
+          },
+          lineSpacing: instructions.lineSpacing,
         },
       )
       .setScrollFactor(0)
-      .setDepth(100);
+      .setDepth(depth);
     this.positionText = this.add
-      .text(702, 18, "", {
-        fontFamily: "Arial",
-        fontSize: "12px",
-        color: "#35d9a5",
-        backgroundColor: "rgba(4, 6, 12, 0.82)",
-        padding: { x: 8, y: 6 },
+      .text(position.x, position.y, "", {
+        fontFamily: position.fontFamily,
+        fontSize: `${position.fontSize}px`,
+        color: position.color,
+        backgroundColor: position.backgroundColor,
+        padding: { x: position.paddingX, y: position.paddingY },
       })
       .setOrigin(1, 0)
       .setScrollFactor(0)
-      .setDepth(100);
+      .setDepth(depth);
   }
 
   /**
@@ -339,6 +343,8 @@ export class LevelOneScene extends Phaser.Scene {
 
   /**
    * Aktualisiert Spielerbewegung und technische Positionsanzeige.
+   * @param {number} _time - Von Phaser übergebene, derzeit ungenutzte Zeit.
+   * @param {number} delta - Vergangene Millisekunden seit dem letzten Frame.
    * @returns {void}
    */
   update(_time, delta) {

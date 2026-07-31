@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { ICON_BUTTON_STYLE } from "../../js/config/icon-button-style.js";
+import { drawIconButtonBackground } from "../../js/utils/icon-button-background.js";
 
 /**
  * @typedef {Object} QuickActionButtonOptions
@@ -100,28 +101,12 @@ export class QuickActionButton extends Phaser.GameObjects.Container {
     const style = this.isPointerOver
       ? ICON_BUTTON_STYLE.hover
       : ICON_BUTTON_STYLE.normal;
-    const halfWidth = this.buttonWidth / 2;
-    const halfHeight = this.buttonHeight / 2;
-    this.background.clear();
-    this.background.fillStyle(style.fillColor, style.fillAlpha);
-    this.background.fillRoundedRect(
-      -halfWidth,
-      -halfHeight,
+    drawIconButtonBackground(
+      this.background,
       this.buttonWidth,
       this.buttonHeight,
-      ICON_BUTTON_STYLE.borderRadius,
-    );
-    this.background.lineStyle(
-      ICON_BUTTON_STYLE.strokeWidth,
-      style.strokeColor,
-      style.strokeAlpha,
-    );
-    this.background.strokeRoundedRect(
-      -halfWidth,
-      -halfHeight,
-      this.buttonWidth,
-      this.buttonHeight,
-      ICON_BUTTON_STYLE.borderRadius,
+      style,
+      ICON_BUTTON_STYLE,
     );
     this.setScale(style.scale);
   }
