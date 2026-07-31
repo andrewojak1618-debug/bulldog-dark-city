@@ -99,6 +99,18 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
+   * Registriert eine einmalige Aktion nach dem letzten K.-o.-Frame.
+   * @param {Function} callback - Aktion nach Abschluss der Animation.
+   * @returns {void}
+   */
+  onceKnockOutComplete(callback) {
+    const eventName =
+      Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
+      BULLDOG_ANIMATION_KEYS.knockout;
+    this.once(eventName, callback);
+  }
+
+  /**
    * Spielt die Sprunganimation während der Aufwärtsbewegung ab.
    * @param {boolean} isJumping - Ob sich die Bulldogge aufwärts bewegt.
    * @returns {void}

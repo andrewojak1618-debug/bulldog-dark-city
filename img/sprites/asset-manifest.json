@@ -804,14 +804,16 @@
     {
       "animation": "walk",
       "direction": "side",
-      "frameWidth": 128,
-      "frameHeight": 128,
-      "frames": 4,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frames": 6,
       "files": [
         "dog_catcher_walk_side_01.png",
         "dog_catcher_walk_side_02.png",
         "dog_catcher_walk_side_03.png",
-        "dog_catcher_walk_side_04.png"
+        "dog_catcher_walk_side_04.png",
+        "dog_catcher_walk_side_05.png",
+        "dog_catcher_walk_side_06.png"
       ],
       "path": "enemies\\dog_catcher\\walk\\side"
     },

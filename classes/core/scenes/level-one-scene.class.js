@@ -285,6 +285,9 @@ export class LevelOneScene extends Phaser.Scene {
     );
     this.inputSystem = new InputSystem(this);
     this.physics.add.collider(this.player, this.platforms);
+    this.player.onceKnockOutComplete(() => {
+      this.scene.start(SCENES.gameOver);
+    });
   }
 
   /**
