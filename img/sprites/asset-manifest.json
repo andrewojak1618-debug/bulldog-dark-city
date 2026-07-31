@@ -800,12 +800,68 @@
         "dark_city_lightning_flash_none_04.png"
       ],
       "path": "effects\\weather\\lightning\\flash\\none"
+    },
+    {
+      "animation": "walk",
+      "direction": "side",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4,
+      "files": [
+        "dog_catcher_walk_side_01.png",
+        "dog_catcher_walk_side_02.png",
+        "dog_catcher_walk_side_03.png",
+        "dog_catcher_walk_side_04.png"
+      ],
+      "path": "enemies\\dog_catcher\\walk\\side"
+    },
+    {
+      "animation": "alert",
+      "direction": "side",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4,
+      "files": [
+        "dog_catcher_alert_side_01.png",
+        "dog_catcher_alert_side_02.png",
+        "dog_catcher_alert_side_03.png",
+        "dog_catcher_alert_side_04.png"
+      ],
+      "path": "enemies\\dog_catcher\\alert\\side"
+    },
+    {
+      "animation": "attack",
+      "direction": "side",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4,
+      "files": [
+        "dog_catcher_attack_side_01.png",
+        "dog_catcher_attack_side_02.png",
+        "dog_catcher_attack_side_03.png",
+        "dog_catcher_attack_side_04.png"
+      ],
+      "path": "enemies\\dog_catcher\\attack\\side"
+    },
+    {
+      "animation": "knockout",
+      "direction": "side",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4,
+      "files": [
+        "bulldog_normal_knockout_side_01.png",
+        "bulldog_normal_knockout_side_02.png",
+        "bulldog_normal_knockout_side_03.png",
+        "bulldog_normal_knockout_side_04.png"
+      ],
+      "path": "characters\\bulldog_normal\\knockout\\side"
     }
   ],
   "validation": {
-    "frames": 191,
-    "spritesheets": 61,
-    "animations": 61,
+    "frames": 207,
+    "spritesheets": 65,
+    "animations": 65,
     "issues": []
   }
 }

@@ -60,6 +60,13 @@ export const BULLDOG_TEXTURES = Object.freeze({
     frameHeight: 128,
     frameCount: 2,
   }),
+  knockout: Object.freeze({
+    key: "bulldog-normal-knockout-side",
+    path: `${BULLDOG_NORMAL_BASE_PATH}/knockout/side/spritesheet.png`,
+    frameWidth: 128,
+    frameHeight: 128,
+    frameCount: 4,
+  }),
 });
 
 /**
@@ -71,6 +78,7 @@ export const BULLDOG_ANIMATION_KEYS = Object.freeze({
   jump: "bulldog-jump",
   fall: "bulldog-fall",
   land: "bulldog-land",
+  knockout: "bulldog-knockout",
 });
 
 /**
@@ -124,6 +132,14 @@ export const BULLDOG_ANIMATIONS = Object.freeze([
     endFrame: BULLDOG_TEXTURES.land.frameCount - 1,
     frameRate: 8,
     frameDurations: Object.freeze([0, 175]),
+    repeat: 0,
+  }),
+  Object.freeze({
+    key: BULLDOG_ANIMATION_KEYS.knockout,
+    textureKey: BULLDOG_TEXTURES.knockout.key,
+    startFrame: 0,
+    endFrame: BULLDOG_TEXTURES.knockout.frameCount - 1,
+    frameRate: 5,
     repeat: 0,
   }),
 ]);

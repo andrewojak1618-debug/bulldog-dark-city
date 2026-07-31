@@ -238,12 +238,8 @@ export class MenuScene extends Phaser.Scene {
         .setAlpha(style.idleAlpha);
       this.unavailableLabels.push(unavailableLabel);
       this.menuButtons[index]
-        .on("pointerover", () =>
-          unavailableLabel.setAlpha(style.hoverAlpha),
-        )
-        .on("pointerout", () =>
-          unavailableLabel.setAlpha(style.idleAlpha),
-        );
+        .on("pointerover", () => unavailableLabel.setAlpha(style.hoverAlpha))
+        .on("pointerout", () => unavailableLabel.setAlpha(style.idleAlpha));
     });
   }
 

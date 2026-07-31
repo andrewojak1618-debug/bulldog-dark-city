@@ -34,6 +34,7 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
     this.standingStartedAt = null;
     this.wasFalling = false;
     this.isLanding = false;
+    this.isKnockedOut = false;
   }
 
   /**
@@ -42,6 +43,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    * @returns {void}
    */
   updateMovement(input) {
+    if (this.isKnockedOut) return;
+
     const direction = input.getHorizontalAxis();
     const isFalling = this.body.velocity.y > 0;
     this.setVelocityX(direction * TEST_LEVEL.player.moveSpeed);
@@ -76,6 +79,23 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
 
     this.updateRunAnimation(direction, isGrounded);
     this.updateWaitAnimation(direction, isGrounded);
+  }
+
+  /**
+   * Sperrt die Steuerung und spielt die K.-o.-Sequenz genau einmal ab.
+   * @returns {boolean} `true`, wenn der K.-o.-Zustand neu ausgelöst wurde.
+   */
+  knockOut() {
+    if (this.isKnockedOut) return false;
+
+    this.isKnockedOut = true;
+    this.standingStartedAt = null;
+    this.isLanding = false;
+    this.setVelocity(0, 0);
+    this.setGravityY(0);
+    this.anims.stop();
+    this.play(BULLDOG_ANIMATION_KEYS.knockout);
+    return true;
   }
 
   /**

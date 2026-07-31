@@ -2,6 +2,10 @@ import Phaser from "phaser";
 import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
 import { BulldogAnimationSystem } from "../../systems/bulldog-animation-system.class.js";
+import { DogCatcherAnimationSystem } from
+  "../../systems/dog-catcher-animation-system.class.js";
+import { DogCatcherSystem } from "../../systems/dog-catcher-system.class.js";
+import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
 import { LevelEnvironmentSystem } from "../../systems/level-environment-system.class.js";
 import { LevelFlowSystem } from "../../systems/level-flow-system.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
@@ -32,7 +36,10 @@ export class LevelOneScene extends Phaser.Scene {
       BULLDOG_TEXTURES.jump,
       BULLDOG_TEXTURES.fall,
       BULLDOG_TEXTURES.land,
+      BULLDOG_TEXTURES.knockout,
     ]);
+    DogCatcherSystem.load(this);
+    LevelHudSystem.load(this);
     this.loadLevelAssets();
   }
 
@@ -82,8 +89,13 @@ export class LevelOneScene extends Phaser.Scene {
     LevelEnvironmentSystem.create(this);
     this.createPlatforms();
     BulldogAnimationSystem.register(this);
+    DogCatcherAnimationSystem.register(this);
     this.createPlayer();
+    this.dogCatchers = DogCatcherSystem.create(this, this.platforms);
     this.configureCamera();
+    const hud = LevelHudSystem.create(this);
+    this.healthSystem = hud.health;
+    this.collectibleSystem = hud.collectibles;
     this.createDebugOverlay();
     this.bindSceneControls();
     this.cameras.main.fadeIn(TEST_LEVEL.sceneFadeInMs, 0, 0, 0);
@@ -343,12 +355,18 @@ export class LevelOneScene extends Phaser.Scene {
 
   /**
    * Aktualisiert Spielerbewegung und technische Positionsanzeige.
-   * @param {number} _time - Von Phaser übergebene, derzeit ungenutzte Zeit.
+   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
    * @param {number} delta - Vergangene Millisekunden seit dem letzten Frame.
    * @returns {void}
    */
-  update(_time, delta) {
+  update(time, delta) {
     this.player?.updateMovement(this.inputSystem);
+    DogCatcherSystem.update(
+      this.dogCatchers,
+      this.player,
+      this.healthSystem,
+      time,
+    );
     LevelEnvironmentSystem.update(this, delta);
     const currentZone = LevelFlowSystem.getZoneAt(this.player.x);
     this.positionText?.setText(

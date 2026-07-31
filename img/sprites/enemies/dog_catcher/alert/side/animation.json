@@ -1,0 +1,13 @@
+{
+  "animation": "alert",
+  "direction": "side",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 4,
+  "files": [
+    "dog_catcher_alert_side_01.png",
+    "dog_catcher_alert_side_02.png",
+    "dog_catcher_alert_side_03.png",
+    "dog_catcher_alert_side_04.png"
+  ]
+}
