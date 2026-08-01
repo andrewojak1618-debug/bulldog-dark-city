@@ -1,0 +1,15 @@
+{
+  "animation": "dead",
+  "direction": "side",
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "frames": 4,
+  "files": [
+    "dog_catcher_dead_side_01.png",
+    "dog_catcher_dead_side_02.png",
+    "dog_catcher_dead_side_03.png",
+    "dog_catcher_dead_side_04.png"
+  ],
+  "source": "dead_dog_catcher.png",
+  "scaled": true
+}

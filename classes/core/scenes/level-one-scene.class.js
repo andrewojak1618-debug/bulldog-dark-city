@@ -7,6 +7,7 @@ import { DogCatcherAnimationSystem } from
 import { DogCatcherSystem } from "../../systems/dog-catcher-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
 import { LevelItemSystem } from "../../systems/level-item-system.class.js";
+import { LevelExitSystem } from "../../systems/level-exit-system.class.js";
 import { BackgroundMusicSystem } from
   "../../systems/background-music-system.class.js";
 import { LevelEnvironmentSystem } from "../../systems/level-environment-system.class.js";
@@ -17,6 +18,7 @@ import {
   BULLDOG_TEXTURES,
 } from "../../../js/config/bulldog-animation-settings.js";
 import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
+import { LEVEL_EXIT } from "../../../js/config/level-exit-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 
 /**
@@ -43,11 +45,13 @@ export class LevelOneScene extends Phaser.Scene {
       BULLDOG_TEXTURES.jump,
       BULLDOG_TEXTURES.fall,
       BULLDOG_TEXTURES.land,
+      BULLDOG_TEXTURES.biteAttack,
       BULLDOG_TEXTURES.knockout,
     ]);
     DogCatcherSystem.load(this);
     LevelHudSystem.load(this);
     LevelItemSystem.load(this);
+    LevelExitSystem.load(this);
     BackgroundMusicSystem.load(this, LEVEL_MUSIC.opening);
     this.loadLevelAssets();
   }
@@ -102,11 +106,21 @@ export class LevelOneScene extends Phaser.Scene {
     this.createPlayer();
     this.createBackgroundMusic();
     this.dogCatchers = DogCatcherSystem.create(this, this.platforms);
+    this.levelExit = LevelExitSystem.create(this);
+    DogCatcherSystem.onceDefeated(
+      this.dogCatchers,
+      () => this.levelExit.unlock(),
+    );
     this.configureCamera();
     const hud = LevelHudSystem.create(this);
     this.healthSystem = hud.health;
     this.collectibleSystem = hud.collectibles;
-    this.levelItems = LevelItemSystem.create(this);
+    this.levelItems = LevelItemSystem.create(
+      this,
+      this.player,
+      this.healthSystem,
+      this.collectibleSystem,
+    );
     this.createDebugOverlay();
     this.bindSceneControls();
     this.cameras.main.fadeIn(TEST_LEVEL.sceneFadeInMs, 0, 0, 0);
@@ -382,13 +396,30 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
+   * Blendet Level eins aus und startet die vorbereitete zweite Szene.
+   * @returns {void}
+   */
+  completeLevel() {
+    if (this.isLevelCompleting) return;
+    this.isLevelCompleting = true;
+    this.player.setVelocityX(0);
+    this.backgroundMusic.fadeOutAndStop(LEVEL_EXIT.sceneFadeOutMs);
+    this.cameras.main.once("camerafadeoutcomplete", () => {
+      this.scene.start(SCENES.levelTwo);
+    });
+    this.cameras.main.fadeOut(LEVEL_EXIT.sceneFadeOutMs, 0, 0, 0);
+  }
+
+  /**
    * Aktualisiert Spielerbewegung und technische Positionsanzeige.
    * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
    * @param {number} delta - Vergangene Millisekunden seit dem letzten Frame.
    * @returns {void}
    */
   update(time, delta) {
-    this.player?.updateMovement(this.inputSystem);
+    if (!this.levelExit?.isTransitioning) {
+      this.player?.updateMovement(this.inputSystem, time);
+    }
     DogCatcherSystem.update(
       this.dogCatchers,
       this.player,
@@ -396,6 +427,7 @@ export class LevelOneScene extends Phaser.Scene {
       time,
     );
     LevelEnvironmentSystem.update(this, delta);
+    if (this.levelExit?.update(this.player)) this.completeLevel();
     const currentZone = LevelFlowSystem.getZoneAt(this.player.x);
     this.positionText?.setText(
       `X ${Math.round(this.player.x)}  Y ${Math.round(this.player.y)}` +

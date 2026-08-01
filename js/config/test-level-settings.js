@@ -36,7 +36,9 @@ export const TEST_LEVEL = Object.freeze({
       x: 18,
       y: 132,
       text:
-        "TECHNISCHER TESTLEVEL\nA/D oder ←/→ · Bewegung\nW, ↑ oder Leertaste · Sprung\nESC · Menü",
+        "TECHNISCHER TESTLEVEL\nA/D oder ←/→ · Bewegung\n" +
+        "W, ↑ oder Leertaste · Sprung\n" +
+        "J, Linksklick oder Gamepad-X · Biss\nESC · Menü",
       fontFamily: "Arial",
       fontSize: 13,
       color: "#d7d2dc",
@@ -292,7 +294,7 @@ export const TEST_LEVEL = Object.freeze({
     }),
     Object.freeze({
       x: 2200,
-      y: 429,
+      y: 209,
       width: 300,
       height: 28,
       visualFrame: 3,

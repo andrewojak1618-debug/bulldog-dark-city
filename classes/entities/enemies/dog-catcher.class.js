@@ -2,6 +2,7 @@ import { Enemy } from "./enemy.class.js";
 import {
   DOG_CATCHER,
   DOG_CATCHER_ANIMATION_KEYS,
+  DOG_CATCHER_EVENTS,
   DOG_CATCHER_TEXTURES,
 } from "../../../js/config/dog-catcher-settings.js";
 
@@ -10,6 +11,8 @@ const DOG_CATCHER_STATES = Object.freeze({
   alert: "alert",
   chase: "chase",
   attack: "attack",
+  hit: "hit",
+  dead: "dead",
 });
 
 /**
@@ -40,6 +43,9 @@ export class DogCatcher extends Enemy {
     this.hasDetectedPlayer = false;
     this.nextAttackAt = 0;
     this.attackHitConsumed = false;
+    this.receivedBiteHits = 0;
+    this.hitReactionEndsAt = 0;
+    this.isDead = false;
     this.play(DOG_CATCHER_ANIMATION_KEYS.walk);
   }
 
@@ -50,7 +56,13 @@ export class DogCatcher extends Enemy {
    * @returns {void}
    */
   updateBehavior(player, time) {
-    if (!player?.active || !this.body) return;
+    if (!player?.active || !this.body || this.isDead) return;
+
+    if (this.state === DOG_CATCHER_STATES.hit) {
+      if (time < this.hitReactionEndsAt) return;
+      this.state = DOG_CATCHER_STATES.chase;
+      this.nextAttackAt = Math.min(this.nextAttackAt, time);
+    }
 
     if (player.isKnockedOut) {
       this.showReadyPose();
@@ -211,13 +223,55 @@ export class DogCatcher extends Enemy {
   }
 
   /**
+   * Verarbeitet einen Biss und startet Trefferreaktion oder Dead-Sequenz.
+   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
+   * @returns {boolean} `true`, wenn der Hundefänger besiegt wurde.
+   */
+  takeBiteHit(time) {
+    if (this.isDead || this.state === DOG_CATCHER_STATES.hit) return false;
+
+    this.receivedBiteHits += 1;
+    this.setVelocityX(0);
+    this.anims.stop();
+
+    if (this.receivedBiteHits >= DOG_CATCHER.biteHitsToDefeat) {
+      this.startDeath();
+      return true;
+    }
+
+    this.state = DOG_CATCHER_STATES.hit;
+    this.hitReactionEndsAt = time + DOG_CATCHER.hitReactionMs;
+    this.setTexture(DOG_CATCHER_TEXTURES.dead.key, 0);
+    return false;
+  }
+
+  /**
+   * Beendet Bewegung, Physik und KI und spielt die Dead-Animation einmal ab.
+   * @returns {void}
+   */
+  startDeath() {
+    this.state = DOG_CATCHER_STATES.dead;
+    this.isDead = true;
+    this.attackHitConsumed = true;
+    this.setVelocity(0, 0);
+    this.play(DOG_CATCHER_ANIMATION_KEYS.dead);
+    this.once(
+      `animationcomplete-${DOG_CATCHER_ANIMATION_KEYS.dead}`,
+      () => this.emit(DOG_CATCHER_EVENTS.defeated),
+    );
+    this.body.enable = false;
+  }
+
+  /**
    * Prüft, ob Alert oder Angriff erst vollständig ablaufen müssen.
    * @returns {boolean} `true`, solange eine gesperrte Animation läuft.
    */
   isLockedInAnimation() {
     const isLockedState =
       this.state === DOG_CATCHER_STATES.alert ||
-      this.state === DOG_CATCHER_STATES.attack;
+      this.state === DOG_CATCHER_STATES.attack ||
+      this.state === DOG_CATCHER_STATES.hit ||
+      this.state === DOG_CATCHER_STATES.dead;
 
     return isLockedState && this.anims.isPlaying;
   }

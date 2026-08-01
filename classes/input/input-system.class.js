@@ -9,6 +9,7 @@ export class InputSystem {
   constructor(scene) {
     this.scene = scene;
     this.jumpQueued = false;
+    this.attackQueued = false;
     this.cursors = scene.input.keyboard?.createCursorKeys();
     this.keys = scene.input.keyboard?.addKeys({
       left: "A",
@@ -16,7 +17,9 @@ export class InputSystem {
       jump: "W",
     });
     this.wasGamepadJumpPressed = false;
+    this.wasGamepadAttackPressed = false;
     this.bindJumpKeys();
+    this.bindAttackInputs();
   }
 
   /**
@@ -37,6 +40,27 @@ export class InputSystem {
       keyboard.off("keydown-UP", this.queueJump);
       keyboard.off("keydown-SPACE", this.queueJump);
       keyboard.off("keydown-W", this.queueJump);
+    });
+  }
+
+  /**
+   * Puffert Bissangriffe von Tastatur und linker Maustaste.
+   * @returns {void}
+   */
+  bindAttackInputs() {
+    const keyboard = this.scene.input.keyboard;
+
+    this.queueKeyboardAttack = (event) => {
+      if (!event.repeat) this.attackQueued = true;
+    };
+    this.queuePointerAttack = (pointer) => {
+      if (pointer.button === 0) this.attackQueued = true;
+    };
+    keyboard?.on("keydown-J", this.queueKeyboardAttack);
+    this.scene.input.on("pointerdown", this.queuePointerAttack);
+    this.scene.events.once("shutdown", () => {
+      keyboard?.off("keydown-J", this.queueKeyboardAttack);
+      this.scene.input.off("pointerdown", this.queuePointerAttack);
     });
   }
 
@@ -74,5 +98,21 @@ export class InputSystem {
     const shouldJump = this.jumpQueued || newGamepadJump;
     this.jumpQueued = false;
     return shouldJump;
+  }
+
+  /**
+   * Meldet einen neuen Bissimpuls von J, Linksklick oder Gamepad-X genau
+   * einmal pro Betätigung.
+   * @returns {boolean} `true`, wenn ein neuer Angriff angefordert wurde.
+   */
+  consumeAttack() {
+    const gamepad = this.scene.input.gamepad?.getPad(0);
+    const gamepadAttackPressed = Boolean(gamepad?.buttons[2]?.pressed);
+    const newGamepadAttack =
+      gamepadAttackPressed && !this.wasGamepadAttackPressed;
+    this.wasGamepadAttackPressed = gamepadAttackPressed;
+    const shouldAttack = this.attackQueued || newGamepadAttack;
+    this.attackQueued = false;
+    return shouldAttack;
   }
 }

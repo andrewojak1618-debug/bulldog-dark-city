@@ -67,6 +67,15 @@ export const BULLDOG_TEXTURES = Object.freeze({
     frameHeight: 128,
     frameCount: 4,
   }),
+  biteAttack: Object.freeze({
+    key: "bulldog-normal-bite-attack-v2-side",
+    path:
+      `${BULLDOG_NORMAL_BASE_PATH}` +
+      "/bite_attack_v2/side/spritesheet.png",
+    frameWidth: 192,
+    frameHeight: 128,
+    frameCount: 4,
+  }),
 });
 
 /**
@@ -79,6 +88,7 @@ export const BULLDOG_ANIMATION_KEYS = Object.freeze({
   fall: "bulldog-fall",
   land: "bulldog-land",
   knockout: "bulldog-knockout",
+  biteAttack: "bulldog-bite-attack",
 });
 
 /**
@@ -94,6 +104,7 @@ export const BULLDOG_EVENTS = Object.freeze({
 export const BULLDOG_ANIMATION_TIMING = Object.freeze({
   waitDelayMs: 6000,
   waitSeatedPauseMs: 3000,
+  hitReactionMs: 220,
 });
 
 /**
@@ -139,6 +150,15 @@ export const BULLDOG_ANIMATIONS = Object.freeze([
     endFrame: BULLDOG_TEXTURES.land.frameCount - 1,
     frameRate: 8,
     frameDurations: Object.freeze([0, 175]),
+    repeat: 0,
+  }),
+  Object.freeze({
+    key: BULLDOG_ANIMATION_KEYS.biteAttack,
+    textureKey: BULLDOG_TEXTURES.biteAttack.key,
+    startFrame: 0,
+    endFrame: BULLDOG_TEXTURES.biteAttack.frameCount - 1,
+    frameRate: 8,
+    frameDurations: Object.freeze([0, 0, 0, 100]),
     repeat: 0,
   }),
   Object.freeze({

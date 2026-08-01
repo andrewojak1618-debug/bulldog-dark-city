@@ -848,6 +848,20 @@
       "path": "effects\\weather\\lightning\\flash\\none"
     },
     {
+      "animation": "bite_attack_v2",
+      "direction": "side",
+      "frameWidth": 192,
+      "frameHeight": 128,
+      "frames": 4,
+      "files": [
+        "bulldog_normal_bite_attack_side_01.png",
+        "bulldog_normal_bite_attack_side_02.png",
+        "bulldog_normal_bite_attack_side_03.png",
+        "bulldog_normal_bite_attack_side_04.png"
+      ],
+      "path": "characters\\bulldog_normal\\bite_attack_v2\\side"
+    },
+    {
       "animation": "walk",
       "direction": "side",
       "frameWidth": 256,
@@ -892,6 +906,34 @@
       "path": "enemies\\dog_catcher\\attack\\side"
     },
     {
+      "animation": "dead",
+      "direction": "side",
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "frames": 4,
+      "files": [
+        "dog_catcher_dead_side_01.png",
+        "dog_catcher_dead_side_02.png",
+        "dog_catcher_dead_side_03.png",
+        "dog_catcher_dead_side_04.png"
+      ],
+      "path": "enemies\\dog_catcher\\dead\\side"
+    },
+    {
+      "animation": "level-exit",
+      "direction": "side",
+      "frameWidth": 444,
+      "frameHeight": 887,
+      "frames": 4,
+      "files": [
+        "level-exit-sign-01.png",
+        "level-exit-sign-02.png",
+        "level-exit-sign-03.png",
+        "level-exit-sign-04.png"
+      ],
+      "path": "environment\\level-exit\\side"
+    },
+    {
       "animation": "knockout",
       "direction": "side",
       "frameWidth": 128,
@@ -907,9 +949,9 @@
     }
   ],
   "validation": {
-    "frames": 223,
-    "spritesheets": 68,
-    "animations": 68,
+    "frames": 235,
+    "spritesheets": 71,
+    "animations": 71,
     "issues": []
   }
 }

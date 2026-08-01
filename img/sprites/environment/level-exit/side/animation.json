@@ -1,0 +1,17 @@
+{
+  "animation": "level-exit",
+  "direction": "side",
+  "frameWidth": 444,
+  "frameHeight": 887,
+  "frames": 4,
+  "files": [
+    "level-exit-sign-01.png",
+    "level-exit-sign-02.png",
+    "level-exit-sign-03.png",
+    "level-exit-sign-04.png"
+  ],
+  "staticPost": "level-exit-post.png",
+  "spritesheet": "sign-spritesheet.png",
+  "source": "get_out_next_level.png",
+  "backgroundRemoved": true
+}

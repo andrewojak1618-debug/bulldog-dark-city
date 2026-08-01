@@ -38,6 +38,14 @@ export class HealthSystem {
   }
 
   /**
+   * Prüft, ob keine weiteren Lebenspunkte aufgenommen werden können.
+   * @returns {boolean} `true`, wenn die Lebenspunkte vollständig gefüllt sind.
+   */
+  isFull() {
+    return this.current >= this.maximum;
+  }
+
+  /**
    * Registriert eine Anzeige für künftige Änderungen.
    * @param {(current: number, maximum: number) => void} listener - Callback.
    * @returns {() => void} Funktion zum Entfernen des Callbacks.

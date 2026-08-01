@@ -43,22 +43,146 @@ export class LevelItemSystem {
   /**
    * Setzt die konfigurierten Testitems ins Level und startet ihre Animation.
    * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {Phaser.Physics.Arcade.Sprite} player - Sammelnde Bulldogge.
+   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
    * @returns {Phaser.GameObjects.Group} Gruppe aller sichtbaren Items.
    */
-  static create(scene) {
+  static create(scene, player, health, collectibles) {
     this.registerAnimations(scene);
     const group = scene.add.group({ runChildUpdate: false });
 
     LEVEL_ITEMS.placements.forEach((placement) => {
-      const animation = LEVEL_ITEMS.animations[placement.type];
-      const item = scene.add
-        .sprite(placement.x, placement.y, animation.textureKey, 0)
-        .setDisplaySize(placement.size, placement.size)
-        .setDepth(LEVEL_ITEMS.depth);
-      item.play(animation.key);
-      group.add(item);
+      group.add(this.createItem(scene, placement));
     });
-
+    this.bindPickupOverlap(scene, player, group, health, collectibles);
     return group;
+  }
+
+  /**
+   * Erzeugt ein einzelnes physikbasiertes Item aus seiner Konfiguration.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {object} placement - Position, Typ und Darstellungsgröße.
+   * @returns {Phaser.Physics.Arcade.Sprite} Fertiges Sammelobjekt.
+   */
+  static createItem(scene, placement) {
+    const animation = LEVEL_ITEMS.animations[placement.type];
+    const item = scene.physics.add
+      .sprite(placement.x, placement.y, animation.textureKey, 0)
+      .setDisplaySize(placement.size, placement.size)
+      .setDepth(LEVEL_ITEMS.depth);
+    item.setData({ itemType: placement.type, collected: false });
+    this.configureBody(item);
+    item.play(animation.key);
+    return item;
+  }
+
+  /**
+   * Konfiguriert eine unbewegliche Item-Hitbox ohne Schwerkraft.
+   * @param {Phaser.Physics.Arcade.Sprite} item - Zu konfigurierendes Item.
+   * @returns {void}
+   */
+  static configureBody(item) {
+    item.body
+      .setAllowGravity(false)
+      .setImmovable(true)
+      .setSize(LEVEL_ITEMS.body.width, LEVEL_ITEMS.body.height)
+      .setOffset(LEVEL_ITEMS.body.offsetX, LEVEL_ITEMS.body.offsetY);
+  }
+
+  /**
+   * Verbindet Bulldogge und Itemgruppe mit einer einzelnen Overlap-Prüfung.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {Phaser.Physics.Arcade.Sprite} player - Sammelnde Bulldogge.
+   * @param {Phaser.GameObjects.Group} group - Gruppe der Sammelobjekte.
+   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
+   * @returns {void}
+   */
+  static bindPickupOverlap(scene, player, group, health, collectibles) {
+    scene.physics.add.overlap(player, group, (_player, item) => {
+      this.collect(scene, item, health, collectibles);
+    });
+  }
+
+  /**
+   * Wendet den konfigurierten Itemeffekt genau einmal an.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {Phaser.Physics.Arcade.Sprite} item - Berührtes Sammelobjekt.
+   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
+   * @returns {boolean} `true`, wenn das Item eingesammelt wurde.
+   */
+  static collect(scene, item, health, collectibles) {
+    if (!item.active || item.getData("collected")) return false;
+
+    const itemType = item.getData("itemType");
+    const effect = LEVEL_ITEMS.effects[itemType];
+    if (!this.canCollect(effect, health, collectibles)) return false;
+    this.disableCollectedItem(item);
+    this.applyEffect(effect, health, collectibles);
+    this.playPickupTween(scene, item);
+    return true;
+  }
+
+  /**
+   * Prüft, ob der konfigurierte Effekt aktuell aufgenommen werden darf.
+   * @param {object|undefined} effect - Effekt des berührten Items.
+   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
+   * @returns {boolean} `true`, wenn eine Aufnahme möglich ist.
+   */
+  static canCollect(effect, health, collectibles) {
+    if (!effect || (effect.healthAmount && health.isFull())) return false;
+    if (!effect.blockAtMaximum) return true;
+    return collectibles.getCount(effect.collectibleKey) < effect.maximum;
+  }
+
+  /**
+   * Sperrt ein Item unmittelbar gegen weitere Overlap-Auslösungen.
+   * @param {Phaser.Physics.Arcade.Sprite} item - Eingesammeltes Item.
+   * @returns {void}
+   */
+  static disableCollectedItem(item) {
+    item.setData("collected", true);
+    item.body.enable = false;
+    item.anims.stop();
+  }
+
+  /**
+   * Wendet Heilung oder Zähleränderung anhand der Konfiguration an.
+   * @param {object} effect - Effekt des eingesammelten Items.
+   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
+   * @returns {void}
+   */
+  static applyEffect(effect, health, collectibles) {
+    if (effect.healthAmount) {
+      health.heal(effect.healthAmount);
+      return;
+    }
+    collectibles.collect(
+      effect.collectibleKey,
+      effect.amount,
+      effect.maximum,
+    );
+  }
+
+  /**
+   * Blendet ein eingesammeltes Item kurz vergrößert aus.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {Phaser.GameObjects.Sprite} item - Eingesammeltes Item.
+   * @returns {void}
+   */
+  static playPickupTween(scene, item) {
+    scene.tweens.add({
+      targets: item,
+      alpha: 0,
+      scaleX: item.scaleX * 1.25,
+      scaleY: item.scaleY * 1.25,
+      duration: LEVEL_ITEMS.pickupTweenMs,
+      ease: "Quad.easeOut",
+      onComplete: () => item.destroy(),
+    });
   }
 }

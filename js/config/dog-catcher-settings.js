@@ -31,6 +31,13 @@ export const DOG_CATCHER_TEXTURES = Object.freeze({
     frameHeight: 256,
     frameCount: 4,
   }),
+  dead: Object.freeze({
+    key: "dog-catcher-dead-side",
+    path: `${DOG_CATCHER_BASE_PATH}/dead/side/spritesheet.png`,
+    frameWidth: 256,
+    frameHeight: 256,
+    frameCount: 4,
+  }),
 });
 
 /**
@@ -40,6 +47,12 @@ export const DOG_CATCHER_ANIMATION_KEYS = Object.freeze({
   walk: "dog-catcher-walk",
   alert: "dog-catcher-alert",
   attack: "dog-catcher-attack",
+  dead: "dog-catcher-dead",
+});
+
+/** Eindeutige Fachereignisse des Hundefängers. */
+export const DOG_CATCHER_EVENTS = Object.freeze({
+  defeated: "dog-catcher-defeated",
 });
 
 /**
@@ -68,6 +81,13 @@ export const DOG_CATCHER_ANIMATIONS = Object.freeze([
     frameRate: 8.4,
     repeat: 0,
   }),
+  Object.freeze({
+    key: DOG_CATCHER_ANIMATION_KEYS.dead,
+    textureKey: DOG_CATCHER_TEXTURES.dead.key,
+    endFrame: DOG_CATCHER_TEXTURES.dead.frameCount - 1,
+    frameRate: 5,
+    repeat: 0,
+  }),
 ]);
 
 /**
@@ -93,4 +113,8 @@ export const DOG_CATCHER = Object.freeze({
   attackHitRange: 145,
   attackDamage: 10,
   attackCooldownMs: 1500,
+  biteHitRange: 145,
+  biteGroundLevelTolerance: 48,
+  biteHitsToDefeat: 4,
+  hitReactionMs: 220,
 });

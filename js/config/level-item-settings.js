@@ -13,6 +13,27 @@ const ITEM_FRAME = Object.freeze({
  */
 export const LEVEL_ITEMS = Object.freeze({
   depth: 8,
+  pickupTweenMs: 140,
+  body: Object.freeze({
+    width: 88,
+    height: 88,
+    offsetX: 20,
+    offsetY: 20,
+  }),
+  effects: Object.freeze({
+    health: Object.freeze({ healthAmount: 20 }),
+    coin: Object.freeze({
+      collectibleKey: "coins",
+      amount: 1,
+      maximum: 1000,
+    }),
+    serum: Object.freeze({
+      collectibleKey: "serum",
+      amount: 1,
+      maximum: 2,
+      blockAtMaximum: true,
+    }),
+  }),
   textures: Object.freeze({
     health: Object.freeze({
       key: "item-extra-life-spin",

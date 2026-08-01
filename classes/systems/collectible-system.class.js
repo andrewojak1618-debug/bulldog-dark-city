@@ -15,14 +15,18 @@ export class CollectibleSystem {
    * Erhöht einen registrierten Sammelzähler.
    * @param {string} key - Schlüssel der Objektart.
    * @param {number} [amount=1] - Hinzuzufügende Anzahl.
+   * @param {number} [maximum=Number.POSITIVE_INFINITY] - Höchstwert.
    * @returns {number} Neuer Zählerstand.
    */
-  collect(key, amount = 1) {
+  collect(key, amount = 1, maximum = Number.POSITIVE_INFINITY) {
     if (!this.counts.has(key)) {
       throw new Error(`Unbekanntes Sammelobjekt: ${key}`);
     }
 
-    const count = this.counts.get(key) + Math.max(0, amount);
+    const count = Math.min(
+      Math.max(0, maximum),
+      this.counts.get(key) + Math.max(0, amount),
+    );
     this.counts.set(key, count);
     this.emitChange(key, count);
     return count;
