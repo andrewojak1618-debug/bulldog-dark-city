@@ -1,0 +1,15 @@
+{
+  "animation": "spin",
+  "direction": "none",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 4,
+  "files": [
+    "point_coin_spin_none_01.png",
+    "point_coin_spin_none_02.png",
+    "point_coin_spin_none_03.png",
+    "point_coin_spin_none_04.png"
+  ],
+  "source": "coin_item.png",
+  "scaled": true
+}

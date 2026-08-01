@@ -6,10 +6,17 @@ import { DogCatcherAnimationSystem } from
   "../../systems/dog-catcher-animation-system.class.js";
 import { DogCatcherSystem } from "../../systems/dog-catcher-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
+import { LevelItemSystem } from "../../systems/level-item-system.class.js";
+import { BackgroundMusicSystem } from
+  "../../systems/background-music-system.class.js";
 import { LevelEnvironmentSystem } from "../../systems/level-environment-system.class.js";
 import { LevelFlowSystem } from "../../systems/level-flow-system.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
-import { BULLDOG_TEXTURES } from "../../../js/config/bulldog-animation-settings.js";
+import {
+  BULLDOG_EVENTS,
+  BULLDOG_TEXTURES,
+} from "../../../js/config/bulldog-animation-settings.js";
+import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 
 /**
@@ -40,6 +47,8 @@ export class LevelOneScene extends Phaser.Scene {
     ]);
     DogCatcherSystem.load(this);
     LevelHudSystem.load(this);
+    LevelItemSystem.load(this);
+    BackgroundMusicSystem.load(this, LEVEL_MUSIC.opening);
     this.loadLevelAssets();
   }
 
@@ -91,11 +100,13 @@ export class LevelOneScene extends Phaser.Scene {
     BulldogAnimationSystem.register(this);
     DogCatcherAnimationSystem.register(this);
     this.createPlayer();
+    this.createBackgroundMusic();
     this.dogCatchers = DogCatcherSystem.create(this, this.platforms);
     this.configureCamera();
     const hud = LevelHudSystem.create(this);
     this.healthSystem = hud.health;
     this.collectibleSystem = hud.collectibles;
+    this.levelItems = LevelItemSystem.create(this);
     this.createDebugOverlay();
     this.bindSceneControls();
     this.cameras.main.fadeIn(TEST_LEVEL.sceneFadeInMs, 0, 0, 0);
@@ -287,6 +298,20 @@ export class LevelOneScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.platforms);
     this.player.onceKnockOutComplete(() => {
       this.scene.start(SCENES.gameOver);
+    });
+  }
+
+  /**
+   * Startet die Einstiegsmusik und blendet sie beim K. o. weich aus.
+   * @returns {void}
+   */
+  createBackgroundMusic() {
+    this.backgroundMusic = new BackgroundMusicSystem(this);
+    this.backgroundMusic.play(LEVEL_MUSIC.opening);
+    this.player.once(BULLDOG_EVENTS.knockedOut, () => {
+      this.backgroundMusic.fadeOutAndStop(
+        LEVEL_MUSIC.opening.fadeOutMs,
+      );
     });
   }
 

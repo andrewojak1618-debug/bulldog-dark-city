@@ -11,13 +11,9 @@ export class LevelEnvironmentSystem {
    */
   static load(scene) {
     const assets = TEST_LEVEL.assets;
-    scene.load.spritesheet(
+    scene.load.image(
       assets.cityBackground.key,
       assets.cityBackground.path,
-      {
-        frameWidth: assets.cityBackground.frameWidth,
-        frameHeight: assets.cityBackground.frameHeight,
-      },
     );
     scene.load.spritesheet(
       assets.skyscraperParallax.key,
@@ -77,7 +73,7 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Füllt das Canvas mit zwei seitenverhältnisgetreuen Stadtvarianten.
+   * Füllt das Canvas mit dem bereits weich verbundenen Stadtbild.
    * @param {Phaser.Scene} scene - Aktive Levelszene.
    * @returns {void}
    */
@@ -85,22 +81,12 @@ export class LevelEnvironmentSystem {
     const background = TEST_LEVEL.assets.cityBackground;
     const viewportWidth = scene.scale.width;
     const viewportHeight = scene.scale.height;
-    const frameScale = viewportHeight / background.frameHeight;
-    const frameWidth = background.frameWidth * frameScale;
-    const totalWidth =
-      frameWidth * background.visibleFrames.length -
-      background.seamOverlap;
-    let x = (viewportWidth - totalWidth) / 2;
-
-    background.visibleFrames.forEach((frame) => {
-      scene.add
-        .image(x, viewportHeight, background.key, frame)
-        .setOrigin(0, 1)
-        .setScrollFactor(0)
-        .setDisplaySize(frameWidth, viewportHeight)
-        .setDepth(-10);
-      x += frameWidth - background.seamOverlap;
-    });
+    scene.add
+      .image(0, 0, background.key)
+      .setOrigin(0)
+      .setScrollFactor(0)
+      .setDisplaySize(viewportWidth, viewportHeight)
+      .setDepth(-10);
   }
 
   /**

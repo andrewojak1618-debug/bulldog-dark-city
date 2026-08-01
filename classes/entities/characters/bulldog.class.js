@@ -3,6 +3,7 @@ import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_ANIMATION_TIMING,
+  BULLDOG_EVENTS,
   BULLDOG_TEXTURES,
 } from "../../../js/config/bulldog-animation-settings.js";
 
@@ -95,6 +96,7 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
     this.setGravityY(0);
     this.anims.stop();
     this.play(BULLDOG_ANIMATION_KEYS.knockout);
+    this.emit(BULLDOG_EVENTS.knockedOut);
     return true;
   }
 

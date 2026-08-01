@@ -1,0 +1,15 @@
+{
+  "animation": "spin",
+  "direction": "none",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 4,
+  "files": [
+    "extra_life_spin_none_01.png",
+    "extra_life_spin_none_02.png",
+    "extra_life_spin_none_03.png",
+    "extra_life_spin_none_04.png"
+  ],
+  "source": "health_item.png",
+  "scaled": true
+}

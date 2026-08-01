@@ -82,6 +82,13 @@ export const BULLDOG_ANIMATION_KEYS = Object.freeze({
 });
 
 /**
+ * Domänenereignisse für Reaktionen außerhalb der Bulldog-Klasse.
+ */
+export const BULLDOG_EVENTS = Object.freeze({
+  knockedOut: "bulldog-knocked-out",
+});
+
+/**
  * Zeitabhängige Schwellenwerte der Bulldog-Animationen.
  */
 export const BULLDOG_ANIMATION_TIMING = Object.freeze({

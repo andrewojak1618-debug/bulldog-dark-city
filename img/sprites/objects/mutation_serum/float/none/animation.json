@@ -1,0 +1,19 @@
+{
+  "animation": "float",
+  "direction": "none",
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "frames": 8,
+  "files": [
+    "mutation_serum_float_none_01.png",
+    "mutation_serum_float_none_02.png",
+    "mutation_serum_float_none_03.png",
+    "mutation_serum_float_none_04.png",
+    "mutation_serum_float_none_05.png",
+    "mutation_serum_float_none_06.png",
+    "mutation_serum_float_none_07.png",
+    "mutation_serum_float_none_08.png"
+  ],
+  "source": "serum_item.png",
+  "scaled": true
+}

@@ -788,6 +788,52 @@
       "path": "objects\\point_coin\\static\\none"
     },
     {
+      "animation": "spin",
+      "direction": "none",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4,
+      "files": [
+        "extra_life_spin_none_01.png",
+        "extra_life_spin_none_02.png",
+        "extra_life_spin_none_03.png",
+        "extra_life_spin_none_04.png"
+      ],
+      "path": "objects\\extra_life\\spin\\none"
+    },
+    {
+      "animation": "spin",
+      "direction": "none",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 4,
+      "files": [
+        "point_coin_spin_none_01.png",
+        "point_coin_spin_none_02.png",
+        "point_coin_spin_none_03.png",
+        "point_coin_spin_none_04.png"
+      ],
+      "path": "objects\\point_coin\\spin\\none"
+    },
+    {
+      "animation": "float",
+      "direction": "none",
+      "frameWidth": 128,
+      "frameHeight": 128,
+      "frames": 8,
+      "files": [
+        "mutation_serum_float_none_01.png",
+        "mutation_serum_float_none_02.png",
+        "mutation_serum_float_none_03.png",
+        "mutation_serum_float_none_04.png",
+        "mutation_serum_float_none_05.png",
+        "mutation_serum_float_none_06.png",
+        "mutation_serum_float_none_07.png",
+        "mutation_serum_float_none_08.png"
+      ],
+      "path": "objects\\mutation_serum\\float\\none"
+    },
+    {
       "animation": "flash",
       "direction": "none",
       "frameWidth": 344,
@@ -861,9 +907,9 @@
     }
   ],
   "validation": {
-    "frames": 207,
-    "spritesheets": 65,
-    "animations": 65,
+    "frames": 223,
+    "spritesheets": 68,
+    "animations": 68,
     "issues": []
   }
 }

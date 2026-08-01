@@ -98,12 +98,8 @@ export const TEST_LEVEL = Object.freeze({
       key: "dark-city-background-blue",
       path: getAssetPath(
         "backgrounds",
-        "dark_city/variations/blue/spritesheet.png",
+        "dark_city/composites/city-background-blue-composite.png",
       ),
-      frameWidth: 507,
-      frameHeight: 567,
-      visibleFrames: Object.freeze([1, 0]),
-      seamOverlap: 2,
     }),
     skyscraperParallax: Object.freeze({
       key: "dark-city-skyscraper-parallax",
@@ -137,8 +133,7 @@ export const TEST_LEVEL = Object.freeze({
       key: "dark-city-cloud-parallax",
       path: getAssetPath(
         "backgrounds",
-        "dark_city/atmosphere/set_02/" +
-          "dark_city_atmosphere_set_02_static_none_01.png",
+        "dark_city/atmosphere/processed/cloud-back-soft.png",
       ),
       sourceWidth: 1738,
       sourceHeight: 193,
@@ -152,16 +147,15 @@ export const TEST_LEVEL = Object.freeze({
       key: "dark-city-foreground-cloud-parallax",
       path: getAssetPath(
         "backgrounds",
-        "dark_city/atmosphere/set_01/" +
-          "dark_city_atmosphere_set_01_static_none_02.png",
+        "dark_city/atmosphere/processed/cloud-front-soft.png",
       ),
       sourceWidth: 1738,
       sourceHeight: 200,
       displayHeight: 145,
       offsetX: -80,
-      offsetY: 160,
+      offsetY: 150,
       scrollFactor: 0.2,
-      alpha: 0.32,
+      alpha: 0.22,
     }),
     elevatedRoadParallax: Object.freeze({
       key: "dark-city-elevated-road-parallax",
