@@ -1,0 +1,14 @@
+{
+  "layer": "skyscrapers",
+  "frameWidth": 512,
+  "frameHeight": 512,
+  "frames": 4,
+  "files": [
+    "level_two_skyscrapers_01.png",
+    "level_two_skyscrapers_02.png",
+    "level_two_skyscrapers_03.png",
+    "level_two_skyscrapers_04.png"
+  ],
+  "source": "hintergrund_1_skyscraper-Level_2.png",
+  "transparent": true
+}

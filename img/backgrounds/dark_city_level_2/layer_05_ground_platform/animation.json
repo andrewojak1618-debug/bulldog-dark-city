@@ -1,0 +1,16 @@
+{
+  "layer": "ground_platform",
+  "frameWidth": 512,
+  "frameHeight": 512,
+  "frames": 4,
+  "files": [
+    "level_two_ground_01.png",
+    "level_two_ground_02.png",
+    "level_two_ground_03.png",
+    "level_two_ground_04.png"
+  ],
+  "source": "vordergrund_1_boden_plattform-Level_2.png",
+  "transparent": true,
+  "surfaceOffsetY": 166,
+  "physics": false
+}

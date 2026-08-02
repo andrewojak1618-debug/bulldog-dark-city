@@ -1,0 +1,14 @@
+{
+  "layer": "elevated_roads",
+  "frameWidth": 512,
+  "frameHeight": 512,
+  "frames": 4,
+  "files": [
+    "level_two_overpass_01.png",
+    "level_two_overpass_02.png",
+    "level_two_overpass_03.png",
+    "level_two_overpass_04.png"
+  ],
+  "source": "mittelgrund_2_hochstrassen-Level_2.png",
+  "transparent": true
+}

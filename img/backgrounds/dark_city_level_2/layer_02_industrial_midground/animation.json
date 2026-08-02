@@ -1,0 +1,14 @@
+{
+  "layer": "industrial_midground",
+  "frameWidth": 512,
+  "frameHeight": 512,
+  "frames": 4,
+  "files": [
+    "level_two_industrial_01.png",
+    "level_two_industrial_02.png",
+    "level_two_industrial_03.png",
+    "level_two_industrial_04.png"
+  ],
+  "source": "mittelgrund_1_industrie_gebäude-Level_2.png",
+  "transparent": true
+}
