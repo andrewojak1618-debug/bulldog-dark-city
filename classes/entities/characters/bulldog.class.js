@@ -1,5 +1,6 @@
 import Phaser from "phaser";
-import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
+import { BULLDOG_GAMEPLAY } from
+  "../../../js/config/bulldog-gameplay-settings.js";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_ANIMATION_TIMING,
@@ -20,7 +21,7 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    */
   constructor(scene, x, y, texture) {
     super(scene, x, y, texture);
-    const settings = TEST_LEVEL.player;
+    const settings = BULLDOG_GAMEPLAY;
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.setDisplaySize(
@@ -82,11 +83,11 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    */
   applyMovement(input, direction) {
     const isFalling = this.body.velocity.y > 0;
-    this.setVelocityX(direction * TEST_LEVEL.player.moveSpeed);
-    this.setGravityY(isFalling ? TEST_LEVEL.player.fallGravityBoost : 0);
+    this.setVelocityX(direction * BULLDOG_GAMEPLAY.moveSpeed);
+    this.setGravityY(isFalling ? BULLDOG_GAMEPLAY.fallGravityBoost : 0);
     if (direction !== 0) this.setFlipX(direction < 0);
     if (input.consumeJump() && this.isGrounded()) {
-      this.setVelocityY(TEST_LEVEL.player.jumpVelocity);
+      this.setVelocityY(BULLDOG_GAMEPLAY.jumpVelocity);
     }
   }
 

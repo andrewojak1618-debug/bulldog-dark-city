@@ -1,10 +1,27 @@
-import { BULLDOG_ANIMATIONS } from
+import {
+  BULLDOG_ANIMATIONS,
+  BULLDOG_TEXTURES,
+} from
   "../../js/config/bulldog-animation-settings.js";
 
 /**
  * Registriert die Bewegungsanimationen der normalen Bulldogge.
  */
 export class BulldogAnimationSystem {
+  /**
+   * Lädt sämtliche Texturen der normalen Bulldogge für eine Spielszene.
+   * @param {Phaser.Scene} scene - Szene, welche die Texturen verwendet.
+   * @returns {void}
+   */
+  static load(scene) {
+    Object.values(BULLDOG_TEXTURES).forEach((texture) => {
+      scene.load.spritesheet(texture.key, texture.path, {
+        frameWidth: texture.frameWidth,
+        frameHeight: texture.frameHeight,
+      });
+    });
+  }
+
   /**
    * Erstellt jede Animation genau einmal im globalen Phaser-Manager.
    * @param {Phaser.Scene} scene - Szene mit geladenen Bulldog-Texturen.

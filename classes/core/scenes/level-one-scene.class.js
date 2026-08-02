@@ -37,17 +37,7 @@ export class LevelOneScene extends Phaser.Scene {
    * @returns {void}
    */
   preload() {
-    this.loadBulldogSpritesheets([
-      BULLDOG_TEXTURES.stand,
-      BULLDOG_TEXTURES.sit,
-      BULLDOG_TEXTURES.waitBreathe,
-      BULLDOG_TEXTURES.run,
-      BULLDOG_TEXTURES.jump,
-      BULLDOG_TEXTURES.fall,
-      BULLDOG_TEXTURES.land,
-      BULLDOG_TEXTURES.biteAttack,
-      BULLDOG_TEXTURES.knockout,
-    ]);
+    BulldogAnimationSystem.load(this);
     DogCatcherSystem.load(this);
     LevelHudSystem.load(this);
     LevelItemSystem.load(this);
@@ -71,25 +61,6 @@ export class LevelOneScene extends Phaser.Scene {
     this.load.spritesheet(floating.key, floating.path, {
       frameWidth: floating.frameWidth,
       frameHeight: floating.frameHeight,
-    });
-  }
-
-  /**
-   * Registriert Bulldog-Spritesheets mit ihren zentralen Framewerten.
-   * @param {ReadonlyArray<{
-   *   key: string,
-   *   path: string,
-   *   frameWidth: number,
-   *   frameHeight: number
-   * }>} textures - Zu ladende Texturdaten.
-   * @returns {void}
-   */
-  loadBulldogSpritesheets(textures) {
-    textures.forEach((texture) => {
-      this.load.spritesheet(texture.key, texture.path, {
-        frameWidth: texture.frameWidth,
-        frameHeight: texture.frameHeight,
-      });
     });
   }
 
@@ -301,7 +272,7 @@ export class LevelOneScene extends Phaser.Scene {
    * @returns {void}
    */
   createPlayer() {
-    const settings = TEST_LEVEL.player;
+    const settings = TEST_LEVEL.playerSpawn;
     this.player = new Bulldog(
       this,
       settings.startX,

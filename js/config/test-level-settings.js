@@ -9,19 +9,9 @@ export const TEST_LEVEL = Object.freeze({
     height: 600,
     backgroundColor: 0x080d18,
   }),
-  player: Object.freeze({
+  playerSpawn: Object.freeze({
     startX: 150,
     startY: 390,
-    displayWidth: 128,
-    displayHeight: 128,
-    bodyWidth: 104,
-    bodyHeight: 64,
-    bodyOffsetX: 12,
-    bodyOffsetY: 60,
-    moveSpeed: 250,
-    jumpVelocity: -520,
-    fallGravityBoost: 150,
-    maxFallSpeed: 1050,
   }),
   camera: Object.freeze({
     lerpX: 0.1,
