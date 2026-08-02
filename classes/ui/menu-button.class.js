@@ -41,16 +41,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
     this.onFocus = options.onFocus ?? null;
     this.setInitialState(options);
     this.background = scene.add.graphics();
-    this.label = this.createLabel(
-      scene,
-      options.label,
-      options.fontSize,
-    );
-    this.icon = this.createIcon(
-      scene,
-      options.iconKey,
-      options.iconCrop,
-    );
+    this.label = this.createLabel(scene, options.label, options.fontSize);
+    this.icon = this.createIcon(scene, options.iconKey, options.iconCrop);
     this.addContent();
     this.layoutContent();
     this.setSize(options.width, options.height);
@@ -155,8 +147,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
    * @returns {void}
    */
   layoutContent() {
-    const left =
-      -this.buttonWidth / 2 + MENU_BUTTON_CONTENT.horizontalPadding;
+    const left = -this.buttonWidth / 2 + MENU_BUTTON_CONTENT.horizontalPadding;
     this.label.setX(this.getLabelPosition(left));
 
     if (this.icon) {
@@ -178,9 +169,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
     }
 
     return (
-      left +
-      MENU_BUTTON_CONTENT.iconSize +
-      MENU_BUTTON_CONTENT.iconTextGap
+      left + MENU_BUTTON_CONTENT.iconSize + MENU_BUTTON_CONTENT.iconTextGap
     );
   }
 
