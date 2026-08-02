@@ -4,6 +4,15 @@ import { getAssetPath } from "./asset-paths.js";
  * Zentrale Darstellungseinstellungen des zweiten Levels.
  */
 export const LEVEL_TWO = Object.freeze({
+  world: Object.freeze({
+    width: 2400,
+    height: 600,
+    backgroundColor: 0x080d18,
+  }),
+  playerSpawn: Object.freeze({
+    startX: 150,
+    startY: 390,
+  }),
   background: Object.freeze({
     key: "dark-city-level-two-background-green-main-01",
     path: getAssetPath(
@@ -92,5 +101,6 @@ export const LEVEL_TWO = Object.freeze({
     scrollFactor: 1,
     depth: 0,
     surfaceOffsetY: 166,
+    collisionHeight: 60,
   }),
 });

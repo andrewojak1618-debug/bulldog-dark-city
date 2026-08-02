@@ -1,5 +1,11 @@
 import Phaser from "phaser";
+import { Bulldog } from "../../entities/characters/bulldog.class.js";
+import { InputSystem } from "../../input/input-system.class.js";
+import { BulldogAnimationSystem } from
+  "../../systems/bulldog-animation-system.class.js";
 import { SCENES } from "../../../js/config/game-settings.js";
+import { BULLDOG_TEXTURES } from
+  "../../../js/config/bulldog-animation-settings.js";
 import { LEVEL_TWO } from "../../../js/config/level-two-settings.js";
 
 /**
@@ -16,6 +22,7 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   preload() {
+    BulldogAnimationSystem.load(this);
     const background = LEVEL_TWO.background;
     const skyscrapers = LEVEL_TWO.skyscrapers;
     const industrialMidground = LEVEL_TWO.industrialMidground;
@@ -54,27 +61,76 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
-    this.cameras.main.setBackgroundColor(0x080d18);
+    this.configureWorld();
     this.createMainBackground();
     this.createSkyscraperLayer();
     this.createIndustrialMidground();
     this.createElevatedRoads();
     this.createFenceObjects();
     this.createGroundPlatform();
-    this.add.text(360, 220, "LEVEL 2\nWIRD VORBEREITET", {
-      align: "center",
-      color: "#35d9a5",
-      fontFamily: "Arial",
-      fontSize: "28px",
-    }).setOrigin(0.5);
-    this.add.text(360, 300, "ESC · ZURÜCK ZUM MENÜ", {
+    this.createGroundCollision();
+    BulldogAnimationSystem.register(this);
+    this.createPlayer();
+    this.add.text(360, 24, "ESC · ZURÜCK ZUM MENÜ", {
       color: "#d7d2dc",
       fontFamily: "Arial",
       fontSize: "14px",
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(100);
     this.input.keyboard?.once("keydown-ESC", () => {
       this.scene.start(SCENES.menu);
     });
+  }
+
+  /**
+   * Erstellt die Bulldogge mit derselben Steuerung wie in Level eins.
+   * @returns {Bulldog} Erstellte Spielfigur.
+   */
+  createPlayer() {
+    const { startX, startY } = LEVEL_TWO.playerSpawn;
+    this.player = new Bulldog(
+      this,
+      startX,
+      startY,
+      BULLDOG_TEXTURES.stand.key,
+    );
+    this.inputSystem = new InputSystem(this);
+    this.physics.add.collider(this.player, this.platforms);
+    return this.player;
+  }
+
+  /**
+   * Verbindet die sichtbare Straßenoberfläche mit einer statischen Hitbox.
+   * @returns {Phaser.Physics.Arcade.StaticGroup} Boden-Kollisionsgruppe.
+   */
+  createGroundCollision() {
+    const ground = LEVEL_TWO.groundPlatform;
+    const scale = ground.displayHeight / ground.frameHeight;
+    const visualTop = ground.bottomY - ground.displayHeight;
+    const surfaceY = visualTop + ground.surfaceOffsetY * scale;
+    const collisionY = surfaceY + ground.collisionHeight / 2;
+    const groundBody = this.add.rectangle(
+      LEVEL_TWO.world.width / 2,
+      collisionY,
+      LEVEL_TWO.world.width,
+      ground.collisionHeight,
+    );
+
+    groundBody.setVisible(false);
+    this.platforms = this.physics.add.staticGroup();
+    this.platforms.add(groundBody);
+    return this.platforms;
+  }
+
+  /**
+   * Setzt identische Grenzen für die Level-2-Physikwelt und Hauptkamera.
+   * @returns {void}
+   */
+  configureWorld() {
+    const { width, height, backgroundColor } = LEVEL_TWO.world;
+    this.physics.world.setBounds(0, 0, width, height);
+    this.cameras.main
+      .setBounds(0, 0, width, height)
+      .setBackgroundColor(backgroundColor);
   }
 
   /**
@@ -153,5 +209,14 @@ export class LevelTwoScene extends Phaser.Scene {
         .setDisplaySize(displayWidth, layer.displayHeight)
         .setDepth(layer.depth),
     );
+  }
+
+  /**
+   * Aktualisiert die levelübergreifende Bulldog-Bewegung und Animationen.
+   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
+   * @returns {void}
+   */
+  update(time) {
+    this.player?.updateMovement(this.inputSystem, time);
   }
 }
