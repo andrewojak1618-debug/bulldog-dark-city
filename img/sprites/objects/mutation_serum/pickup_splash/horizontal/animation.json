@@ -1,0 +1,15 @@
+{
+  "animation": "pickup_splash",
+  "direction": "horizontal",
+  "frameWidth": 128,
+  "frameHeight": 64,
+  "frames": 4,
+  "files": [
+    "mutation_serum_pickup_splash_01.png",
+    "mutation_serum_pickup_splash_02.png",
+    "mutation_serum_pickup_splash_03.png",
+    "mutation_serum_pickup_splash_04.png"
+  ],
+  "source": "serum_splash_aktion.png",
+  "scaled": true
+}

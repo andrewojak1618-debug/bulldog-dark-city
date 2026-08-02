@@ -16,6 +16,12 @@ export class LevelItemSystem {
         frameHeight: texture.frameHeight,
       });
     });
+    Object.values(LEVEL_ITEMS.pickupEffects).forEach((effect) => {
+      scene.load.spritesheet(effect.textureKey, effect.path, {
+        frameWidth: effect.frameWidth,
+        frameHeight: effect.frameHeight,
+      });
+    });
   }
 
   /**
@@ -24,7 +30,12 @@ export class LevelItemSystem {
    * @returns {void}
    */
   static registerAnimations(scene) {
-    Object.values(LEVEL_ITEMS.animations).forEach((animation) => {
+    const animations = [
+      ...Object.values(LEVEL_ITEMS.animations),
+      ...Object.values(LEVEL_ITEMS.pickupEffects),
+    ];
+
+    animations.forEach((animation) => {
       if (scene.anims.exists(animation.key)) return;
 
       scene.anims.create({
@@ -35,7 +46,7 @@ export class LevelItemSystem {
         })),
         frameRate: animation.frameRate,
         yoyo: animation.yoyo ?? false,
-        repeat: -1,
+        repeat: animation.repeat ?? -1,
       });
     });
   }
@@ -121,6 +132,7 @@ export class LevelItemSystem {
     if (!this.canCollect(effect, health, collectibles)) return false;
     this.disableCollectedItem(item);
     this.applyEffect(effect, health, collectibles);
+    this.playPickupEffect(scene, item, itemType);
     this.playPickupTween(scene, item);
     return true;
   }
@@ -166,6 +178,32 @@ export class LevelItemSystem {
       effect.amount,
       effect.maximum,
     );
+  }
+
+  /**
+   * Spielt den optionalen, einmaligen Aufnahmeeffekt am Item-Ursprung ab.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {Phaser.GameObjects.Sprite} item - Eingesammeltes Item.
+   * @param {string} itemType - Konfigurierter Typ des Items.
+   * @returns {Phaser.GameObjects.Sprite|null} Erzeugter Effekt oder `null`.
+   */
+  static playPickupEffect(scene, item, itemType) {
+    const effect = LEVEL_ITEMS.pickupEffects[itemType];
+    if (!effect) return null;
+
+    const effectSprite = scene.add
+      .sprite(
+        item.x + (effect.offsetX ?? 0),
+        item.y + (effect.offsetY ?? 0),
+        effect.textureKey,
+        0,
+      )
+      .setDisplaySize(effect.displayWidth, effect.displayHeight)
+      .setAngle(effect.angle ?? 0)
+      .setDepth(LEVEL_ITEMS.depth + 1);
+    effectSprite.once("animationcomplete", () => effectSprite.destroy());
+    effectSprite.play(effect.key);
+    return effectSprite;
   }
 
   /**

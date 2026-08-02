@@ -1,0 +1,15 @@
+{
+  "animation": "pickup_splash",
+  "direction": "horizontal",
+  "frameWidth": 128,
+  "frameHeight": 64,
+  "frames": 4,
+  "files": [
+    "point_coin_pickup_splash_01.png",
+    "point_coin_pickup_splash_02.png",
+    "point_coin_pickup_splash_03.png",
+    "point_coin_pickup_splash_04.png"
+  ],
+  "source": "coin_splash_aktion.png",
+  "scaled": true
+}
