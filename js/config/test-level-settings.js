@@ -79,6 +79,14 @@ export const TEST_LEVEL = Object.freeze({
   platformCollision: Object.freeze({
     edgeInset: 52,
   }),
+  platformDebug: Object.freeze({
+    groundFillColor: 0x192536,
+    raisedFillColor: 0x241b36,
+    groundStrokeColor: 0x35d9a5,
+    raisedStrokeColor: 0xff2cb8,
+    strokeWidth: 2,
+    strokeAlpha: 0.9,
+  }),
   assets: Object.freeze({
     cityBackground: Object.freeze({
       key: "dark-city-background-blue",
@@ -215,6 +223,7 @@ export const TEST_LEVEL = Object.freeze({
       frameWidth: 513,
       frameHeight: 306,
       frame: 0,
+      seamOverlap: 8,
       surfaceOffsetY: 86,
       characterLaneOffsetY: 40,
     }),

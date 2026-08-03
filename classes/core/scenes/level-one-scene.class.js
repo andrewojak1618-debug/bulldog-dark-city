@@ -12,6 +12,8 @@ import { BackgroundMusicSystem } from
   "../../systems/background-music-system.class.js";
 import { LevelEnvironmentSystem } from "../../systems/level-environment-system.class.js";
 import { LevelFlowSystem } from "../../systems/level-flow-system.class.js";
+import { LevelOnePlatformSystem } from
+  "../../systems/level-one-platform-system.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
 import {
   BULLDOG_EVENTS,
@@ -45,25 +47,8 @@ export class LevelOneScene extends Phaser.Scene {
     LevelItemSystem.load(this);
     LevelExitSystem.load(this);
     BackgroundMusicSystem.load(this, LEVEL_MUSIC.opening);
-    this.loadLevelAssets();
-  }
-
-  /**
-   * Lädt die aktuell im Testlevel verwendeten Umgebungsgrafiken.
-   * @returns {void}
-   */
-  loadLevelAssets() {
-    const ground = TEST_LEVEL.assets.groundPlatform;
-    const floating = TEST_LEVEL.assets.floatingPlatform;
     LevelEnvironmentSystem.load(this);
-    this.load.spritesheet(ground.key, ground.path, {
-      frameWidth: ground.frameWidth,
-      frameHeight: ground.frameHeight,
-    });
-    this.load.spritesheet(floating.key, floating.path, {
-      frameWidth: floating.frameWidth,
-      frameHeight: floating.frameHeight,
-    });
+    LevelOnePlatformSystem.load(this);
   }
 
   /**
@@ -73,7 +58,7 @@ export class LevelOneScene extends Phaser.Scene {
   create() {
     this.configureWorld();
     LevelEnvironmentSystem.create(this);
-    this.createPlatforms();
+    this.platforms = LevelOnePlatformSystem.create(this);
     BulldogAnimationSystem.register(this);
     DogCatcherAnimationSystem.register(this);
     this.createPlayer();
@@ -107,166 +92,6 @@ export class LevelOneScene extends Phaser.Scene {
     const { width, height } = TEST_LEVEL.world;
     this.physics.world.setBounds(0, 0, width, height);
     this.cameras.main.setBounds(0, 0, width, height);
-  }
-
-  /**
-   * Erstellt sichtbare statische Flächen mit Arcade-Kollisionen.
-   * @returns {void}
-   */
-  createPlatforms() {
-    this.platforms = this.physics.add.staticGroup();
-    TEST_LEVEL.platforms.forEach((platformConfig, index) => {
-      const isGround = index === 0;
-      const hasPlatformVisual = Number.isInteger(platformConfig.visualFrame);
-      const collisionAreas = this.getPlatformCollisionAreas(
-        platformConfig,
-        isGround ? 0 : TEST_LEVEL.platformCollision.edgeInset,
-      );
-
-      collisionAreas.forEach((collisionArea) => {
-        const platform = this.add.rectangle(
-          collisionArea.x,
-          collisionArea.y,
-          collisionArea.width,
-          collisionArea.height,
-          isGround ? 0x192536 : 0x241b36,
-        );
-        platform.setStrokeStyle(2, isGround ? 0x35d9a5 : 0xff2cb8, 0.9);
-        platform.setVisible(!isGround && !hasPlatformVisual);
-        this.platforms.add(platform);
-      });
-
-      if (isGround) {
-        this.createGroundVisual(platformConfig);
-      } else if (hasPlatformVisual) {
-        this.createRaisedPlatformVisual(platformConfig);
-      }
-    });
-  }
-
-  /**
-   * Teilt abgestufte Plattformen in passende Kollisionsflächen auf.
-   * @param {{
-   *   x: number,
-   *   y: number,
-   *   width: number,
-   *   height: number,
-   *   stepDown?: {
-   *     splitRatio: number,
-   *     splitOffsetX?: number,
-   *     dropY: number
-   *   }
-   * }} platformConfig - Zentrale Plattformkonfiguration.
-   * @param {number} edgeInset - Rücksprung an beiden Außenkanten.
-   * @returns {Array<{x: number, y: number, width: number, height: number}>}
-   * Kollisionsflächen von links nach rechts.
-   */
-  getPlatformCollisionAreas(platformConfig, edgeInset = 0) {
-    if (!platformConfig.stepDown) {
-      return [
-        {
-          ...platformConfig,
-          width: platformConfig.width - edgeInset * 2,
-        },
-      ];
-    }
-
-    const { splitRatio, splitOffsetX = 0, dropY } = platformConfig.stepDown;
-    const leftEdge = platformConfig.x - platformConfig.width / 2;
-    const leftWidth = platformConfig.width * splitRatio + splitOffsetX;
-    const rightWidth = platformConfig.width - leftWidth;
-
-    const collisionAreas = [
-      {
-        x: leftEdge + leftWidth / 2,
-        y: platformConfig.y,
-        width: leftWidth,
-        height: platformConfig.height,
-      },
-      {
-        x: leftEdge + leftWidth + rightWidth / 2,
-        y: platformConfig.y + dropY,
-        width: rightWidth,
-        height: platformConfig.height,
-      },
-    ];
-
-    return this.insetOuterCollisionEdges(collisionAreas, edgeInset);
-  }
-
-  /**
-   * Verkürzt nur die äußeren Enden abgestufter Kollisionsflächen.
-   * @param {Array<{x: number, y: number, width: number, height: number}>}
-   * collisionAreas - Kollisionsflächen von links nach rechts.
-   * @param {number} edgeInset - Rücksprung pro äußerer Kante.
-   * @returns {Array<{x: number, y: number, width: number, height: number}>}
-   * Angepasste Kollisionsflächen mit unveränderter innerer Fallkante.
-   */
-  insetOuterCollisionEdges(collisionAreas, edgeInset) {
-    return collisionAreas.map((area, index) => {
-      const isFirst = index === 0;
-      const isLast = index === collisionAreas.length - 1;
-      const leftInset = isFirst ? edgeInset : 0;
-      const rightInset = isLast ? edgeInset : 0;
-
-      return {
-        ...area,
-        x: area.x + (leftInset - rightInset) / 2,
-        width: area.width - leftInset - rightInset,
-      };
-    });
-  }
-
-  /**
-   * Verkleidet die Boden-Kollision mit der Cyber-City-Plattformgrafik.
-   * @param {{x: number, y: number, width: number, height: number}}
-   * platformConfig - Position und Maße der technischen Bodenfläche.
-   * @returns {void}
-   */
-  createGroundVisual(platformConfig) {
-    const ground = TEST_LEVEL.assets.groundPlatform;
-    const platformTop = platformConfig.y - platformConfig.height / 2;
-    const visualTop =
-      platformTop - ground.surfaceOffsetY - ground.characterLaneOffsetY;
-
-    this.add
-      .tileSprite(
-        platformConfig.x,
-        visualTop,
-        platformConfig.width,
-        ground.frameHeight,
-        ground.key,
-        ground.frame,
-      )
-      .setOrigin(0.5, 0);
-  }
-
-  /**
-   * Verkleidet eine erhöhte Kollision mit einer Plattformvariante.
-   * @param {{
-   *   x: number,
-   *   y: number,
-   *   width: number,
-   *   height: number,
-   *   visualFrame: number
-   * }} platformConfig - Position, Maße und Grafikframe der Plattform.
-   * @returns {void}
-   */
-  createRaisedPlatformVisual(platformConfig) {
-    const floating = TEST_LEVEL.assets.floatingPlatform;
-    const scale = platformConfig.width / floating.frameWidth;
-    const platformTop = platformConfig.y - platformConfig.height / 2;
-    const visualTop = platformTop - floating.surfaceOffsetY * scale;
-
-    this.add
-      .image(
-        platformConfig.x,
-        visualTop,
-        floating.key,
-        platformConfig.visualFrame,
-      )
-      .setOrigin(0.5, 0)
-      .setDisplaySize(platformConfig.width, floating.frameHeight * scale);
   }
 
   /**
@@ -375,12 +200,25 @@ export class LevelOneScene extends Phaser.Scene {
   completeLevel() {
     if (this.isLevelCompleting) return;
     this.isLevelCompleting = true;
+    const playerState = this.createPlayerStateSnapshot();
     this.player.setVelocityX(0);
     this.backgroundMusic.fadeOutAndStop(LEVEL_EXIT.sceneFadeOutMs);
     this.cameras.main.once("camerafadeoutcomplete", () => {
-      this.scene.start(SCENES.levelTwo);
+      this.scene.start(SCENES.levelTwo, { playerState });
     });
     this.cameras.main.fadeOut(LEVEL_EXIT.sceneFadeOutMs, 0, 0, 0);
+  }
+
+  /**
+   * Sichert die über Levelgrenzen hinweg benötigten Spielerwerte.
+   * @returns {{health: number, collectibles: Record<string, number>}}
+   * Aktueller Lebens- und Sammelzustand.
+   */
+  createPlayerStateSnapshot() {
+    return {
+      health: this.healthSystem.getCurrent(),
+      collectibles: this.collectibleSystem.getSnapshot(),
+    };
   }
 
   /**

@@ -7,6 +7,7 @@ import { LevelTwoEnvironmentSystem } from
   "../../systems/level-two-environment-system.class.js";
 import { LevelTwoObstacleSystem } from
   "../../systems/level-two-obstacle-system.class.js";
+import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
 import { BULLDOG_TEXTURES } from
   "../../../js/config/bulldog-animation-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
@@ -24,6 +25,16 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
+   * Übernimmt optional den Spielstand aus Level eins.
+   * @param {{playerState?: {health?: number,
+   * collectibles?: Record<string, number>}}} [data={}] - Szenendaten.
+   * @returns {void}
+   */
+  init(data = {}) {
+    this.initialPlayerState = data.playerState ?? {};
+  }
+
+  /**
    * Lädt Spielfigur, Umgebung und Hindernisse des zweiten Levels.
    * @returns {void}
    */
@@ -31,6 +42,7 @@ export class LevelTwoScene extends Phaser.Scene {
     BulldogAnimationSystem.load(this);
     LevelTwoEnvironmentSystem.load(this);
     LevelTwoObstacleSystem.load(this);
+    LevelHudSystem.load(this);
   }
 
   /**
@@ -45,6 +57,7 @@ export class LevelTwoScene extends Phaser.Scene {
     BulldogAnimationSystem.register(this);
     this.createPlayer();
     this.configureCamera();
+    this.createHud();
     this.createMenuHint();
     this.bindSceneControls();
   }
@@ -65,6 +78,17 @@ export class LevelTwoScene extends Phaser.Scene {
     this.inputSystem = new InputSystem(this);
     this.physics.add.collider(this.player, this.platforms);
     return this.player;
+  }
+
+  /**
+   * Erstellt die gemeinsame Lebens-, Münz- und Serumanzeige für Level zwei.
+   * @returns {void}
+   */
+  createHud() {
+    const hud = LevelHudSystem.create(this, this.initialPlayerState);
+
+    this.healthSystem = hud.health;
+    this.collectibleSystem = hud.collectibles;
   }
 
   /**
@@ -93,11 +117,16 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   createObstacles() {
-    this.nuclearBoxObstacle = LevelTwoObstacleSystem.createNuclearBox(
+    this.nuclearBoxObstacles = LevelTwoObstacleSystem.createNuclearBoxes(
       this,
       this.platforms,
       this.getGroundSurfaceY(),
     );
+    this.floatingLightPlatforms =
+      LevelTwoObstacleSystem.createFloatingLightPlatforms(
+        this,
+        this.platforms,
+      );
   }
 
   /**
@@ -149,11 +178,12 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {Phaser.GameObjects.Text} Erstellter Menühinweis.
    */
   createMenuHint() {
-    return this.add.text(360, 24, "ESC · ZURÜCK ZUM MENÜ", {
-      color: "#d7d2dc",
-      fontFamily: "Arial",
-      fontSize: "14px",
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(100);
+    const hint = LEVEL_TWO.menuHint;
+    return this.add.text(hint.x, hint.y, hint.text, {
+      color: hint.color,
+      fontFamily: hint.fontFamily,
+      fontSize: hint.fontSize,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(hint.depth);
   }
 
   /**
@@ -172,6 +202,10 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   update(time) {
+    LevelTwoObstacleSystem.updatePlayerPlatformContact(
+      this.player,
+      this.floatingLightPlatforms,
+    );
     this.player?.updateMovement(this.inputSystem, time);
   }
 }

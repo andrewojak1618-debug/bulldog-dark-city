@@ -5,11 +5,23 @@ export class HealthSystem {
   /**
    * Erstellt einen vollständig gefüllten Lebenspunktevorrat.
    * @param {number} maximum - Maximale Lebenspunkte.
+   * @param {number} [current=maximum] - Zu übernehmende Lebenspunkte.
    */
-  constructor(maximum = 100) {
-    this.maximum = maximum;
-    this.current = maximum;
+  constructor(maximum = 100, current = maximum) {
+    this.maximum = Number.isFinite(maximum) ? Math.max(0, maximum) : 100;
+    this.current = Math.min(
+      this.maximum,
+      Math.max(0, Number.isFinite(current) ? current : this.maximum),
+    );
     this.listeners = new Set();
+  }
+
+  /**
+   * Gibt den aktuellen Lebenspunktestand für einen Szenenwechsel zurück.
+   * @returns {number} Aktuelle Lebenspunkte.
+   */
+  getCurrent() {
+    return this.current;
   }
 
   /**

@@ -1,9 +1,6 @@
 import { getAssetPath } from "./asset-paths.js";
 
-const DOG_CATCHER_BASE_PATH = getAssetPath(
-  "sprites",
-  "enemies/dog_catcher",
-);
+const DOG_CATCHER_BASE_PATH = getAssetPath("sprites", "enemies/dog_catcher");
 const DOG_CATCHER_DISPLAY_SIZE = 206;
 
 /**

@@ -27,8 +27,24 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
     this.valueText = this.createValueText(scene, settings);
     this.add([this.fillGraphics, frame, this.valueText].filter(Boolean));
     this.setScrollFactor(0).setDepth(HUD.depth);
+    this.setInitialValue(system.getCount(key));
     this.bindSystem(system);
     this.once("destroy", () => this.fillTween?.stop());
+  }
+
+  /**
+   * Zeigt einen übernommenen Sammelstand ohne verzögerten Start-Tween an.
+   * @param {number} count - Anfangswert des Sammelobjekts.
+   * @returns {void}
+   */
+  setInitialValue(count) {
+    this.valueText.setText(String(count));
+    const fill = this.settings.fill;
+    if (!fill || !this.fillGraphics) return;
+
+    const ratio = Phaser.Math.Clamp(count / fill.maximum, 0, 1);
+    this.fillProgress.value = ratio;
+    this.drawFill(ratio);
   }
 
   /**

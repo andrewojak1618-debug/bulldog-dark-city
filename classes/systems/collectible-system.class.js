@@ -5,10 +5,23 @@ export class CollectibleSystem {
   /**
    * Erstellt für jeden bekannten Schlüssel einen Zähler mit dem Wert null.
    * @param {ReadonlyArray<string>} keys - Unterstützte Sammelobjektschlüssel.
+   * @param {Readonly<Record<string, number>>} [initialCounts={}] - Startwerte.
    */
-  constructor(keys) {
-    this.counts = new Map(keys.map((key) => [key, 0]));
+  constructor(keys, initialCounts = {}) {
+    this.counts = new Map(keys.map((key) => [
+      key,
+      this.getSafeInitialCount(initialCounts[key]),
+    ]));
     this.listeners = new Set();
+  }
+
+  /**
+   * Bereinigt einen übernommenen Zählerstand.
+   * @param {number} count - Zu prüfender Startwert.
+   * @returns {number} Nicht negativer, endlicher Zählerstand.
+   */
+  getSafeInitialCount(count) {
+    return Number.isFinite(count) ? Math.max(0, count) : 0;
   }
 
   /**
@@ -39,6 +52,14 @@ export class CollectibleSystem {
    */
   getCount(key) {
     return this.counts.get(key) ?? 0;
+  }
+
+  /**
+   * Erstellt eine serialisierbare Kopie aller Sammelstände.
+   * @returns {Record<string, number>} Aktuelle Sammelstände.
+   */
+  getSnapshot() {
+    return Object.fromEntries(this.counts);
   }
 
   /**

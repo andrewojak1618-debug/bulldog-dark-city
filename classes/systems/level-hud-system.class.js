@@ -22,13 +22,19 @@ export class LevelHudSystem {
   /**
    * Erstellt HUD-Daten und die drei sichtbaren Anzeigen.
    * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {{health?: number, collectibles?: Record<string, number>}}
+   * [initialState={}] - Optionaler Zustand des vorherigen Levels.
    * @returns {{health: HealthSystem, collectibles: CollectibleSystem}}
    * Veränderbare Leveldaten für Treffer und Sammelobjekte.
    */
-  static create(scene) {
-    const health = new HealthSystem(HUD.health.maximum);
+  static create(scene, initialState = {}) {
+    const health = new HealthSystem(
+      HUD.health.maximum,
+      initialState.health ?? HUD.health.maximum,
+    );
     const collectibles = new CollectibleSystem(
       Object.values(COLLECTIBLE_KEYS),
+      initialState.collectibles,
     );
     new HealthBar(scene, health);
     this.createCollectibleCounters(scene, collectibles);
