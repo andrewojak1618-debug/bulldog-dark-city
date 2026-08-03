@@ -23,7 +23,7 @@ export const LEVEL_EXIT = Object.freeze({
   groundY: 565,
   displayWidth: 100,
   displayHeight: 200,
-  depth: 7,
+  depth: -0.25,
   unlockFadeMs: 350,
   triggerX: 2310,
   leaveWorldX: 2465,
