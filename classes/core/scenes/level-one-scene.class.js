@@ -37,6 +37,14 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
+   * Setzt den einmaligen Übergang bei jedem neuen Leveldurchlauf zurück.
+   * @returns {void}
+   */
+  init() {
+    this.isLevelCompleting = false;
+  }
+
+  /**
    * Lädt die aktuell benötigten Bulldog-Spritesheets.
    * @returns {void}
    */

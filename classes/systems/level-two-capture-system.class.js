@@ -12,11 +12,9 @@ export class LevelTwoCaptureSystem {
   /**
    * Erstellt eine noch inaktive Gefangennahme-Sequenz.
    * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Levelplattformen.
    */
-  constructor(scene, platforms) {
+  constructor(scene) {
     this.scene = scene;
-    this.platforms = platforms;
     this.dogCatcher = null;
     this.targetX = 0;
     this.isActive = false;
@@ -54,7 +52,7 @@ export class LevelTwoCaptureSystem {
     this.dogCatcher.setDepth(settings.depth);
     this.dogCatcher.setFlipX(true);
     this.alignFeetWithPlayer(player);
-    this.scene.physics.add.collider(this.dogCatcher, this.platforms);
+    this.dogCatcher.body.setAllowGravity(false);
   }
 
   /**

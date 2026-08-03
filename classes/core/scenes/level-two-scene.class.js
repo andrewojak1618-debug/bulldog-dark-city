@@ -71,7 +71,7 @@ export class LevelTwoScene extends Phaser.Scene {
     BulldogAnimationSystem.register(this);
     DogCatcherAnimationSystem.register(this);
     this.createPlayer();
-    this.captureSystem = new LevelTwoCaptureSystem(this, this.platforms);
+    this.captureSystem = new LevelTwoCaptureSystem(this);
     this.configureCamera();
     this.createHud();
     MutantCatRewardSystem.create(
