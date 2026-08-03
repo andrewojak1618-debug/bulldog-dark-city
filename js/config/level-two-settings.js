@@ -65,6 +65,24 @@ export const LEVEL_TWO = Object.freeze({
     edgePadding: 50,
     depth: -5.5,
   }),
+  nuclearBoxObstacle: Object.freeze({
+    key: "dark-city-level-two-nuclear-box-obstacle",
+    animationKey: "dark-city-level-two-nuclear-box-pulse",
+    path: getAssetPath(
+      "sprites",
+      "environment/obstacles/nuclear_box/nuclear-box-obstacle-spritesheet.png",
+    ),
+    frameWidth: 512,
+    frameHeight: 512,
+    frameSequence: Object.freeze([0, 1, 2, 3, 2, 1]),
+    frameRate: 4,
+    x: 510,
+    displayWidth: 115.2,
+    displayHeight: 115.2,
+    collisionWidth: 81.6,
+    collisionHeight: 93.6,
+    depth: 1,
+  }),
   skyscrapers: Object.freeze({
     key: "dark-city-level-two-skyscrapers",
     path: getAssetPath(
