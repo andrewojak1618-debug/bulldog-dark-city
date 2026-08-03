@@ -20,6 +20,8 @@ import {
 import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
 import { LEVEL_EXIT } from "../../../js/config/level-exit-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
+import { PLAYER_CAMERA } from
+  "../../../js/config/player-camera-settings.js";
 
 /**
  * Stellt den technischen Prototyp des ersten Levels bereit.
@@ -305,7 +307,7 @@ export class LevelOneScene extends Phaser.Scene {
    * @returns {void}
    */
   configureCamera() {
-    const settings = TEST_LEVEL.camera;
+    const settings = PLAYER_CAMERA;
     this.cameras.main.startFollow(
       this.player,
       true,

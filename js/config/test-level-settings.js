@@ -13,12 +13,6 @@ export const TEST_LEVEL = Object.freeze({
     startX: 150,
     startY: 390,
   }),
-  camera: Object.freeze({
-    lerpX: 0.1,
-    lerpY: 0.12,
-    deadzoneWidth: 220,
-    deadzoneHeight: 110,
-  }),
   sceneFadeInMs: 260,
   debugOverlay: Object.freeze({
     depth: 100,

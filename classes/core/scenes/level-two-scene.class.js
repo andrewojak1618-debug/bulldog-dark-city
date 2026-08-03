@@ -6,6 +6,8 @@ import { BulldogAnimationSystem } from
 import { SCENES } from "../../../js/config/game-settings.js";
 import { BULLDOG_TEXTURES } from
   "../../../js/config/bulldog-animation-settings.js";
+import { PLAYER_CAMERA } from
+  "../../../js/config/player-camera-settings.js";
 import { LEVEL_TWO } from "../../../js/config/level-two-settings.js";
 
 /**
@@ -24,12 +26,16 @@ export class LevelTwoScene extends Phaser.Scene {
   preload() {
     BulldogAnimationSystem.load(this);
     const background = LEVEL_TWO.background;
+    const helicopter = LEVEL_TWO.helicopter;
     const skyscrapers = LEVEL_TWO.skyscrapers;
     const industrialMidground = LEVEL_TWO.industrialMidground;
     const elevatedRoads = LEVEL_TWO.elevatedRoads;
     const fenceObjects = LEVEL_TWO.fenceObjects;
     const groundPlatform = LEVEL_TWO.groundPlatform;
     this.load.image(background.key, background.path);
+    helicopter.frames.forEach((frame) => {
+      this.load.image(frame.key, frame.path);
+    });
     this.load.spritesheet(skyscrapers.key, skyscrapers.path, {
       frameWidth: skyscrapers.frameWidth,
       frameHeight: skyscrapers.frameHeight,
@@ -63,6 +69,7 @@ export class LevelTwoScene extends Phaser.Scene {
   create() {
     this.configureWorld();
     this.createMainBackground();
+    this.createHelicopter();
     this.createSkyscraperLayer();
     this.createIndustrialMidground();
     this.createElevatedRoads();
@@ -71,6 +78,7 @@ export class LevelTwoScene extends Phaser.Scene {
     this.createGroundCollision();
     BulldogAnimationSystem.register(this);
     this.createPlayer();
+    this.configureCamera();
     this.add.text(360, 24, "ESC · ZURÜCK ZUM MENÜ", {
       color: "#d7d2dc",
       fontFamily: "Arial",
@@ -106,7 +114,8 @@ export class LevelTwoScene extends Phaser.Scene {
     const ground = LEVEL_TWO.groundPlatform;
     const scale = ground.displayHeight / ground.frameHeight;
     const visualTop = ground.bottomY - ground.displayHeight;
-    const surfaceY = visualTop + ground.surfaceOffsetY * scale;
+    const surfaceY =
+      visualTop + ground.surfaceOffsetY * scale + ground.playerGroundOffsetY;
     const collisionY = surfaceY + ground.collisionHeight / 2;
     const groundBody = this.add.rectangle(
       LEVEL_TWO.world.width / 2,
@@ -134,6 +143,24 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
+   * Folgt der Bulldogge mit derselben Dynamik und Deadzone wie Level eins.
+   * @returns {void}
+   */
+  configureCamera() {
+    const settings = PLAYER_CAMERA;
+    this.cameras.main.startFollow(
+      this.player,
+      true,
+      settings.lerpX,
+      settings.lerpY,
+    );
+    this.cameras.main.setDeadzone(
+      settings.deadzoneWidth,
+      settings.deadzoneHeight,
+    );
+  }
+
+  /**
    * Füllt das Canvas mit dem ersten grünen Level-2-Haupthintergrund.
    * @returns {Phaser.GameObjects.Image} Erstellter Hintergrund.
    */
@@ -142,8 +169,72 @@ export class LevelTwoScene extends Phaser.Scene {
     return this.add
       .image(0, 0, background.key)
       .setOrigin(0)
+      .setScrollFactor(0)
       .setDisplaySize(this.scale.width, this.scale.height)
       .setDepth(background.depth);
+  }
+
+  /**
+   * Erstellt den animierten Katzen-Hubschrauber zwischen Hintergrund und Skyline.
+   * @returns {Phaser.GameObjects.Sprite|null} Hubschrauber oder sicherer Fallback.
+   */
+  createHelicopter() {
+    const settings = LEVEL_TWO.helicopter;
+    const availableFrames = settings.frames.filter((frame) =>
+      this.textures.exists(frame.key),
+    );
+
+    if (availableFrames.length === 0) {
+      return null;
+    }
+
+    const displayWidth =
+      settings.frameWidth * (settings.displayHeight / settings.frameHeight);
+
+    if (
+      availableFrames.length > 1 &&
+      !this.anims.exists(settings.animationKey)
+    ) {
+      this.anims.create({
+        key: settings.animationKey,
+        frames: availableFrames.map((frame) => ({ key: frame.key })),
+        frameRate: settings.frameRate,
+        repeat: -1,
+      });
+    }
+
+    this.helicopter = this.add
+      .sprite(
+        this.scale.width + displayWidth / 2 + settings.edgePadding,
+        settings.y,
+        availableFrames[0].key,
+      )
+      .setScrollFactor(0)
+      .setDisplaySize(displayWidth, settings.displayHeight)
+      .setDepth(settings.depth);
+
+    if (availableFrames.length > 1) {
+      this.helicopter.play(settings.animationKey);
+    }
+
+    this.tweens.add({
+      targets: this.helicopter,
+      x: -displayWidth / 2 - settings.edgePadding,
+      duration: settings.flightDurationMs,
+      ease: "Linear",
+      repeat: -1,
+      repeatDelay: settings.respawnDelayMs,
+    });
+    this.tweens.add({
+      targets: this.helicopter,
+      y: settings.y + settings.hoverDistance,
+      duration: settings.hoverDurationMs,
+      ease: "Sine.inOut",
+      yoyo: true,
+      repeat: -1,
+    });
+
+    return this.helicopter;
   }
 
   /**
@@ -195,9 +286,14 @@ export class LevelTwoScene extends Phaser.Scene {
     const displayWidth =
       layer.frameWidth * (layer.displayHeight / layer.frameHeight);
     const segmentStep = displayWidth - layer.seamOverlap;
+    const segmentCount =
+      Math.ceil((LEVEL_TWO.world.width - layer.startX) / segmentStep) + 1;
 
-    return layer.frameSequence.map((frame, index) =>
-      this.add
+    return Array.from({ length: segmentCount }, (_, index) => {
+      const frame =
+        layer.frameSequence[index % layer.frameSequence.length];
+
+      return this.add
         .image(
           layer.startX + index * segmentStep,
           layer.bottomY,
@@ -205,10 +301,10 @@ export class LevelTwoScene extends Phaser.Scene {
           frame,
         )
         .setOrigin(0, 1)
-        .setScrollFactor(layer.scrollFactor, 0)
+        .setScrollFactor(layer.scrollFactor, layer.scrollFactorY ?? 0)
         .setDisplaySize(displayWidth, layer.displayHeight)
-        .setDepth(layer.depth),
-    );
+        .setDepth(layer.depth);
+    });
   }
 
   /**
