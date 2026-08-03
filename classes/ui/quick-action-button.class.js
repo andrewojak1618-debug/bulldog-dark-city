@@ -10,8 +10,10 @@ import { drawIconButtonBackground } from "../../js/utils/icon-button-background.
  * @property {number} height - Höhe des Buttons.
  * @property {number} iconSize - Maximale Größe des Symbols.
  * @property {string} iconKey - Phaser-Texturschlüssel des Symbols.
- * @property {{x: number, y: number, width: number, height: number}} iconCrop - Sichtbarer Bildausschnitt.
- * @property {{width: number, height: number}|null} [iconDisplaySize=null] - Optionale feste Anzeigegröße.
+ * @property {{x: number, y: number, width: number,
+ * height: number}} iconCrop - Sichtbarer Bildausschnitt.
+ * @property {{width: number, height: number}|null}
+ * [iconDisplaySize=null] - Optionale feste Anzeigegröße.
  * @property {number} [iconOffsetY=0] - Vertikale optische Korrektur.
  * @property {Function|null} [onActivate=null] - Aktion beim Anklicken.
  */

@@ -73,7 +73,7 @@ export class LevelOneScene extends Phaser.Scene {
     const hud = LevelHudSystem.create(this);
     this.healthSystem = hud.health;
     this.collectibleSystem = hud.collectibles;
-    this.levelItems = LevelItemSystem.create(
+    LevelItemSystem.create(
       this,
       this.player,
       this.healthSystem,
@@ -201,12 +201,11 @@ export class LevelOneScene extends Phaser.Scene {
     if (this.isLevelCompleting) return;
     this.isLevelCompleting = true;
     const playerState = this.createPlayerStateSnapshot();
-    this.player.setVelocityX(0);
-    this.backgroundMusic.fadeOutAndStop(LEVEL_EXIT.sceneFadeOutMs);
-    this.cameras.main.once("camerafadeoutcomplete", () => {
-      this.scene.start(SCENES.levelTwo, { playerState });
+    this.backgroundMusic.stop();
+    this.scene.start(SCENES.levelTwo, {
+      playerState,
+      enterFromPreviousLevel: true,
     });
-    this.cameras.main.fadeOut(LEVEL_EXIT.sceneFadeOutMs, 0, 0, 0);
   }
 
   /**
@@ -238,7 +237,10 @@ export class LevelOneScene extends Phaser.Scene {
       time,
     );
     LevelEnvironmentSystem.update(this, delta);
-    if (this.levelExit?.update(this.player)) this.completeLevel();
+    if (this.levelExit?.update(this.player)) {
+      this.completeLevel();
+      return;
+    }
     const currentZone = LevelFlowSystem.getZoneAt(this.player.x);
     this.positionText?.setText(
       `X ${Math.round(this.player.x)}  Y ${Math.round(this.player.y)}` +

@@ -8,7 +8,15 @@ import { LevelTwoEnvironmentSystem } from
 import { LevelTwoObstacleSystem } from
   "../../systems/level-two-obstacle-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
-import { BULLDOG_TEXTURES } from
+import { MutantCatSystem } from "../../systems/mutant-cat-system.class.js";
+import { MutantCatRewardSystem } from
+  "../../systems/mutant-cat-reward-system.class.js";
+import { DogCatcherSystem } from "../../systems/dog-catcher-system.class.js";
+import { DogCatcherAnimationSystem } from
+  "../../systems/dog-catcher-animation-system.class.js";
+import { LevelTwoCaptureSystem } from
+  "../../systems/level-two-capture-system.class.js";
+import { BULLDOG_ANIMATION_KEYS, BULLDOG_TEXTURES } from
   "../../../js/config/bulldog-animation-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { LEVEL_TWO } from "../../../js/config/level-two-settings.js";
@@ -27,11 +35,13 @@ export class LevelTwoScene extends Phaser.Scene {
   /**
    * Übernimmt optional den Spielstand aus Level eins.
    * @param {{playerState?: {health?: number,
-   * collectibles?: Record<string, number>}}} [data={}] - Szenendaten.
+   * collectibles?: Record<string, number>},
+   * enterFromPreviousLevel?: boolean}} [data={}] - Szenendaten.
    * @returns {void}
    */
   init(data = {}) {
     this.initialPlayerState = data.playerState ?? {};
+    this.isEnteringLevel = Boolean(data.enterFromPreviousLevel);
   }
 
   /**
@@ -43,6 +53,9 @@ export class LevelTwoScene extends Phaser.Scene {
     LevelTwoEnvironmentSystem.load(this);
     LevelTwoObstacleSystem.load(this);
     LevelHudSystem.load(this);
+    MutantCatSystem.load(this);
+    MutantCatRewardSystem.load(this);
+    DogCatcherSystem.load(this);
   }
 
   /**
@@ -51,13 +64,23 @@ export class LevelTwoScene extends Phaser.Scene {
    */
   create() {
     this.configureWorld();
-    this.environment = LevelTwoEnvironmentSystem.create(this);
+    LevelTwoEnvironmentSystem.create(this);
     this.createGroundCollision();
     this.createObstacles();
+    this.mutantCat = MutantCatSystem.create(this, this.platforms);
     BulldogAnimationSystem.register(this);
+    DogCatcherAnimationSystem.register(this);
     this.createPlayer();
+    this.captureSystem = new LevelTwoCaptureSystem(this, this.platforms);
     this.configureCamera();
     this.createHud();
+    MutantCatRewardSystem.create(
+      this,
+      this.player,
+      this.healthSystem,
+      this.collectibleSystem,
+      this.mutantCat,
+    );
     this.createMenuHint();
     this.bindSceneControls();
   }
@@ -68,16 +91,52 @@ export class LevelTwoScene extends Phaser.Scene {
    */
   createPlayer() {
     const { startX, startY } = LEVEL_TWO.playerSpawn;
+    const playerX = this.isEnteringLevel ? LEVEL_TWO.levelEntry.startX : startX;
 
     this.player = new Bulldog(
       this,
-      startX,
+      playerX,
       startY,
       BULLDOG_TEXTURES.stand.key,
     );
     this.inputSystem = new InputSystem(this);
     this.physics.add.collider(this.player, this.platforms);
+    this.alignPlayerWithGround();
     return this.player;
+  }
+
+  /**
+   * Setzt die Fußkante ohne sichtbaren Fall exakt auf die Level-2-Straße.
+   * @returns {void}
+   */
+  alignPlayerWithGround() {
+    const body = this.player.body;
+    body?.updateFromGameObject();
+    const playerFeetY = body?.bottom;
+    if (!Number.isFinite(playerFeetY)) return;
+
+    const entry = LEVEL_TWO.levelEntry;
+    const targetFeetY = this.getGroundSurfaceY() - entry.groundSnapInsetY;
+    this.player.y += targetFeetY - playerFeetY;
+    body.updateFromGameObject();
+    body.setVelocityY(entry.groundingVelocityY);
+  }
+
+  /**
+   * Lässt die Bulldogge automatisch vom linken Rand ins zweite Level laufen.
+   * @returns {boolean} `true`, solange die filmische Einlaufphase aktiv ist.
+   */
+  updateLevelEntry() {
+    if (!this.isEnteringLevel) return false;
+
+    const entry = LEVEL_TWO.levelEntry;
+    this.player.setVelocityX(entry.runSpeed);
+    this.player.play(BULLDOG_ANIMATION_KEYS.run, true);
+    if (this.player.x < entry.targetX) return true;
+
+    this.player.setVelocityX(0);
+    this.isEnteringLevel = false;
+    return true;
   }
 
   /**
@@ -117,7 +176,7 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   createObstacles() {
-    this.nuclearBoxObstacles = LevelTwoObstacleSystem.createNuclearBoxes(
+    LevelTwoObstacleSystem.createNuclearBoxes(
       this,
       this.platforms,
       this.getGroundSurfaceY(),
@@ -202,10 +261,26 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   update(time) {
+    if (this.captureSystem?.isActive) {
+      this.captureSystem.update();
+      return;
+    }
+
+    if (this.updateLevelEntry()) return;
+
     LevelTwoObstacleSystem.updatePlayerPlatformContact(
       this.player,
       this.floatingLightPlatforms,
     );
     this.player?.updateMovement(this.inputSystem, time);
+    const wasKnockedOutByCat = MutantCatSystem.update(
+      this.mutantCat,
+      this.player,
+      this.healthSystem,
+      time,
+    );
+    if (wasKnockedOutByCat) {
+      this.captureSystem.start(this.player, this.mutantCat);
+    }
   }
 }

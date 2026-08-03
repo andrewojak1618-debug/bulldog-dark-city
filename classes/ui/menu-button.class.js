@@ -15,7 +15,8 @@ import { getTornButtonPoints } from "../../js/utils/menu-button-shape.js";
  * @property {string} label - Sichtbare Buttonbeschriftung.
  * @property {string} [fontSize] - Optionale individuelle Schriftgröße.
  * @property {string|null} [iconKey=null] - Optionaler Phaser-Texturschlüssel.
- * @property {{x: number, y: number, width: number, height: number}|null} [iconCrop=null] - Sichtbarer Bildausschnitt.
+ * @property {{x: number, y: number, width: number,
+ * height: number}|null} [iconCrop=null] - Sichtbarer Bildausschnitt.
  * @property {number} [iconOffsetY=0] - Vertikale optische Korrektur des Symbols.
  * @property {Function|null} [onActivate=null] - Aktion bei erfolgreicher Aktivierung.
  * @property {Function|null} [onFocus=null] - Aktion bei Maus- oder Touchfokus.
@@ -84,7 +85,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
    * Erstellt ein optionales Symbol für den Button.
    * @param {Phaser.Scene} scene - Zugehörige Phaser-Szene.
    * @param {string|null|undefined} iconKey - Optionaler Texturschlüssel.
-   * @param {{x: number, y: number, width: number, height: number}|null|undefined} iconCrop - Sichtbarer Bildausschnitt.
+   * @param {{x: number, y: number, width: number, height: number}
+   * |null|undefined} iconCrop - Sichtbarer Bildausschnitt.
    * @returns {Phaser.GameObjects.Image|null} Symbol oder `null`.
    */
   createIcon(scene, iconKey, iconCrop) {
@@ -107,7 +109,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
   /**
    * Beschneidet ein Symbol und skaliert es proportional in den Iconbereich.
    * @param {Phaser.GameObjects.Image} icon - Zu bearbeitendes Symbol.
-   * @param {{x: number, y: number, width: number, height: number}} crop - Sichtbarer Bildausschnitt.
+   * @param {{x: number, y: number, width: number,
+   * height: number}} crop - Sichtbarer Bildausschnitt.
    * @returns {Phaser.GameObjects.Image} Zentriertes und skaliertes Symbol.
    */
   cropIcon(icon, crop) {

@@ -15,6 +15,21 @@ export const LEVEL_ITEMS = Object.freeze({
   depth: 8,
   pickupTweenMs: 140,
   pickupEffects: Object.freeze({
+    goldenCoin: Object.freeze({
+      key: "item-golden-coin-pickup-splash-animation",
+      textureKey: "item-golden-coin-pickup-splash",
+      path: getAssetPath(
+        "sprites",
+        "objects/golden_coin/pickup_splash/horizontal/spritesheet.png",
+      ),
+      frameWidth: 256,
+      frameHeight: 256,
+      frames: Object.freeze([0, 1, 2, 3, 4, 5]),
+      frameRate: 9,
+      repeat: 0,
+      displayWidth: 220,
+      displayHeight: 220,
+    }),
     serum: Object.freeze({
       key: "item-mutation-serum-pickup-splash-animation",
       textureKey: "item-mutation-serum-pickup-splash",
@@ -71,6 +86,11 @@ export const LEVEL_ITEMS = Object.freeze({
   }),
   effects: Object.freeze({
     health: Object.freeze({ healthAmount: 20 }),
+    goldenCoin: Object.freeze({
+      collectibleKey: "coins",
+      amount: 100,
+      maximum: 1000,
+    }),
     coin: Object.freeze({
       collectibleKey: "coins",
       amount: 1,
@@ -84,6 +104,15 @@ export const LEVEL_ITEMS = Object.freeze({
     }),
   }),
   textures: Object.freeze({
+    goldenCoin: Object.freeze({
+      key: "item-golden-coin-spin",
+      path: getAssetPath(
+        "sprites",
+        "objects/golden_coin/spin/none/spritesheet.png",
+      ),
+      frameWidth: 256,
+      frameHeight: 256,
+    }),
     health: Object.freeze({
       key: "item-extra-life-spin",
       path: getAssetPath(
@@ -113,6 +142,12 @@ export const LEVEL_ITEMS = Object.freeze({
     }),
   }),
   animations: Object.freeze({
+    goldenCoin: Object.freeze({
+      key: "item-golden-coin-spin-animation",
+      textureKey: "item-golden-coin-spin",
+      frames: Object.freeze([0, 1, 2, 3]),
+      frameRate: 6,
+    }),
     health: Object.freeze({
       key: "item-extra-life-spin-animation",
       textureKey: "item-extra-life-spin",

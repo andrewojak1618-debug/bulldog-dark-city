@@ -16,6 +16,7 @@ export class DogCatcherSystem {
    */
   static load(scene) {
     Object.values(DOG_CATCHER_TEXTURES).forEach((texture) => {
+      if (scene.textures.exists(texture.key)) return;
       scene.load.spritesheet(texture.key, texture.path, {
         frameWidth: texture.frameWidth,
         frameHeight: texture.frameHeight,

@@ -102,8 +102,8 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Animiert den grün-violetten Serumstand zum nächsten Zielwert.
-   * @param {number} count - Aktueller Serum-Zählerstand.
+   * Animiert die konfigurierte Füllanzeige zum nächsten Zielwert.
+   * @param {number} count - Aktueller Sammelstand dieser Anzeige.
    * @returns {void}
    */
   updateFill(count) {
@@ -116,7 +116,7 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt die langsame Übergangsanimation zum neuen Serumstand.
+   * Erstellt die langsame Übergangsanimation zum neuen Sammelstand.
    * @param {number} targetRatio - Zielfüllstand zwischen null und eins.
    * @returns {Phaser.Tweens.Tween} Laufender Fülltween.
    */
@@ -190,7 +190,7 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Setzt den zentral konfigurierten Farbverlauf der Serumfüllung.
+   * Setzt den zentral konfigurierten Farbverlauf der Füllanzeige.
    * @param {object} fill - Zentrale Füllkonfiguration.
    * @returns {void}
    */

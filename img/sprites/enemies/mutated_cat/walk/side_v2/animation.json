@@ -1,0 +1,15 @@
+{
+  "animation": "walk",
+  "direction": "side",
+  "version": 2,
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "frames": 4,
+  "suggestedFrameRate": 7,
+  "files": [
+    "mutated_cat_walk_side_v2_01.png",
+    "mutated_cat_walk_side_v2_02.png",
+    "mutated_cat_walk_side_v2_03.png",
+    "mutated_cat_walk_side_v2_04.png"
+  ]
+}

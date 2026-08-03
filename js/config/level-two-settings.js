@@ -13,6 +13,20 @@ export const LEVEL_TWO = Object.freeze({
     startX: 150,
     startY: 390,
   }),
+  levelEntry: Object.freeze({
+    startX: 30,
+    targetX: 150,
+    runSpeed: 190,
+    groundSnapInsetY: 1,
+    groundingVelocityY: 1,
+  }),
+  captureSequence: Object.freeze({
+    visibleEdgeInsetX: 18,
+    stopDistanceX: 92,
+    approachSpeed: 150,
+    attackFrameDurationMs: 700,
+    depth: 12,
+  }),
   menuHint: Object.freeze({
     x: 360,
     y: 24,

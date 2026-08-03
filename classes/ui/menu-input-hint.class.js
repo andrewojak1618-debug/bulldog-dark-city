@@ -14,7 +14,8 @@ export class MenuInputHint extends Phaser.GameObjects.Text {
   /**
    * Erstellt den Eingabehinweis anhand der zentralen Layoutwerte.
    * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {{x: number, y: number, fontFamily: string, fontSize: number, color: string}} style - Layout und Textstil.
+   * @param {{x: number, y: number, fontFamily: string,
+   * fontSize: number, color: string}} style - Layout und Textstil.
    */
   constructor(scene, style) {
     super(scene, style.x, style.y, INPUT_HINTS.keyboard, {

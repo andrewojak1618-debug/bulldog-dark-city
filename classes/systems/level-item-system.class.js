@@ -11,12 +11,14 @@ export class LevelItemSystem {
    */
   static load(scene) {
     Object.values(LEVEL_ITEMS.textures).forEach((texture) => {
+      if (scene.textures.exists(texture.key)) return;
       scene.load.spritesheet(texture.key, texture.path, {
         frameWidth: texture.frameWidth,
         frameHeight: texture.frameHeight,
       });
     });
     Object.values(LEVEL_ITEMS.pickupEffects).forEach((effect) => {
+      if (scene.textures.exists(effect.textureKey)) return;
       scene.load.spritesheet(effect.textureKey, effect.path, {
         frameWidth: effect.frameWidth,
         frameHeight: effect.frameHeight,

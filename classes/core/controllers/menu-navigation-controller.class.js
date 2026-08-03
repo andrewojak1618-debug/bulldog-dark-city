@@ -8,7 +8,9 @@ export class MenuNavigationController {
   /**
    * Erstellt die Navigation für eine Menüszene.
    * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {import("../../input/menu-input-controller.class.js").MenuInputController} menuInput - Zentrale Eingabesteuerung.
+   * @param {import(
+   * "../../input/menu-input-controller.class.js"
+   * ).MenuInputController} menuInput - Zentrale Eingabesteuerung.
    * @param {Function|null} [onDialogClosed=null] - Aktion nach dem Schließen eines Dialogs.
    */
   constructor(scene, menuInput, onDialogClosed = null) {
@@ -68,7 +70,8 @@ export class MenuNavigationController {
     this.openDialog({
       title: "SPIEL BEENDEN?",
       message:
-        "Browser dürfen Tabs nicht zuverlässig selbst schließen. Nach der Bestätigung kannst du diesen Tab manuell schließen.",
+        "Browser dürfen Tabs nicht zuverlässig selbst schließen. " +
+          "Nach der Bestätigung kannst du diesen Tab manuell schließen.",
       confirmLabel: "BEENDEN",
       cancelLabel: "ZURÜCK",
       onConfirm: () => this.openExitNotice(),
