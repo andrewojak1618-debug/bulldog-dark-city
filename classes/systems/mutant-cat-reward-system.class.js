@@ -21,10 +21,11 @@ export class MutantCatRewardSystem {
    * @param {Phaser.Physics.Arcade.Sprite} player - Sammelnde Bulldogge.
    * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
    * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - Gegner.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat[]} cats -
+   * Besiegbare Gegner.
    * @returns {MutantCatRewardSystem} Aktives Belohnungssystem.
    */
-  static create(scene, player, health, collectibles, cat) {
+  static create(scene, player, health, collectibles, cats) {
     LevelItemSystem.registerAnimations(scene);
     const rewardSystem = new MutantCatRewardSystem(
       scene,
@@ -32,7 +33,7 @@ export class MutantCatRewardSystem {
       health,
       collectibles,
     );
-    rewardSystem.bindDefeat(cat);
+    rewardSystem.bindDefeats(cats);
     return rewardSystem;
   }
 
@@ -40,7 +41,7 @@ export class MutantCatRewardSystem {
   constructor(scene, player, health, collectibles) {
     this.scene = scene;
     this.group = scene.add.group({ runChildUpdate: false });
-    this.hasSpawnedReward = false;
+    this.rewardedCats = new WeakSet();
     LevelItemSystem.bindPickupOverlap(
       scene,
       player,
@@ -51,24 +52,36 @@ export class MutantCatRewardSystem {
   }
 
   /**
+   * Bindet die Belohnungslogik an jede Katze des Levels.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat[]} cats -
+   * Besiegbare Katzen.
+   * @returns {void}
+   */
+  bindDefeats(cats) {
+    cats.forEach((cat) => this.bindDefeat(cat));
+  }
+
+  /**
    * Wartet einmalig auf das vollständige Ende der Katzen-Todesanimation.
    * @param {Phaser.GameObjects.Sprite} cat - Besiegbarer Katzengegner.
    * @returns {void}
    */
   bindDefeat(cat) {
     cat.once(MUTANT_CAT_EVENTS.defeated, (result) => {
-      this.spawnReward(result);
+      this.spawnReward(cat, result);
     });
   }
 
   /**
    * Erzeugt abhängig von der Kampfzeit Golden Coin oder zwei Health-Items.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat -
+   * Besiegte Katze.
    * @param {{x: number, y: number, elapsedMs: number}} result - Kampfergebnis.
    * @returns {void}
    */
-  spawnReward(result) {
-    if (this.hasSpawnedReward) return;
-    this.hasSpawnedReward = true;
+  spawnReward(cat, result) {
+    if (this.rewardedCats.has(cat)) return;
+    this.rewardedCats.add(cat);
 
     if (isFastMutantCatDefeat(result.elapsedMs)) {
       this.spawnGoldenCoin(result);

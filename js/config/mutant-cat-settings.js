@@ -5,6 +5,13 @@ const DISPLAY_SIZE = 128;
 const BOX = LEVEL_TWO.nuclearBoxObstacle;
 const BOX_HALF_WIDTH = BOX.displayWidth / 2;
 const CAT_HALF_WIDTH = DISPLAY_SIZE / 2;
+const FIRST_PATROL_MIN_X = BOX.xPositions[0] + BOX_HALF_WIDTH + CAT_HALF_WIDTH;
+const FIRST_PATROL_MAX_X = BOX.xPositions[1] - BOX_HALF_WIDTH - CAT_HALF_WIDTH;
+const SECOND_PATROL_MIN_X = BOX.xPositions[1] + BOX_HALF_WIDTH + CAT_HALF_WIDTH;
+const SECOND_PATROL_MAX_X = BOX.xPositions[2] - BOX_HALF_WIDTH - CAT_HALF_WIDTH;
+const SECOND_PATROL_STEP =
+  (SECOND_PATROL_MAX_X - SECOND_PATROL_MIN_X) / 3;
+const DETECTION_HEIGHT_TOLERANCE = BOX.collisionHeight;
 
 /** Textur und Laufanimation der mutierten Katze. */
 export const MUTANT_CAT_TEXTURE = Object.freeze({
@@ -74,16 +81,33 @@ export const MUTANT_CAT_EVENTS = Object.freeze({
 
 /** Zentrale Bewegungs- und Physikwerte des Level-2-Gegners. */
 export const MUTANT_CAT = Object.freeze({
-  spawnX: (BOX.xPositions[0] + BOX.xPositions[1]) / 2,
   spawnY: 320,
+  patrols: Object.freeze([
+    Object.freeze({
+      spawnX: (BOX.xPositions[0] + BOX.xPositions[1]) / 2,
+      minX: FIRST_PATROL_MIN_X,
+      maxX: FIRST_PATROL_MAX_X,
+      initialDirection: 1,
+    }),
+    Object.freeze({
+      spawnX: SECOND_PATROL_MIN_X + SECOND_PATROL_STEP,
+      minX: SECOND_PATROL_MIN_X,
+      maxX: SECOND_PATROL_MAX_X,
+      initialDirection: 1,
+    }),
+    Object.freeze({
+      spawnX: SECOND_PATROL_MAX_X - SECOND_PATROL_STEP,
+      minX: SECOND_PATROL_MIN_X,
+      maxX: SECOND_PATROL_MAX_X,
+      initialDirection: -1,
+    }),
+  ]),
   displayWidth: DISPLAY_SIZE,
   displayHeight: DISPLAY_SIZE,
   bodyWidth: 180,
   bodyHeight: 120,
   bodyOffsetX: 38,
   bodyOffsetY: 126,
-  patrolMinX: BOX.xPositions[0] + BOX_HALF_WIDTH + CAT_HALF_WIDTH,
-  patrolMaxX: BOX.xPositions[1] - BOX_HALF_WIDTH - CAT_HALF_WIDTH,
   patrolSpeed: 48,
   chaseSpeed: 76,
   frameRate: 7,
@@ -93,7 +117,7 @@ export const MUTANT_CAT = Object.freeze({
   attackDisplayScale: 1.2,
   detectionRange: 220,
   disengageRange: 300,
-  detectionHeightTolerance: 100,
+  detectionHeightTolerance: DETECTION_HEIGHT_TOLERANCE,
   attackRange: 95,
   attackHitRange: 120,
   attackDamage: 30,

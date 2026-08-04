@@ -24,13 +24,13 @@ export class LevelTwoCaptureSystem {
   /**
    * Lässt den Hundefänger unmittelbar am rechten Bildrand erscheinen.
    * @param {Phaser.Physics.Arcade.Sprite} player - K. o. gegangene Bulldogge.
-   * @param {Phaser.Physics.Arcade.Sprite} cat - Angreifende Katze.
+   * @param {Phaser.Physics.Arcade.Sprite[]} cats - Katzen des Levels.
    * @returns {void}
    */
-  start(player, cat) {
+  start(player, cats) {
     if (this.isActive) return;
     this.isActive = true;
-    this.stopCat(cat);
+    this.stopCats(cats);
     this.createDogCatcher(player);
   }
 
@@ -104,14 +104,16 @@ export class LevelTwoCaptureSystem {
   }
 
   /**
-   * Friert die Katze ein, damit sie die Sequenz nicht erneut auslösen kann.
-   * @param {Phaser.Physics.Arcade.Sprite} cat - Katze des Levels.
+   * Friert alle Katzen ein, damit sie die Sequenz nicht erneut auslösen.
+   * @param {Phaser.Physics.Arcade.Sprite[]} cats - Katzen des Levels.
    * @returns {void}
    */
-  stopCat(cat) {
-    if (!cat?.body) return;
-    cat.settleAfterKnockOut();
-    cat.body.enable = false;
+  stopCats(cats) {
+    cats.forEach((cat) => {
+      if (!cat?.body) return;
+      cat.settleAfterKnockOut();
+      cat.body.enable = false;
+    });
   }
 
   /**

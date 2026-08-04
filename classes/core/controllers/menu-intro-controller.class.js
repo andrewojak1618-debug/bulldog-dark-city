@@ -76,8 +76,7 @@ export class MenuIntroController {
   startVideo() {
     try {
       this.video.play(false);
-    } catch (error) {
-      console.error("Das Introvideo konnte nicht gestartet werden.", error);
+    } catch {
       this.finishIntro();
     }
   }

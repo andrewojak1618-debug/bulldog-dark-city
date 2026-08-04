@@ -21,7 +21,7 @@ const CAT_STATES = Object.freeze({
 });
 
 /**
- * Patrouilliert als mutierte Katze zwischen den beiden Nuklearboxen.
+ * Patrouilliert als mutierte Katze innerhalb eines konfigurierten Abschnitts.
  */
 export class MutantCat extends Enemy {
   /**
@@ -30,8 +30,10 @@ export class MutantCat extends Enemy {
    * @param {number} x - Horizontale Startposition.
    * @param {number} y - Vertikale Startposition.
    * @param {string} texture - Schlüssel der Lauftextur.
+   * @param {{minX: number, maxX: number, initialDirection: -1|1}} patrol -
+   * Individuelle Patrouillengrenzen und Startrichtung.
    */
-  constructor(scene, x, y, texture) {
+  constructor(scene, x, y, texture, patrol) {
     super(scene, x, y, texture);
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -40,7 +42,9 @@ export class MutantCat extends Enemy {
       .setSize(MUTANT_CAT.bodyWidth, MUTANT_CAT.bodyHeight)
       .setOffset(MUTANT_CAT.bodyOffsetX, MUTANT_CAT.bodyOffsetY);
     this.setCollideWorldBounds(true);
-    this.patrolDirection = 1;
+    this.patrolMinX = patrol.minX;
+    this.patrolMaxX = patrol.maxX;
+    this.patrolDirection = patrol.initialDirection;
     this.state = CAT_STATES.patrol;
     this.nextAttackAt = 0;
     this.attackHitConsumed = false;
@@ -112,9 +116,19 @@ export class MutantCat extends Enemy {
    */
   canDetect(player) {
     if (!player?.body || !this.body) return false;
-    const heightDifference = Math.abs(player.body.bottom - this.body.bottom);
     return this.getHorizontalDistance(player) <= MUTANT_CAT.detectionRange &&
-      heightDifference <= MUTANT_CAT.detectionHeightTolerance;
+      this.isWithinDetectionHeight(player);
+  }
+
+  /**
+   * Prüft, ob sich die Bulldogge maximal auf Höhe einer Nuklearbox befindet.
+   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
+   * @returns {boolean} `true`, wenn Sichtung und Angriff vertikal erlaubt sind.
+   */
+  isWithinDetectionHeight(player) {
+    if (!player?.body || !this.body) return false;
+    const heightDifference = Math.abs(player.body.bottom - this.body.bottom);
+    return heightDifference <= MUTANT_CAT.detectionHeightTolerance;
   }
 
   /**
@@ -123,6 +137,7 @@ export class MutantCat extends Enemy {
    * @returns {boolean} `true`, wenn die Patrouille wieder beginnen soll.
    */
   shouldDisengage(player) {
+    if (!this.isWithinDetectionHeight(player)) return true;
     if (this.state === CAT_STATES.patrol) return !this.canDetect(player);
     return this.getHorizontalDistance(player) > MUTANT_CAT.disengageRange;
   }
@@ -313,6 +328,7 @@ export class MutantCat extends Enemy {
       MUTANT_CAT.attackImpactFrame;
     if (this.state !== CAT_STATES.attack ||
         this.attackHitConsumed || !isImpactFrame) return false;
+    if (!this.isWithinDetectionHeight(player)) return false;
     if (this.getHorizontalDistance(player) > MUTANT_CAT.attackHitRange) {
       return false;
     }
@@ -352,8 +368,8 @@ export class MutantCat extends Enemy {
    * @returns {void}
    */
   updatePatrol() {
-    if (this.x <= MUTANT_CAT.patrolMinX) this.patrolDirection = 1;
-    if (this.x >= MUTANT_CAT.patrolMaxX) this.patrolDirection = -1;
+    if (this.x <= this.patrolMinX) this.patrolDirection = 1;
+    if (this.x >= this.patrolMaxX) this.patrolDirection = -1;
     this.setVelocityX(this.patrolDirection * MUTANT_CAT.patrolSpeed);
     this.setFlipX(this.patrolDirection < 0);
   }

@@ -5,6 +5,10 @@ import { BulldogAnimationSystem } from
   "../../systems/bulldog-animation-system.class.js";
 import { LevelTwoEnvironmentSystem } from
   "../../systems/level-two-environment-system.class.js";
+import { LevelTwoDroneSystem } from
+  "../../systems/level-two-drone-system.class.js";
+import { LevelTwoRocketSystem } from
+  "../../systems/level-two-rocket-system.class.js";
 import { LevelTwoObstacleSystem } from
   "../../systems/level-two-obstacle-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
@@ -51,6 +55,8 @@ export class LevelTwoScene extends Phaser.Scene {
   preload() {
     BulldogAnimationSystem.load(this);
     LevelTwoEnvironmentSystem.load(this);
+    LevelTwoDroneSystem.load(this);
+    LevelTwoRocketSystem.load(this);
     LevelTwoObstacleSystem.load(this);
     LevelHudSystem.load(this);
     MutantCatSystem.load(this);
@@ -65,21 +71,29 @@ export class LevelTwoScene extends Phaser.Scene {
   create() {
     this.configureWorld();
     LevelTwoEnvironmentSystem.create(this);
+    this.drones = LevelTwoDroneSystem.create(this);
     this.createGroundCollision();
     this.createObstacles();
-    this.mutantCat = MutantCatSystem.create(this, this.platforms);
+    this.mutantCats = MutantCatSystem.create(this, this.platforms);
     BulldogAnimationSystem.register(this);
     DogCatcherAnimationSystem.register(this);
     this.createPlayer();
     this.captureSystem = new LevelTwoCaptureSystem(this);
     this.configureCamera();
     this.createHud();
+    this.rocketSystem = new LevelTwoRocketSystem(
+      this,
+      this.drones,
+      this.player,
+      this.platforms,
+      this.healthSystem,
+    );
     MutantCatRewardSystem.create(
       this,
       this.player,
       this.healthSystem,
       this.collectibleSystem,
-      this.mutantCat,
+      this.mutantCats,
     );
     this.createMenuHint();
     this.bindSceneControls();
@@ -261,7 +275,7 @@ export class LevelTwoScene extends Phaser.Scene {
    * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
    * @returns {void}
    */
-  update(time) {
+  update(time, delta) {
     if (this.captureSystem?.isActive) {
       this.captureSystem.update();
       return;
@@ -274,14 +288,20 @@ export class LevelTwoScene extends Phaser.Scene {
       this.floatingLightPlatforms,
     );
     this.player?.updateMovement(this.inputSystem, time);
+    LevelTwoDroneSystem.update(this.drones, this.player, delta);
+    const wasKnockedOutByRocket = this.rocketSystem.update(time);
+    if (wasKnockedOutByRocket) {
+      this.captureSystem.start(this.player, this.mutantCats);
+      return;
+    }
     const wasKnockedOutByCat = MutantCatSystem.update(
-      this.mutantCat,
+      this.mutantCats,
       this.player,
       this.healthSystem,
       time,
     );
     if (wasKnockedOutByCat) {
-      this.captureSystem.start(this.player, this.mutantCat);
+      this.captureSystem.start(this.player, this.mutantCats);
     }
   }
 }

@@ -33,34 +33,42 @@ export class MutantCatSystem {
    * Erstellt die Katze und verbindet sie mit allen Levelplattformen.
    * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
    * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Levelplattformen.
-   * @returns {MutantCat} Erstellte mutierte Katze.
+   * @returns {MutantCat[]} Erstellte mutierte Katzen.
    */
   static create(scene, platforms) {
     MutantCatAnimationSystem.register(scene);
-    const cat = new MutantCat(
-      scene,
-      MUTANT_CAT.spawnX,
-      MUTANT_CAT.spawnY,
-      MUTANT_CAT_TEXTURE.key,
-    );
+    return MUTANT_CAT.patrols.map((patrol) => {
+      const cat = new MutantCat(
+        scene,
+        patrol.spawnX,
+        MUTANT_CAT.spawnY,
+        MUTANT_CAT_TEXTURE.key,
+        patrol,
+      );
 
-    scene.physics.add.collider(cat, platforms);
-    return cat;
+      scene.physics.add.collider(cat, platforms);
+      return cat;
+    });
   }
 
   /**
    * Aktualisiert Verhalten und verarbeitet einen Angriffstreffer genau einmal.
-   * @param {MutantCat} cat - Mutierte Katze des Levels.
+   * @param {MutantCat[]} cats - Mutierte Katzen des Levels.
    * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
    * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
    * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
    * @returns {boolean} `true`, wenn dieser Treffer die Bulldogge K. o. setzt.
    */
-  static update(cat, player, health, time) {
-    cat?.updateBehavior(player, time);
-    this.resolvePlayerBite(cat, player, time);
-    if (!cat?.consumeAttackHit(player)) return false;
-    return this.resolveCatAttack(player, health, time);
+  static update(cats, player, health, time) {
+    let wasKnockedOut = false;
+
+    cats.forEach((cat) => {
+      cat?.updateBehavior(player, time);
+      this.resolvePlayerBite(cat, player, time);
+      if (wasKnockedOut || !cat?.consumeAttackHit(player)) return;
+      wasKnockedOut = this.resolveCatAttack(player, health, time);
+    });
+    return wasKnockedOut;
   }
 
   /**
