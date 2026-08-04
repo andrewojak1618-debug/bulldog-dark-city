@@ -111,6 +111,7 @@ export class LevelTwoScene extends Phaser.Scene {
    */
   alignPlayerWithGround() {
     const body = this.player.body;
+    body?.updateFromGameObject();
     const playerFeetY = body?.bottom;
     if (!Number.isFinite(playerFeetY)) return;
 
@@ -118,7 +119,7 @@ export class LevelTwoScene extends Phaser.Scene {
     const targetFeetY = this.getGroundSurfaceY() - entry.groundSnapInsetY;
     const verticalCorrection = targetFeetY - playerFeetY;
     this.player.y += verticalCorrection;
-    body.y += verticalCorrection;
+    body.updateFromGameObject();
     body.setVelocityY(entry.groundingVelocityY);
   }
 
@@ -130,7 +131,6 @@ export class LevelTwoScene extends Phaser.Scene {
     if (!this.isEnteringLevel) return false;
 
     const entry = LEVEL_TWO.levelEntry;
-    this.alignPlayerWithGround();
     this.player.setVelocityX(entry.runSpeed);
     this.player.play(BULLDOG_ANIMATION_KEYS.run, true);
     if (this.player.x < entry.targetX) return true;

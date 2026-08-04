@@ -17,8 +17,8 @@ export const LEVEL_TWO = Object.freeze({
     startX: 30,
     targetX: 150,
     runSpeed: 190,
-    groundSnapInsetY: 0,
-    groundingVelocityY: 0,
+    groundSnapInsetY: 1,
+    groundingVelocityY: 1,
   }),
   captureSequence: Object.freeze({
     visibleEdgeInsetX: 18,
