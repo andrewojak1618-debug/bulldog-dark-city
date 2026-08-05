@@ -5,6 +5,8 @@ import {
   DOG_CATCHER_EVENTS,
   DOG_CATCHER_TEXTURES,
 } from "../../../js/config/dog-catcher-settings.js";
+import { DogCatcherAudioSystem } from
+  "../../systems/dog-catcher-audio-system.class.js";
 
 const DOG_CATCHER_STATES = Object.freeze({
   patrol: "patrol",
@@ -164,6 +166,7 @@ export class DogCatcher extends Enemy {
     this.state = DOG_CATCHER_STATES.alert;
     this.hasDetectedPlayer = true;
     this.setVelocityX(0);
+    DogCatcherAudioSystem.playAlert(this.scene);
     this.play(DOG_CATCHER_ANIMATION_KEYS.alert);
   }
 

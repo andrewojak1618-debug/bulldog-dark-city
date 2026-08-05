@@ -10,6 +10,8 @@ import {
   MUTANT_CAT_DEAD_TEXTURE,
   MUTANT_CAT_EVENTS,
 } from "../../../js/config/mutant-cat-settings.js";
+import { MutantCatAudioSystem } from
+  "../../systems/mutant-cat-audio-system.class.js";
 
 const CAT_STATES = Object.freeze({
   patrol: "patrol",
@@ -151,6 +153,7 @@ export class MutantCat extends Enemy {
     this.setVelocityX(0);
     this.facePlayer(player);
     this.state = CAT_STATES.attentive;
+    MutantCatAudioSystem.playAttentive(this.scene);
     this.play(MUTANT_CAT_ATTENTIVE_ANIMATION_KEY);
     this.once(this.getAnimationCompleteEvent(
       MUTANT_CAT_ATTENTIVE_ANIMATION_KEY,

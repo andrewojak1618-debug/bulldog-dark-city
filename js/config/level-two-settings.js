@@ -13,6 +13,9 @@ export const LEVEL_TWO = Object.freeze({
     startX: 150,
     startY: 390,
   }),
+  itemPlacements: Object.freeze([
+    Object.freeze({ type: "serum", x: 1_390, y: 260, size: 58 }),
+  ]),
   levelEntry: Object.freeze({
     startX: 30,
     targetX: 150,

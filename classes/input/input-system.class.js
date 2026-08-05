@@ -10,11 +10,14 @@ export class InputSystem {
     this.scene = scene;
     this.jumpQueued = false;
     this.attackQueued = false;
+    this.wasMutationComboPressed = false;
     this.cursors = scene.input.keyboard?.createCursorKeys();
     this.keys = scene.input.keyboard?.addKeys({
       left: "A",
       right: "D",
       jump: "W",
+      attack: "J",
+      mutation: "F",
     });
     this.wasGamepadJumpPressed = false;
     this.wasGamepadAttackPressed = false;
@@ -114,5 +117,20 @@ export class InputSystem {
     const shouldAttack = this.attackQueued || newGamepadAttack;
     this.attackQueued = false;
     return shouldAttack;
+  }
+
+  /**
+   * Meldet die neue Tastenkombination J und F genau einmal pro Betätigung.
+   * Eine durch J gepufferte Bissattacke wird dabei verworfen.
+   * @returns {boolean} `true`, wenn beide Mutationstasten neu gedrückt sind.
+   */
+  consumeMutation() {
+    const comboPressed = Boolean(
+      this.keys?.attack?.isDown && this.keys?.mutation?.isDown,
+    );
+    const newCombo = comboPressed && !this.wasMutationComboPressed;
+    this.wasMutationComboPressed = comboPressed;
+    if (newCombo) this.attackQueued = false;
+    return newCombo;
   }
 }

@@ -1,5 +1,7 @@
 import { MutantCat } from "../entities/enemies/mutant-cat.class.js";
 import { MutantCatAnimationSystem } from "./mutant-cat-animation-system.class.js";
+import { MutantCatAudioSystem } from
+  "./mutant-cat-audio-system.class.js";
 import {
   MUTANT_CAT,
   MUTANT_CAT_ATTENTIVE_TEXTURE,
@@ -27,6 +29,7 @@ export class MutantCatSystem {
         frameHeight: texture.frameHeight,
       });
     });
+    MutantCatAudioSystem.load(scene);
   }
 
   /**

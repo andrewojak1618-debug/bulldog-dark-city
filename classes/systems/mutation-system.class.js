@@ -1,49 +1,74 @@
-/**
- * Verwaltet den begrenzten Fortschritt bis zur Mutation.
- */
+import { COLLECTIBLE_KEYS, HUD } from "../../js/config/hud-settings.js";
+
+/** Steuert Freischaltung und HUD-Wechsel der vorbereiteten Mutation. */
 export class MutationSystem {
   /**
-   * Erstellt eine leere Mutationsanzeige.
-   * @param {number} maximum - Für eine volle Mutation benötigter Wert.
+   * Verknüpft Eingabevoraussetzung und beide HUD-Zustände.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {import("./collectible-system.class.js").CollectibleSystem}
+   * collectibles - Aktuelle Sammelstände.
+   * @param {Phaser.GameObjects.Container[]} normalHud - Normale Anzeigen.
+   * @param {import("../ui/mutation-bar.class.js").MutationBar} mutationBar -
+   * Vorbereiteter Mutationsrahmen.
    */
-  constructor(maximum = 100) {
-    this.maximum = maximum;
-    this.current = 0;
-    this.listeners = new Set();
+  constructor(scene, collectibles, normalHud, mutationBar) {
+    this.scene = scene;
+    this.collectibles = collectibles;
+    this.normalHud = normalHud;
+    this.mutationBar = mutationBar;
+    this.isActive = false;
   }
 
   /**
-   * Erhöht den Mutationsfortschritt bis zum Maximum.
-   * @param {number} amount - Hinzuzufügender Wert.
-   * @returns {number} Aktueller Mutationswert.
+   * Prüft die Tastenkombination einmal pro Szenenupdate.
+   * @param {import("../input/input-system.class.js").InputSystem} input -
+   * Aktuelle Spielereingaben.
+   * @returns {boolean} `true`, wenn die Mutation neu aktiviert wurde.
    */
-  add(amount) {
-    this.current = Math.min(
-      this.maximum,
-      this.current + Math.max(0, amount),
-    );
-    this.emitChange();
-    return this.current;
+  update(input) {
+    if (!input.consumeMutation()) return false;
+    return this.activate();
   }
 
   /**
-   * Registriert eine Anzeige für künftige Änderungen.
-   * @param {(current: number, maximum: number) => void} listener - Callback.
-   * @returns {() => void} Funktion zum Entfernen des Callbacks.
+   * Aktiviert den HUD-Wechsel nur bei vollständig gefülltem Serumrahmen.
+   * @returns {boolean} `true`, wenn der Zustand neu aktiviert wurde.
    */
-  onChange(listener) {
-    this.listeners.add(listener);
-    listener(this.current, this.maximum);
-    return () => this.listeners.delete(listener);
+  activate() {
+    if (this.isActive || !this.hasFullSerum()) return false;
+    this.isActive = true;
+    this.hideNormalHud();
+    this.mutationBar.show();
+    return true;
   }
 
   /**
-   * Informiert alle registrierten Anzeigen über den neuen Wert.
-   * @returns {void}
+   * Prüft den Serumzähler gegen dessen zentral konfiguriertes Maximum.
+   * @returns {boolean} `true`, wenn zwei Serum-Items gesammelt wurden.
    */
-  emitChange() {
-    this.listeners.forEach((listener) => {
-      listener(this.current, this.maximum);
+  hasFullSerum() {
+    return this.collectibles.getCount(COLLECTIBLE_KEYS.serum) >=
+      HUD.serum.fill.maximum;
+  }
+
+  /**
+   * Lässt Lebens-, Coin- und Serumanzeige gemeinsam nach links ausfliegen.
+   * @returns {Phaser.Tweens.Tween} Laufender Ausblendtween.
+   */
+  hideNormalHud() {
+    const settings = HUD.mutation;
+    return this.scene.tweens.add({
+      targets: this.normalHud,
+      x: settings.normalHudExitX,
+      alpha: 0,
+      duration: settings.exitDurationMs,
+      ease: "Back.easeIn",
+      onComplete: () => this.hideNormalHudContainers(),
     });
+  }
+
+  /** Verbirgt die vollständig aus dem Canvas bewegten Normalanzeigen. */
+  hideNormalHudContainers() {
+    this.normalHud.forEach((item) => item.setVisible(false));
   }
 }

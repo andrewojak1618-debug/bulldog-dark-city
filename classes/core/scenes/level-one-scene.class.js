@@ -81,6 +81,7 @@ export class LevelOneScene extends Phaser.Scene {
     const hud = LevelHudSystem.create(this);
     this.healthSystem = hud.health;
     this.collectibleSystem = hud.collectibles;
+    this.mutationSystem = hud.mutation;
     LevelItemSystem.create(
       this,
       this.player,
@@ -235,6 +236,7 @@ export class LevelOneScene extends Phaser.Scene {
    * @returns {void}
    */
   update(time, delta) {
+    this.mutationSystem?.update(this.inputSystem);
     if (!this.levelExit?.isTransitioning) {
       this.player?.updateMovement(this.inputSystem, time);
     }

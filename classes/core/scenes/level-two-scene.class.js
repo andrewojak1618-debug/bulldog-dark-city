@@ -12,6 +12,7 @@ import { LevelTwoRocketSystem } from
 import { LevelTwoObstacleSystem } from
   "../../systems/level-two-obstacle-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
+import { LevelItemSystem } from "../../systems/level-item-system.class.js";
 import { MutantCatSystem } from "../../systems/mutant-cat-system.class.js";
 import { MutantCatRewardSystem } from
   "../../systems/mutant-cat-reward-system.class.js";
@@ -20,8 +21,15 @@ import { DogCatcherAnimationSystem } from
   "../../systems/dog-catcher-animation-system.class.js";
 import { LevelTwoCaptureSystem } from
   "../../systems/level-two-capture-system.class.js";
-import { BULLDOG_ANIMATION_KEYS, BULLDOG_TEXTURES } from
+import { BackgroundMusicSystem } from
+  "../../systems/background-music-system.class.js";
+import {
+  BULLDOG_ANIMATION_KEYS,
+  BULLDOG_EVENTS,
+  BULLDOG_TEXTURES,
+} from
   "../../../js/config/bulldog-animation-settings.js";
+import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { LEVEL_TWO } from "../../../js/config/level-two-settings.js";
 import { PLAYER_CAMERA } from
@@ -59,9 +67,11 @@ export class LevelTwoScene extends Phaser.Scene {
     LevelTwoRocketSystem.load(this);
     LevelTwoObstacleSystem.load(this);
     LevelHudSystem.load(this);
+    LevelItemSystem.load(this);
     MutantCatSystem.load(this);
     MutantCatRewardSystem.load(this);
     DogCatcherSystem.load(this);
+    BackgroundMusicSystem.load(this, LEVEL_MUSIC.levelTwo);
   }
 
   /**
@@ -78,9 +88,11 @@ export class LevelTwoScene extends Phaser.Scene {
     BulldogAnimationSystem.register(this);
     DogCatcherAnimationSystem.register(this);
     this.createPlayer();
+    this.createBackgroundMusic();
     this.captureSystem = new LevelTwoCaptureSystem(this);
     this.configureCamera();
     this.createHud();
+    this.createItems();
     this.rocketSystem = new LevelTwoRocketSystem(
       this,
       this.drones,
@@ -117,6 +129,18 @@ export class LevelTwoScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.platforms);
     this.alignPlayerWithGround();
     return this.player;
+  }
+
+  /**
+   * Startet die Level-2-Musik und blendet sie beim K.-o. weich aus.
+   * @returns {void}
+   */
+  createBackgroundMusic() {
+    this.backgroundMusic = new BackgroundMusicSystem(this);
+    this.backgroundMusic.play(LEVEL_MUSIC.levelTwo);
+    this.player.once(BULLDOG_EVENTS.knockedOut, () => {
+      this.backgroundMusic.fadeOutAndStop(LEVEL_MUSIC.levelTwo.fadeOutMs);
+    });
   }
 
   /**
@@ -163,6 +187,18 @@ export class LevelTwoScene extends Phaser.Scene {
 
     this.healthSystem = hud.health;
     this.collectibleSystem = hud.collectibles;
+    this.mutationSystem = hud.mutation;
+  }
+
+  /** Erstellt die zentral konfigurierten Sammelobjekte von Level zwei. */
+  createItems() {
+    this.levelItems = LevelItemSystem.create(
+      this,
+      this.player,
+      this.healthSystem,
+      this.collectibleSystem,
+      LEVEL_TWO.itemPlacements,
+    );
   }
 
   /**
@@ -283,6 +319,7 @@ export class LevelTwoScene extends Phaser.Scene {
 
     if (this.updateLevelEntry()) return;
 
+    this.mutationSystem?.update(this.inputSystem);
     LevelTwoObstacleSystem.updatePlayerPlatformContact(
       this.player,
       this.floatingLightPlatforms,

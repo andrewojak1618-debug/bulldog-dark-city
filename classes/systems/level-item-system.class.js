@@ -63,13 +63,20 @@ export class LevelItemSystem {
    * @param {Phaser.Physics.Arcade.Sprite} player - Sammelnde Bulldogge.
    * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
    * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
+   * @param {ReadonlyArray<object>} [placements=LEVEL_ITEMS.placements] - Levelpositionen.
    * @returns {Phaser.GameObjects.Group} Gruppe aller sichtbaren Items.
    */
-  static create(scene, player, health, collectibles) {
+  static create(
+    scene,
+    player,
+    health,
+    collectibles,
+    placements = LEVEL_ITEMS.placements,
+  ) {
     this.registerAnimations(scene);
     const group = scene.add.group({ runChildUpdate: false });
 
-    LEVEL_ITEMS.placements.forEach((placement) => {
+    placements.forEach((placement) => {
       group.add(this.createItem(scene, placement));
     });
     this.bindPickupOverlap(scene, player, group, health, collectibles);

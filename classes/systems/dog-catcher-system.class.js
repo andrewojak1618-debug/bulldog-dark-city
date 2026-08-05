@@ -1,4 +1,6 @@
 import { DogCatcher } from "../entities/enemies/dog-catcher.class.js";
+import { DogCatcherAudioSystem } from
+  "./dog-catcher-audio-system.class.js";
 import {
   DOG_CATCHER,
   DOG_CATCHER_EVENTS,
@@ -22,6 +24,7 @@ export class DogCatcherSystem {
         frameHeight: texture.frameHeight,
       });
     });
+    DogCatcherAudioSystem.load(scene);
   }
 
   /**
