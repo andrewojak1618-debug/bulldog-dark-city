@@ -67,7 +67,7 @@ export class MutantCatSystem {
 
     cats.forEach((cat) => {
       cat?.updateBehavior(player, time);
-      this.resolvePlayerBite(cat, player, time);
+      this.resolvePlayerAttack(cat, player, time);
       if (wasKnockedOut || !cat?.consumeAttackHit(player)) return;
       wasKnockedOut = this.resolveCatAttack(player, health, time);
     });
@@ -75,14 +75,14 @@ export class MutantCatSystem {
   }
 
   /**
-   * Leitet einen gültigen Biss genau einmal an die Katze weiter.
+   * Leitet einen gültigen Spielerangriff genau einmal an die Katze weiter.
    * @param {MutantCat} cat - Mutierte Katze des Levels.
    * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
    * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
    * @returns {void}
    */
-  static resolvePlayerBite(cat, player, time) {
-    const wasHit = player?.consumeBiteHit(
+  static resolvePlayerAttack(cat, player, time) {
+    const wasHit = player?.consumeAttackHit(
       cat,
       MUTANT_CAT.biteHitRange,
       MUTANT_CAT.biteGroundLevelTolerance,

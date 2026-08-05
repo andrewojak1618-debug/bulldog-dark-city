@@ -3,6 +3,7 @@ import { BULLDOG_GAMEPLAY } from "../../../js/config/bulldog-gameplay-settings.j
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_ANIMATION_TIMING,
+  BULLDOG_ATTACK_TEXTURES,
   BULLDOG_EVENTS,
   BULLDOG_TEXTURES,
 } from "../../../js/config/bulldog-animation-settings.js";
@@ -10,6 +11,8 @@ import { BulldogMovementAnimationSystem } from
   "../../systems/bulldog-movement-animation-system.class.js";
 import { BulldogAudioSystem } from
   "../../systems/bulldog-audio-system.class.js";
+import { BulldogMutationStateSystem } from
+  "../../systems/bulldog-mutation-state-system.class.js";
 
 /**
  * Bildet die steuerbare Bulldogge des technischen Prototyps ab.
@@ -54,10 +57,12 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
     this.wasFalling = false;
     this.isLanding = false;
     this.isAttacking = false;
-    this.biteHitConsumed = false;
+    this.attackHitConsumed = false;
+    this.activeAttackAnimationKey = null;
     this.isHit = false;
     this.hitReactionEndsAt = 0;
     this.isKnockedOut = false;
+    BulldogMutationStateSystem.initialize(this);
   }
 
   /**
@@ -67,7 +72,14 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    * @returns {void}
    */
   updateMovement(input, time) {
-    if (this.isKnockedOut) return;
+    if (this.isKnockedOut || this.isMutating) return;
+    if (this.isMutated) {
+      if (this.updateActionState(input, time)) return;
+      const direction = input.getHorizontalAxis();
+      this.applyMovement(input, direction);
+      this.updateMovementAnimations(direction);
+      return;
+    }
     if (this.updateActionState(input, time)) return;
     const direction = input.getHorizontalAxis();
     this.applyMovement(input, direction);
@@ -75,7 +87,15 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Behandelt Trefferreaktion und Biss, bevor Bewegung erlaubt wird.
+   * Startet einmalig die sichtbare Verwandlung.
+   * @returns {boolean} `true`, wenn die Mutation gestartet wurde.
+   */
+  startMutation() {
+    return BulldogMutationStateSystem.start(this);
+  }
+
+  /**
+   * Behandelt Trefferreaktion und Angriff, bevor Bewegung erlaubt wird.
    * @param {import("../../input/input-system.class.js").InputSystem} input - Spielereingaben.
    * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
    * @returns {boolean} `true`, solange eine Aktion die Bewegung sperrt.
@@ -86,7 +106,7 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
       return true;
     }
     if (this.isHit) this.finishHitReaction();
-    if (input.consumeAttack()) this.startBiteAttack();
+    if (input.consumeAttack()) this.startAttack();
     if (!this.isAttacking) return false;
     this.setVelocityX(0);
     return true;
@@ -118,58 +138,70 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Startet die Bissattacke am Boden und sperrt Mehrfachauslösungen bis zum
-   * letzten Frame.
+   * Startet einen erlaubten Angriff und sperrt Mehrfachauslösungen.
    * @returns {boolean} `true`, wenn ein neuer Angriff gestartet wurde.
    */
-  startBiteAttack() {
-    if (this.isAttacking || this.isKnockedOut || !this.isGrounded()) {
-      return false;
-    }
-
-    this.prepareBiteAttack();
-    this.once(this.getBiteCompleteEventName(), () => this.finishBiteAttack());
+  startAttack() {
+    if (!this.canStartAttack()) return false;
+    this.prepareAttack();
+    this.once(this.getAttackCompleteEventName(), () => this.finishAttack());
     return true;
   }
 
   /**
-   * Setzt den Aktionszustand und startet die sichtbare Bissanimation.
-   * @returns {void}
+   * Prüft Aktionszustand und erlaubte Luftangriffe.
+   * @returns {boolean} `true`, wenn ein Angriff beginnen darf.
    */
-  prepareBiteAttack() {
-    this.audio.prepareBiteAttack();
-    this.isAttacking = true;
-    this.biteHitConsumed = false;
-    this.standingStartedAt = null;
-    this.setVelocityX(0);
-    this.anims.stop();
-    this.play(BULLDOG_ANIMATION_KEYS.biteAttack);
+  canStartAttack() {
+    const isAirAttackBlocked = !this.isGrounded() && !this.isMutated;
+    return !this.isAttacking && !this.isKnockedOut && !isAirAttackBlocked;
   }
 
   /**
-   * Liefert den Phaser-Ereignisnamen für das Ende der Bissanimation.
+   * Setzt den Aktionszustand und startet die passende Angriffsanimation.
+   * @returns {void}
+   */
+  prepareAttack() {
+    if (!this.isMutated) this.audio.prepareBiteAttack();
+    this.isAttacking = true;
+    this.attackHitConsumed = false;
+    this.standingStartedAt = null;
+    this.setVelocityX(0);
+    this.anims.stop();
+    this.activeAttackAnimationKey =
+      BulldogMutationStateSystem.getNextAttackAnimationKey(this);
+    this.play(this.activeAttackAnimationKey);
+  }
+
+  /**
+   * Liefert den Phaser-Ereignisnamen für das Ende des aktiven Angriffs.
    * @returns {string} Vollständiger Animation-Complete-Ereignisname.
    */
-  getBiteCompleteEventName() {
+  getAttackCompleteEventName() {
     return (
       Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
-      BULLDOG_ANIMATION_KEYS.biteAttack
+      (this.activeAttackAnimationKey ?? BULLDOG_ANIMATION_KEYS.biteAttack)
     );
   }
 
   /**
-   * Meldet genau einen Biss-Treffer im letzten Angriffsframe.
+   * Meldet genau einen Treffer im letzten Angriffsframe.
    * @param {Phaser.Physics.Arcade.Sprite} target - Angegriffener Gegner.
    * @param {number} hitRange - Maximale horizontale Trefferentfernung.
    * @param {number} groundTolerance - Erlaubter Abstand der Fußpunkte.
-   * @returns {boolean} `true`, wenn dieser Biss den Gegner neu trifft.
+   * @returns {boolean} `true`, wenn der Angriff den Gegner neu trifft.
    */
-  consumeBiteHit(target, hitRange, groundTolerance) {
-    if (!this.isBiteImpactReady(target)) return false;
+  consumeAttackHit(target, hitRange, groundTolerance) {
+    if (!this.isAttackImpactReady(target)) return false;
     const distanceX = target.x - this.x;
-    if (!this.isTargetInBiteRange(target, distanceX, hitRange, groundTolerance))
+    if (!this.isTargetInAttackRange(
+      target,
+      distanceX,
+      hitRange,
+      groundTolerance,
+    ))
       return false;
-    this.biteHitConsumed = true;
+    this.attackHitConsumed = true;
     return true;
   }
 
@@ -178,26 +210,27 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    * @param {Phaser.Physics.Arcade.Sprite} target - Angegriffener Gegner.
    * @returns {boolean} `true`, wenn eine Trefferprüfung sinnvoll ist.
    */
-  isBiteImpactReady(target) {
-    const impactFrame = BULLDOG_TEXTURES.biteAttack.frameCount - 1;
+  isAttackImpactReady(target) {
+    const attackKey = this.anims.currentAnim?.key;
+    const texture = BULLDOG_ATTACK_TEXTURES[attackKey];
     return (
       this.isAttacking &&
-      !this.biteHitConsumed &&
+      !this.attackHitConsumed &&
       Boolean(target?.active && target.body?.enable) &&
-      this.anims.currentAnim?.key === BULLDOG_ANIMATION_KEYS.biteAttack &&
-      this.anims.currentFrame?.textureFrame === impactFrame
+      Boolean(texture) &&
+      this.anims.currentFrame?.textureFrame === texture.frameCount - 1
     );
   }
 
   /**
-   * Prüft Blickrichtung, Reichweite und gemeinsamen Boden des Bissziels.
+   * Prüft Blickrichtung, Reichweite und Höhenabstand des Angriffsziels.
    * @param {Phaser.Physics.Arcade.Sprite} target - Angegriffener Gegner.
    * @param {number} distanceX - Horizontaler Abstand zum Ziel.
    * @param {number} hitRange - Maximale horizontale Trefferentfernung.
    * @param {number} groundTolerance - Erlaubter Abstand der Fußpunkte.
    * @returns {boolean} `true`, wenn das Ziel getroffen werden darf.
    */
-  isTargetInBiteRange(target, distanceX, hitRange, groundTolerance) {
+  isTargetInAttackRange(target, distanceX, hitRange, groundTolerance) {
     const facingDirection = this.flipX ? -1 : 1;
     const feetDistance = Math.abs(this.body.bottom - target.body.bottom);
     return (
@@ -208,14 +241,15 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Beendet den Bisszustand und stellt die neutrale Haltung wieder her.
+   * Beendet den Angriffszustand und stellt die neutrale Haltung wieder her.
    * @returns {void}
    */
-  finishBiteAttack() {
+  finishAttack() {
     if (!this.isAttacking) return;
 
     this.isAttacking = false;
-    this.biteHitConsumed = false;
+    this.attackHitConsumed = false;
+    this.activeAttackAnimationKey = null;
     this.showStandFrame();
   }
 
@@ -275,8 +309,13 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
     this.standingStartedAt = null;
     this.isLanding = false;
     this.isAttacking = false;
-    this.biteHitConsumed = false;
-    this.off(this.getBiteCompleteEventName());
+    this.attackHitConsumed = false;
+    Object.keys(BULLDOG_ATTACK_TEXTURES).forEach((animationKey) => {
+      this.off(
+        Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + animationKey,
+      );
+    });
+    this.activeAttackAnimationKey = null;
   }
 
   /**
@@ -297,6 +336,10 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    */
   showStandFrame() {
     this.stopWaitBreathing();
+    if (this.isMutated) {
+      this.play(BULLDOG_ANIMATION_KEYS.mutationIdle, true);
+      return;
+    }
     this.setTexture(BULLDOG_TEXTURES.stand.key, 0);
   }
 

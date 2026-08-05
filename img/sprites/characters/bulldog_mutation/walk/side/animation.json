@@ -1,0 +1,16 @@
+{
+  "animation": "walk",
+  "character": "bulldog_mutation",
+  "direction": "side",
+  "frameWidth": 512,
+  "frameHeight": 600,
+  "frameCount": 4,
+  "frameRate": 8,
+  "repeat": -1,
+  "frames": [
+    "bulldog_mutation_walk_side_01.png",
+    "bulldog_mutation_walk_side_02.png",
+    "bulldog_mutation_walk_side_03.png",
+    "bulldog_mutation_walk_side_04.png"
+  ]
+}

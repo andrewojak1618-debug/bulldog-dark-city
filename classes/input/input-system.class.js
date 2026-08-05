@@ -47,7 +47,7 @@ export class InputSystem {
   }
 
   /**
-   * Puffert Bissangriffe von Tastatur und linker Maustaste.
+   * Puffert Angriffe von Tastatur und linker Maustaste.
    * @returns {void}
    */
   bindAttackInputs() {
@@ -104,7 +104,7 @@ export class InputSystem {
   }
 
   /**
-   * Meldet einen neuen Bissimpuls von J, Linksklick oder Gamepad-X genau
+   * Meldet einen neuen Angriffsimpuls von J, Linksklick oder Gamepad-X genau
    * einmal pro Betätigung.
    * @returns {boolean} `true`, wenn ein neuer Angriff angefordert wurde.
    */

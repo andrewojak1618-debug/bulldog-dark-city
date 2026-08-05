@@ -78,7 +78,7 @@ export class LevelOneScene extends Phaser.Scene {
       () => this.levelExit.unlock(),
     );
     this.configureCamera();
-    const hud = LevelHudSystem.create(this);
+    const hud = LevelHudSystem.create(this, {}, this.player);
     this.healthSystem = hud.health;
     this.collectibleSystem = hud.collectibles;
     this.mutationSystem = hud.mutation;

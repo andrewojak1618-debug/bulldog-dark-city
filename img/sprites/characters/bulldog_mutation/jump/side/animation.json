@@ -1,0 +1,18 @@
+{
+  "animation": "jump",
+  "character": "bulldog_mutation",
+  "direction": "side",
+  "frameWidth": 512,
+  "frameHeight": 600,
+  "jumpFrameCount": 3,
+  "landingFrame": 3,
+  "frameRate": 4,
+  "repeat": 0,
+  "landingTrigger": "ground-contact",
+  "frames": [
+    "bulldog_mutation_jump_side_01.png",
+    "bulldog_mutation_jump_side_02.png",
+    "bulldog_mutation_jump_side_03.png",
+    "bulldog_mutation_jump_side_04.png"
+  ]
+}

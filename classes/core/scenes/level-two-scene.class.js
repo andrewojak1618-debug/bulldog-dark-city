@@ -183,7 +183,11 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   createHud() {
-    const hud = LevelHudSystem.create(this, this.initialPlayerState);
+    const hud = LevelHudSystem.create(
+      this,
+      this.initialPlayerState,
+      this.player,
+    );
 
     this.healthSystem = hud.health;
     this.collectibleSystem = hud.collectibles;

@@ -27,11 +27,13 @@ export class LevelHudSystem {
    * @param {Phaser.Scene} scene - Zugehörige Spielszene.
    * @param {{health?: number, collectibles?: Record<string, number>}}
    * [initialState={}] - Optionaler Zustand des vorherigen Levels.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog|null}
+   * [player=null] - Verwandelbare Spielfigur.
    * @returns {{health: HealthSystem, collectibles: CollectibleSystem,
    * mutation: MutationSystem}}
    * Veränderbare Leveldaten für Treffer und Sammelobjekte.
    */
-  static create(scene, initialState = {}) {
+  static create(scene, initialState = {}, player = null) {
     const health = new HealthSystem(
       HUD.health.maximum,
       initialState.health ?? HUD.health.maximum,
@@ -49,6 +51,7 @@ export class LevelHudSystem {
       collectibles,
       [healthBar, ...counters, mutationReady],
       mutationBar,
+      player,
     );
     return { health, collectibles, mutation };
   }

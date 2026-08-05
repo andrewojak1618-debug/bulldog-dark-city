@@ -10,12 +10,15 @@ export class MutationSystem {
    * @param {Phaser.GameObjects.Container[]} normalHud - Normale Anzeigen.
    * @param {import("../ui/mutation-bar.class.js").MutationBar} mutationBar -
    * Vorbereiteter Mutationsrahmen.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog|null}
+   * player - Verwandelbare Spielfigur.
    */
-  constructor(scene, collectibles, normalHud, mutationBar) {
+  constructor(scene, collectibles, normalHud, mutationBar, player) {
     this.scene = scene;
     this.collectibles = collectibles;
     this.normalHud = normalHud;
     this.mutationBar = mutationBar;
+    this.player = player;
     this.isActive = false;
   }
 
@@ -36,6 +39,7 @@ export class MutationSystem {
    */
   activate() {
     if (this.isActive || !this.hasFullSerum()) return false;
+    if (!this.player?.startMutation()) return false;
     this.isActive = true;
     this.hideNormalHud();
     this.mutationBar.show();
@@ -67,7 +71,10 @@ export class MutationSystem {
     });
   }
 
-  /** Verbirgt die vollständig aus dem Canvas bewegten Normalanzeigen. */
+  /**
+   * Verbirgt die vollständig aus dem Canvas bewegten Normalanzeigen.
+   * @returns {void}
+   */
   hideNormalHudContainers() {
     this.normalHud.forEach((item) => item.setVisible(false));
   }

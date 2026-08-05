@@ -1,0 +1,13 @@
+{
+  "animation": "mutation_idle",
+  "direction": "side",
+  "frameWidth": 512,
+  "frameHeight": 600,
+  "frames": 4,
+  "files": [
+    "bulldog_mutation_idle_side_01.png",
+    "bulldog_mutation_idle_side_02.png",
+    "bulldog_mutation_idle_side_03.png",
+    "bulldog_mutation_idle_side_04.png"
+  ]
+}

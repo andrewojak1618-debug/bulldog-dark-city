@@ -57,7 +57,7 @@ export class DogCatcherSystem {
     group?.getChildren().forEach((dogCatcher) => {
       dogCatcher.updateBehavior(player, time);
       const dogCatcherHitPlayer = dogCatcher.consumeAttackHit(player);
-      const playerHitDogCatcher = player.consumeBiteHit(
+      const playerHitDogCatcher = player.consumeAttackHit(
         dogCatcher,
         DOG_CATCHER.biteHitRange,
         DOG_CATCHER.biteGroundLevelTolerance,

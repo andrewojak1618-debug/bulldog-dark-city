@@ -15,6 +15,10 @@ export class BulldogMovementAnimationSystem {
    * @returns {void}
    */
   static update(player, direction) {
+    if (player.isMutated) {
+      this.updateMutationMovement(player, direction);
+      return;
+    }
     const isGrounded = player.isGrounded();
     const verticalVelocity = player.body.velocity.y;
     const isFalling = verticalVelocity > 0 && !isGrounded;
@@ -26,6 +30,54 @@ export class BulldogMovementAnimationSystem {
     }
     this.updateRun(player, direction, isGrounded);
     this.updateWait(player, direction, isGrounded);
+  }
+
+  /**
+   * Wechselt die mutierte Bulldogge zwischen Boden- und Luftanimationen.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
+   * @param {-1|0|1} direction - Horizontale Bewegungsrichtung.
+   * @returns {void}
+   */
+  static updateMutationMovement(player, direction) {
+    const isGrounded = player.isGrounded();
+    if (!isGrounded) {
+      this.updateMutationJump(player);
+      return;
+    }
+    if (this.updateMutationLanding(player)) return;
+    const isRunning = direction !== 0;
+    const animationKey = isRunning
+      ? BULLDOG_ANIMATION_KEYS.mutationWalk
+      : BULLDOG_ANIMATION_KEYS.mutationIdle;
+    player.play(animationKey, true);
+  }
+
+  /**
+   * Startet die Mutations-Sprunganimation in der Luft genau einmal.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
+   * @returns {void}
+   */
+  static updateMutationJump(player) {
+    player.wasMutationAirborne = true;
+    const currentKey = player.anims.currentAnim?.key;
+    if (currentKey !== BULLDOG_ANIMATION_KEYS.mutationJump) {
+      player.play(BULLDOG_ANIMATION_KEYS.mutationJump);
+    }
+  }
+
+  /**
+   * Spielt nach dem ersten Bodenkontakt den separaten Landeframe.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
+   * @returns {boolean} `true`, solange die Landung den Zustand übernimmt.
+   */
+  static updateMutationLanding(player) {
+    if (player.wasMutationAirborne) {
+      player.wasMutationAirborne = false;
+      player.play(BULLDOG_ANIMATION_KEYS.mutationLand);
+      return true;
+    }
+    return player.anims.currentAnim?.key ===
+      BULLDOG_ANIMATION_KEYS.mutationLand && player.anims.isPlaying;
   }
 
   /**

@@ -1,0 +1,10 @@
+{
+  "animation": "attack_right",
+  "character": "bulldog_mutation",
+  "direction": "side",
+  "frameWidth": 768,
+  "frameHeight": 600,
+  "frameCount": 3,
+  "frameRate": 8,
+  "repeat": 0
+}
