@@ -144,6 +144,7 @@ export class BulldogMovementAnimationSystem {
       return;
     }
     player.play(BULLDOG_ANIMATION_KEYS.waitBreathe, true);
+    player.startWaitBreathing();
   }
 
   /**
@@ -152,6 +153,7 @@ export class BulldogMovementAnimationSystem {
    * @returns {void}
    */
   static stopWait(player) {
+    player.stopWaitBreathing();
     const isWaiting = player.texture.key === BULLDOG_TEXTURES.sit.key ||
       player.texture.key === BULLDOG_TEXTURES.waitBreathe.key;
     if (!isWaiting) return;
@@ -165,6 +167,7 @@ export class BulldogMovementAnimationSystem {
    * @returns {void}
    */
   static showSeatedFrame(player) {
+    player.stopWaitBreathing();
     if (player.texture.key === BULLDOG_TEXTURES.sit.key) return;
     player.anims.stop();
     player.setTexture(BULLDOG_TEXTURES.sit.key, 0);

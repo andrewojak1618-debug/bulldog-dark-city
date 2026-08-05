@@ -6,7 +6,7 @@ import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
  */
 export class LevelTwoRocketSystem {
   /**
-   * Lädt Flug- und Explosionsspritesheet.
+   * Lädt Flug-, Explosions- und Audio-Assets.
    * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
    * @returns {void}
    */
@@ -20,6 +20,10 @@ export class LevelTwoRocketSystem {
       frameWidth: settings.frameWidth,
       frameHeight: settings.frameHeight,
     });
+    scene.load.audio(
+      settings.explosionSoundKey,
+      settings.explosionSoundPath,
+    );
   }
 
   /**
@@ -243,6 +247,9 @@ export class LevelTwoRocketSystem {
     const { x, y } = rocket;
     rocket.destroy();
     const settings = LEVEL_TWO.drones.rocket;
+    this.scene.sound.play(settings.explosionSoundKey, {
+      volume: settings.explosionSoundVolume,
+    });
     const explosion = this.scene.add
       .sprite(x, y, settings.explosionKey, 1)
       .setScale(settings.explosionScale)

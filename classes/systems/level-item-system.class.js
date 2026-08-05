@@ -24,6 +24,10 @@ export class LevelItemSystem {
         frameHeight: effect.frameHeight,
       });
     });
+    Object.values(LEVEL_ITEMS.pickupEffects).forEach((effect) => {
+      if (!effect.soundPath || scene.cache.audio.exists(effect.soundKey)) return;
+      scene.load.audio(effect.soundKey, effect.soundPath);
+    });
   }
 
   /**
@@ -193,6 +197,7 @@ export class LevelItemSystem {
     const effect = LEVEL_ITEMS.pickupEffects[itemType];
     if (!effect) return null;
 
+    this.playPickupSound(scene, effect);
     const effectSprite = scene.add
       .sprite(
         item.x + (effect.offsetX ?? 0),
@@ -206,6 +211,19 @@ export class LevelItemSystem {
     effectSprite.once("animationcomplete", () => effectSprite.destroy());
     effectSprite.play(effect.key);
     return effectSprite;
+  }
+
+  /**
+   * Spielt den optionalen Itemklang genau beim Start des Aufnahmeeffekts ab.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {{soundKey?: string, soundVolume?: number}} effect - Effektwerte.
+   * @returns {void}
+   */
+  static playPickupSound(scene, effect) {
+    if (!effect.soundKey) return;
+    scene.sound.play(effect.soundKey, {
+      volume: effect.soundVolume ?? 1,
+    });
   }
 
   /**

@@ -8,6 +8,8 @@ import {
 } from "../../../js/config/bulldog-animation-settings.js";
 import { BulldogMovementAnimationSystem } from
   "../../systems/bulldog-movement-animation-system.class.js";
+import { BulldogAudioSystem } from
+  "../../systems/bulldog-audio-system.class.js";
 
 /**
  * Bildet die steuerbare Bulldogge des technischen Prototyps ab.
@@ -22,15 +24,32 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    */
   constructor(scene, x, y, texture) {
     super(scene, x, y, texture);
-    const settings = BULLDOG_GAMEPLAY;
     scene.add.existing(this);
     scene.physics.add.existing(this);
+    this.configurePhysics();
+    this.initializeState();
+    this.audio = new BulldogAudioSystem(this, scene);
+  }
+
+  /**
+   * Richtet Größe, Hitbox und Bewegungsgrenzen der Bulldogge ein.
+   * @returns {void}
+   */
+  configurePhysics() {
+    const settings = BULLDOG_GAMEPLAY;
     this.setDisplaySize(settings.displayWidth, settings.displayHeight);
     this.body
       .setSize(settings.bodyWidth, settings.bodyHeight)
       .setOffset(settings.bodyOffsetX, settings.bodyOffsetY);
     this.setCollideWorldBounds(true);
     this.setMaxVelocity(settings.moveSpeed, settings.maxFallSpeed);
+  }
+
+  /**
+   * Initialisiert die veränderlichen Bewegungs- und Aktionszustände.
+   * @returns {void}
+   */
+  initializeState() {
     this.standingStartedAt = null;
     this.wasFalling = false;
     this.isLanding = false;
@@ -108,14 +127,23 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
       return false;
     }
 
+    this.prepareBiteAttack();
+    this.once(this.getBiteCompleteEventName(), () => this.finishBiteAttack());
+    return true;
+  }
+
+  /**
+   * Setzt den Aktionszustand und startet die sichtbare Bissanimation.
+   * @returns {void}
+   */
+  prepareBiteAttack() {
+    this.audio.prepareBiteAttack();
     this.isAttacking = true;
     this.biteHitConsumed = false;
     this.standingStartedAt = null;
     this.setVelocityX(0);
     this.anims.stop();
     this.play(BULLDOG_ANIMATION_KEYS.biteAttack);
-    this.once(this.getBiteCompleteEventName(), () => this.finishBiteAttack());
-    return true;
   }
 
   /**
@@ -199,13 +227,10 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   takeHit(time) {
     if (this.isKnockedOut || this.isHit) return false;
 
+    this.audio.stopAll();
     this.isHit = true;
     this.hitReactionEndsAt = time + BULLDOG_ANIMATION_TIMING.hitReactionMs;
-    this.standingStartedAt = null;
-    this.isLanding = false;
-    this.isAttacking = false;
-    this.biteHitConsumed = false;
-    this.off(this.getBiteCompleteEventName());
+    this.cancelActiveActionStates();
     this.setVelocityX(0);
     this.anims.stop();
     this.setTexture(BULLDOG_TEXTURES.knockout.key, 0);
@@ -230,19 +255,28 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   knockOut() {
     if (this.isKnockedOut) return false;
 
+    this.audio.stopAll();
     this.isKnockedOut = true;
-    this.standingStartedAt = null;
-    this.isLanding = false;
-    this.isAttacking = false;
-    this.biteHitConsumed = false;
     this.isHit = false;
-    this.off(this.getBiteCompleteEventName());
+    this.cancelActiveActionStates();
     this.setVelocity(0, 0);
     this.setGravityY(0);
     this.anims.stop();
     this.play(BULLDOG_ANIMATION_KEYS.knockout);
     this.emit(BULLDOG_EVENTS.knockedOut);
     return true;
+  }
+
+  /**
+   * Beendet gemeinsam genutzte Warte-, Lande- und Angriffszustände.
+   * @returns {void}
+   */
+  cancelActiveActionStates() {
+    this.standingStartedAt = null;
+    this.isLanding = false;
+    this.isAttacking = false;
+    this.biteHitConsumed = false;
+    this.off(this.getBiteCompleteEventName());
   }
 
   /**
@@ -262,7 +296,24 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    * @returns {void}
    */
   showStandFrame() {
+    this.stopWaitBreathing();
     this.setTexture(BULLDOG_TEXTURES.stand.key, 0);
+  }
+
+  /**
+   * Startet die Atemschleife genau einmal beim aktiven Wartezustand.
+   * @returns {void}
+   */
+  startWaitBreathing() {
+    this.audio.startWaitBreathing();
+  }
+
+  /**
+   * Beendet die Atemschleife unmittelbar bei Bewegung oder einer Aktion.
+   * @returns {void}
+   */
+  stopWaitBreathing() {
+    this.audio.stopWaitBreathing();
   }
 
   /**

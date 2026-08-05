@@ -116,7 +116,7 @@ export const BULLDOG_ANIMATIONS = Object.freeze([
     textureKey: BULLDOG_TEXTURES.waitBreathe.key,
     startFrame: 0,
     endFrame: BULLDOG_TEXTURES.waitBreathe.frameCount - 1,
-    frameRate: 3,
+    frameRate: 2.18,
     repeat: -1,
   }),
   Object.freeze({

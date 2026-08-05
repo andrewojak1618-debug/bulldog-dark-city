@@ -3,13 +3,14 @@ import {
   BULLDOG_TEXTURES,
 } from
   "../../js/config/bulldog-animation-settings.js";
+import { BulldogAudioSystem } from "./bulldog-audio-system.class.js";
 
 /**
  * Registriert die Bewegungsanimationen der normalen Bulldogge.
  */
 export class BulldogAnimationSystem {
   /**
-   * Lädt sämtliche Texturen der normalen Bulldogge für eine Spielszene.
+   * Lädt Bulldog-Texturen und delegiert das Laden der zugehörigen Sounds.
    * @param {Phaser.Scene} scene - Szene, welche die Texturen verwendet.
    * @returns {void}
    */
@@ -20,6 +21,8 @@ export class BulldogAnimationSystem {
         frameHeight: texture.frameHeight,
       });
     });
+
+    BulldogAudioSystem.load(scene);
   }
 
   /**

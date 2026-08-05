@@ -121,6 +121,12 @@ export const LEVEL_TWO = Object.freeze({
         "sprites",
         "environment/vehicles/drones/rocket/rocket-explosion-spritesheet.png",
       ),
+      explosionSoundKey: "dark-city-level-two-rocket-explosion-sound",
+      explosionSoundPath: getAssetPath(
+        "audio",
+        "sfx/level-two-rocket-explosion.ogg",
+      ),
+      explosionSoundVolume: 0.62,
       frameWidth: 512,
       frameHeight: 512,
       frameRate: 8,
