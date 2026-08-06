@@ -267,7 +267,7 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
     this.cancelActiveActionStates();
     this.setVelocityX(0);
     this.anims.stop();
-    this.setTexture(BULLDOG_TEXTURES.knockout.key, 0);
+    this.setTexture(this.getKnockOutTexture().key, 0);
     return true;
   }
 
@@ -296,7 +296,7 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(0, 0);
     this.setGravityY(0);
     this.anims.stop();
-    this.play(BULLDOG_ANIMATION_KEYS.knockout);
+    this.play(this.getKnockOutAnimationKey());
     this.emit(BULLDOG_EVENTS.knockedOut);
     return true;
   }
@@ -324,10 +324,34 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
    * @returns {void}
    */
   onceKnockOutComplete(callback) {
-    const eventName =
-      Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
-      BULLDOG_ANIMATION_KEYS.knockout;
-    this.once(eventName, callback);
+    [
+      BULLDOG_ANIMATION_KEYS.knockout,
+      BULLDOG_ANIMATION_KEYS.mutationKnockout,
+    ].forEach((animationKey) => {
+      const eventName =
+        Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + animationKey;
+      this.once(eventName, callback);
+    });
+  }
+
+  /**
+   * Liefert die zur aktuellen Form passende K.-o.-Animation.
+   * @returns {string} Phaser-Animationsschlüssel.
+   */
+  getKnockOutAnimationKey() {
+    return this.isMutated
+      ? BULLDOG_ANIMATION_KEYS.mutationKnockout
+      : BULLDOG_ANIMATION_KEYS.knockout;
+  }
+
+  /**
+   * Liefert die zur aktuellen Form passende K.-o.-Textur.
+   * @returns {{key: string}} Konfiguration der K.-o.-Textur.
+   */
+  getKnockOutTexture() {
+    return this.isMutated
+      ? BULLDOG_TEXTURES.mutationKnockout
+      : BULLDOG_TEXTURES.knockout;
   }
 
   /**

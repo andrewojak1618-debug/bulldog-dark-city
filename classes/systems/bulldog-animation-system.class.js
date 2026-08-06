@@ -31,30 +31,31 @@ export class BulldogAnimationSystem {
    * @returns {void}
    */
   static register(scene) {
-    BULLDOG_ANIMATIONS.forEach((animation) => {
-      if (scene.anims.exists(animation.key)) {
-        return;
-      }
+    BULLDOG_ANIMATIONS.forEach((animation) =>
+      this.registerAnimation(scene, animation)
+    );
+  }
 
-      const frames = scene.anims
-        .generateFrameNumbers(
-          animation.textureKey,
-          {
-            start: animation.startFrame,
-            end: animation.endFrame,
-          },
-        )
-        .map((frame, index) => ({
-          ...frame,
-          duration: animation.frameDurations?.[index] ?? 0,
-        }));
-
-      scene.anims.create({
-        key: animation.key,
-        frames,
-        frameRate: animation.frameRate,
-        repeat: animation.repeat,
-      });
+  /** Registriert eine einzelne Animation, sofern sie noch nicht existiert. */
+  static registerAnimation(scene, animation) {
+    if (scene.anims.exists(animation.key)) return;
+    scene.anims.create({
+      key: animation.key,
+      frames: this.createFrames(scene, animation),
+      frameRate: animation.frameRate,
+      repeat: animation.repeat,
     });
+  }
+
+  /** Erzeugt die Framefolge mit optionaler Dauer und Rückwärtsrichtung. */
+  static createFrames(scene, animation) {
+    const frames = scene.anims.generateFrameNumbers(animation.textureKey, {
+      start: animation.startFrame,
+      end: animation.endFrame,
+    }).map((frame, index) => ({
+      ...frame,
+      duration: animation.frameDurations?.[index] ?? 0,
+    }));
+    return animation.reverseFrames ? frames.reverse() : frames;
   }
 }

@@ -1,6 +1,8 @@
 import { DogCatcher } from "../entities/enemies/dog-catcher.class.js";
 import { DogCatcherAudioSystem } from
   "./dog-catcher-audio-system.class.js";
+import { BulldogMutationStateSystem } from
+  "./bulldog-mutation-state-system.class.js";
 import {
   DOG_CATCHER,
   DOG_CATCHER_EVENTS,
@@ -88,7 +90,9 @@ export class DogCatcherSystem {
    * @returns {void}
    */
   static resolvePlayerHit(wasHit, player, health, time) {
-    if (!wasHit) return;
+    if (!wasHit || !BulldogMutationStateSystem.canReceiveNormalDamage(player)) {
+      return;
+    }
 
     const remainingHealth = health.takeDamage(DOG_CATCHER.attackDamage);
     if (remainingHealth === 0) {

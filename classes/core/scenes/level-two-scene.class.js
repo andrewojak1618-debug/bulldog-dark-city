@@ -21,6 +21,9 @@ import { DogCatcherAnimationSystem } from
   "../../systems/dog-catcher-animation-system.class.js";
 import { LevelTwoCaptureSystem } from
   "../../systems/level-two-capture-system.class.js";
+import { LevelTwoGameplaySystem } from
+  "../../systems/level-two-gameplay-system.class.js";
+import { LevelExitSystem } from "../../systems/level-exit-system.class.js";
 import { BackgroundMusicSystem } from
   "../../systems/background-music-system.class.js";
 import {
@@ -71,6 +74,7 @@ export class LevelTwoScene extends Phaser.Scene {
     MutantCatSystem.load(this);
     MutantCatRewardSystem.load(this);
     DogCatcherSystem.load(this);
+    LevelExitSystem.load(this);
     BackgroundMusicSystem.load(this, LEVEL_MUSIC.levelTwo);
   }
 
@@ -79,20 +83,43 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    this.createWorldContent();
+    this.createGameplayActors();
+    this.createGameplayServices();
+    this.createMenuHint();
+    this.bindSceneControls();
+  }
+
+  /** Erstellt Umgebung, Ausgang und kollidierbare Levelobjekte. */
+  createWorldContent() {
     this.configureWorld();
     LevelTwoEnvironmentSystem.create(this);
     this.drones = LevelTwoDroneSystem.create(this);
+    this.levelExit = LevelExitSystem.create(this);
     this.createGroundCollision();
     this.createObstacles();
+  }
+
+  /** Erstellt Gegner, Spielfigur und zugehörige Animationen. */
+  createGameplayActors() {
     this.mutantCats = MutantCatSystem.create(this, this.platforms);
     BulldogAnimationSystem.register(this);
     DogCatcherAnimationSystem.register(this);
     this.createPlayer();
+  }
+
+  /** Verknüpft Kamera, HUD, Items, Treffer und Belohnungen. */
+  createGameplayServices() {
     this.createBackgroundMusic();
     this.captureSystem = new LevelTwoCaptureSystem(this);
     this.configureCamera();
     this.createHud();
     this.createItems();
+    this.createCombatServices();
+  }
+
+  /** Verknüpft Raketenangriffe und Katzenbelohnungen. */
+  createCombatServices() {
     this.rocketSystem = new LevelTwoRocketSystem(
       this,
       this.drones,
@@ -107,8 +134,6 @@ export class LevelTwoScene extends Phaser.Scene {
       this.collectibleSystem,
       this.mutantCats,
     );
-    this.createMenuHint();
-    this.bindSceneControls();
   }
 
   /**
@@ -316,33 +341,6 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   update(time, delta) {
-    if (this.captureSystem?.isActive) {
-      this.captureSystem.update();
-      return;
-    }
-
-    if (this.updateLevelEntry()) return;
-
-    this.mutationSystem?.update(this.inputSystem);
-    LevelTwoObstacleSystem.updatePlayerPlatformContact(
-      this.player,
-      this.floatingLightPlatforms,
-    );
-    this.player?.updateMovement(this.inputSystem, time);
-    LevelTwoDroneSystem.update(this.drones, this.player, delta);
-    const wasKnockedOutByRocket = this.rocketSystem.update(time);
-    if (wasKnockedOutByRocket) {
-      this.captureSystem.start(this.player, this.mutantCats);
-      return;
-    }
-    const wasKnockedOutByCat = MutantCatSystem.update(
-      this.mutantCats,
-      this.player,
-      this.healthSystem,
-      time,
-    );
-    if (wasKnockedOutByCat) {
-      this.captureSystem.start(this.player, this.mutantCats);
-    }
+    LevelTwoGameplaySystem.update(this, time, delta);
   }
 }

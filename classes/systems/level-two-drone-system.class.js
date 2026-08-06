@@ -16,17 +16,24 @@ export class LevelTwoDroneSystem {
    */
   static load(scene) {
     const settings = LEVEL_TWO.drones;
+    settings.variants.forEach((drone) =>
+      this.loadDroneTextures(scene, settings, drone)
+    );
+  }
 
-    settings.variants.forEach((drone) => {
-      scene.load.spritesheet(drone.key, drone.path, {
-        frameWidth: settings.frameWidth,
-        frameHeight: settings.frameHeight,
-      });
-      scene.load.spritesheet(drone.alarmKey, drone.alarmPath, {
-        frameWidth: settings.frameWidth,
-        frameHeight: settings.frameHeight,
-      });
-    });
+  /** Lädt Flug-, Alarm- und Zerstörungstextur einer Drohnenvariante. */
+  static loadDroneTextures(scene, settings, drone) {
+    const frameConfig = {
+      frameWidth: settings.frameWidth,
+      frameHeight: settings.frameHeight,
+    };
+    scene.load.spritesheet(drone.key, drone.path, frameConfig);
+    scene.load.spritesheet(drone.alarmKey, drone.alarmPath, frameConfig);
+    scene.load.spritesheet(
+      drone.destructionKey,
+      drone.destructionPath,
+      frameConfig,
+    );
   }
 
   /**
@@ -50,6 +57,7 @@ export class LevelTwoDroneSystem {
     const settings = LEVEL_TWO.drones;
     this.registerAnimation(scene, settings, drone);
     this.registerAlarmAnimation(scene, settings, drone);
+    this.registerDestructionAnimation(scene, settings, drone);
     const sprite = this.createDroneSprite(scene, settings, drone);
     this.initializeCoreData(scene, sprite, settings, drone);
     this.initializeVisualData(scene, sprite, settings, drone);
@@ -93,6 +101,8 @@ export class LevelTwoDroneSystem {
     );
     sprite.setData("isAlert", false);
     sprite.setData("alarmDirection", drone.initialDirection);
+    sprite.setData("hitPoints", drone.hitPoints);
+    sprite.setData("isDestroyed", false);
   }
 
   /**
@@ -156,6 +166,21 @@ export class LevelTwoDroneSystem {
     });
   }
 
+  /** Registriert die einmalige Zerstörungssequenz einer Drohnenvariante. */
+  static registerDestructionAnimation(scene, settings, drone) {
+    if (scene.anims.exists(drone.destructionAnimationKey)) return;
+
+    scene.anims.create({
+      key: drone.destructionAnimationKey,
+      frames: scene.anims.generateFrameNumbers(drone.destructionKey, {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: settings.destructionFrameRate,
+      repeat: 0,
+    });
+  }
+
   /**
    * Aktualisiert den Alarmzustand aller Drohnen anhand der Bulldogge.
    * @param {Phaser.GameObjects.Sprite[]} drones - Aktive Drohnen.
@@ -165,19 +190,22 @@ export class LevelTwoDroneSystem {
    */
   static update(drones = [], player, delta = 0) {
     if (!player) return;
+    drones.forEach((sprite) => this.updateDrone(sprite, player, delta));
+  }
 
-    drones.forEach((sprite) => {
-      const isPlayerNearby = Math.abs(player.x - sprite.x) <=
-        LEVEL_TWO.drones.detectionRange;
-      if (isPlayerNearby) {
-        this.activateAlarm(sprite);
-        this.updateAlarmPatrol(sprite, player, delta);
-        this.updateScoutApproach(sprite, delta);
-        this.updateTrackingBeam(sprite, player);
-      } else {
-        this.deactivateAlarm(sprite);
-      }
-    });
+  /** Aktualisiert genau eine nicht zerstörte Drohne. */
+  static updateDrone(sprite, player, delta) {
+    if (sprite.getData("isDestroyed")) return;
+    const isNearby = Math.abs(player.x - sprite.x) <=
+      LEVEL_TWO.drones.detectionRange;
+    if (!isNearby) {
+      this.deactivateAlarm(sprite);
+      return;
+    }
+    this.activateAlarm(sprite);
+    this.updateAlarmPatrol(sprite, player, delta);
+    this.updateScoutApproach(sprite, delta);
+    this.updateTrackingBeam(sprite, player);
   }
 
   /**
@@ -212,14 +240,19 @@ export class LevelTwoDroneSystem {
     sprite.setOrigin(0.5);
     sprite.getData("beam")?.clear();
     if (drone.scoutApproach) {
-      sprite.y = drone.y;
-      sprite.setData("scoutStep", 0);
-      sprite.setData("scoutDirection", 1);
-      sprite.setData("scoutPauseRemaining", 0);
-      sprite.getData("hoverTween")?.restart();
+      this.resetScoutApproach(sprite, drone);
     }
     sprite.play(drone.animationKey);
     sprite.getData("patrolTween")?.resume();
+  }
+
+  /** Setzt die Aufklärungsdrohne auf ihre Patrouillenhöhe zurück. */
+  static resetScoutApproach(sprite, drone) {
+    sprite.y = drone.y;
+    sprite.setData("scoutStep", 0);
+    sprite.setData("scoutDirection", 1);
+    sprite.setData("scoutPauseRemaining", 0);
+    sprite.getData("hoverTween")?.restart();
   }
 
   /**
@@ -231,14 +264,7 @@ export class LevelTwoDroneSystem {
    */
   static updateAlarmPatrol(sprite, player, delta) {
     const settings = LEVEL_TWO.drones;
-    const minX = Math.max(
-      settings.patrolMinX,
-      player.x - settings.alarmPatrolRadius,
-    );
-    const maxX = Math.min(
-      settings.patrolMaxX,
-      player.x + settings.alarmPatrolRadius,
-    );
+    const { minX, maxX } = this.getAlarmPatrolBounds(settings, player);
     let direction = sprite.getData("alarmDirection");
 
     if (sprite.x <= minX) direction = 1;
@@ -250,6 +276,20 @@ export class LevelTwoDroneSystem {
       maxX,
     );
     sprite.setFlipX(direction > 0);
+  }
+
+  /** Berechnet die erlaubten Alarmgrenzen innerhalb der Weltpatrouille. */
+  static getAlarmPatrolBounds(settings, player) {
+    return {
+      minX: Math.max(
+        settings.patrolMinX,
+        player.x - settings.alarmPatrolRadius,
+      ),
+      maxX: Math.min(
+        settings.patrolMaxX,
+        player.x + settings.alarmPatrolRadius,
+      ),
+    };
   }
 
   /**
@@ -295,7 +335,6 @@ export class LevelTwoDroneSystem {
       ? settings.patrolMaxX
       : settings.patrolMinX;
     const distance = settings.patrolMaxX - settings.patrolMinX;
-
     return scene.tweens.add({
       targets: sprite,
       x: targetX,

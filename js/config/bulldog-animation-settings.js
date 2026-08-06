@@ -55,6 +55,13 @@ export const BULLDOG_TEXTURES = Object.freeze({
     frameHeight: 600,
     frameCount: 3,
   }),
+  mutationKnockout: Object.freeze({
+    key: "bulldog-mutation-knockout-side",
+    path: `${BULLDOG_MUTATION_BASE_PATH}/knockout/side/spritesheet.png`,
+    frameWidth: 512,
+    frameHeight: 600,
+    frameCount: 4,
+  }),
   stand: Object.freeze({
     key: "bulldog-normal-stand-v2-side",
     path: `${BULLDOG_NORMAL_BASE_PATH}/stand_v2/side/spritesheet.png`,
@@ -135,6 +142,8 @@ export const BULLDOG_ANIMATION_KEYS = Object.freeze({
   mutationLand: "bulldog-mutation-land",
   mutationAttackLeft: "bulldog-mutation-attack-left",
   mutationAttackRight: "bulldog-mutation-attack-right",
+  mutationKnockout: "bulldog-mutation-knockout",
+  mutationRevert: "bulldog-mutation-revert",
   waitBreathe: "bulldog-wait-breathe",
   run: "bulldog-run",
   jump: "bulldog-jump",
@@ -158,6 +167,8 @@ export const BULLDOG_ATTACK_TEXTURES = Object.freeze({
  */
 export const BULLDOG_EVENTS = Object.freeze({
   knockedOut: "bulldog-knocked-out",
+  mutationCompleted: "bulldog-mutation-completed",
+  mutationReverted: "bulldog-mutation-reverted",
 });
 
 /**
@@ -168,6 +179,8 @@ export const BULLDOG_ANIMATION_TIMING = Object.freeze({
   waitSeatedPauseMs: 3000,
   hitReactionMs: 220,
   mutationFallbackMs: 1600,
+  mutationFullHoldMs: 3000,
+  mutationDrainMs: 8000,
 });
 
 /**
@@ -181,6 +194,15 @@ export const BULLDOG_ANIMATIONS = Object.freeze([
     endFrame: BULLDOG_TEXTURES.mutationTransform.frameCount - 1,
     frameRate: 4,
     repeat: 0,
+  }),
+  Object.freeze({
+    key: BULLDOG_ANIMATION_KEYS.mutationRevert,
+    textureKey: BULLDOG_TEXTURES.mutationTransform.key,
+    startFrame: 0,
+    endFrame: BULLDOG_TEXTURES.mutationTransform.frameCount - 1,
+    frameRate: 4,
+    repeat: 0,
+    reverseFrames: true,
   }),
   Object.freeze({
     key: BULLDOG_ANIMATION_KEYS.mutationIdle,
@@ -228,6 +250,15 @@ export const BULLDOG_ANIMATIONS = Object.freeze([
     startFrame: 0,
     endFrame: BULLDOG_TEXTURES.mutationAttackRight.frameCount - 1,
     frameRate: 8,
+    repeat: 0,
+  }),
+  Object.freeze({
+    key: BULLDOG_ANIMATION_KEYS.mutationKnockout,
+    textureKey: BULLDOG_TEXTURES.mutationKnockout.key,
+    startFrame: 0,
+    endFrame: BULLDOG_TEXTURES.mutationKnockout.frameCount - 1,
+    frameRate: 4,
+    frameDurations: Object.freeze([100, 100, 150, 500]),
     repeat: 0,
   }),
   Object.freeze({

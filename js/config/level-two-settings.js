@@ -96,6 +96,9 @@ export const LEVEL_TWO = Object.freeze({
     frameHeight: 256,
     frameRate: 6,
     alarmFrameRate: 5,
+    destructionFrameRate: 7,
+    attackHitRangeX: 105,
+    attackHitRangeY: 115,
     alarmOriginY: 0.625,
     detectionRange: 360,
     alarmPatrolRadius: 110,
@@ -152,6 +155,13 @@ export const LEVEL_TWO = Object.freeze({
         animationKey: "dark-city-level-two-big-drone-fly",
         alarmKey: "dark-city-level-two-big-drone-alarm",
         alarmAnimationKey: "dark-city-level-two-big-drone-alert",
+        destructionKey: "dark-city-level-two-big-drone-destruction",
+        destructionAnimationKey: "dark-city-level-two-big-drone-explode",
+        destructionPath: getAssetPath(
+          "environment",
+          "vehicles/drones/big-drone-explosion-spritesheet.png",
+        ),
+        hitPoints: 2,
         alarmEndFrame: 2,
         tracksPlayerWithBeam: true,
         path: getAssetPath(
@@ -172,6 +182,13 @@ export const LEVEL_TWO = Object.freeze({
         animationKey: "dark-city-level-two-small-drone-fly",
         alarmKey: "dark-city-level-two-small-drone-alarm",
         alarmAnimationKey: "dark-city-level-two-small-drone-alert",
+        destructionKey: "dark-city-level-two-small-drone-destruction",
+        destructionAnimationKey: "dark-city-level-two-small-drone-explode",
+        destructionPath: getAssetPath(
+          "environment",
+          "vehicles/drones/small-drone-explosion-spritesheet.png",
+        ),
+        hitPoints: 1,
         alarmEndFrame: 3,
         tracksPlayerWithBeam: false,
         path: getAssetPath(

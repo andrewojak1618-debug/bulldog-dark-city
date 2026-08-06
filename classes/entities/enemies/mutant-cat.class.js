@@ -12,7 +12,6 @@ import {
 } from "../../../js/config/mutant-cat-settings.js";
 import { MutantCatAudioSystem } from
   "../../systems/mutant-cat-audio-system.class.js";
-
 const CAT_STATES = Object.freeze({
   patrol: "patrol",
   attentive: "attentive",
@@ -39,22 +38,33 @@ export class MutantCat extends Enemy {
     super(scene, x, y, texture);
     scene.add.existing(this);
     scene.physics.add.existing(this);
+    this.configurePhysics();
+    this.initializeState(patrol);
+    this.play(MUTANT_CAT_ANIMATION_KEY);
+  }
+
+  /** Konfiguriert Darstellung, Hitbox und Weltbegrenzung. */
+  configurePhysics() {
     this.setDisplaySize(MUTANT_CAT.displayWidth, MUTANT_CAT.displayHeight);
     this.body
       .setSize(MUTANT_CAT.bodyWidth, MUTANT_CAT.bodyHeight)
       .setOffset(MUTANT_CAT.bodyOffsetX, MUTANT_CAT.bodyOffsetY);
     this.setCollideWorldBounds(true);
+  }
+
+  /** Initialisiert Patrouillen-, Treffer- und Aktionszustände. */
+  initializeState(patrol) {
     this.patrolMinX = patrol.minX;
     this.patrolMaxX = patrol.maxX;
     this.patrolDirection = patrol.initialDirection;
     this.state = CAT_STATES.patrol;
     this.nextAttackAt = 0;
     this.attackHitConsumed = false;
+    this.isAttackDisplayScaled = false;
     this.receivedBiteHits = 0;
     this.firstBiteHitAt = null;
     this.hitReactionEndsAt = 0;
     this.isDead = false;
-    this.play(MUTANT_CAT_ANIMATION_KEY);
   }
 
   /**
@@ -104,10 +114,8 @@ export class MutantCat extends Enemy {
       this.showAttackCooldownFrame();
       return;
     }
-    if (this.getHorizontalDistance(player) <= MUTANT_CAT.attackRange) {
-      this.startAttack();
-      return;
-    }
+    if (this.getHorizontalDistance(player) <= MUTANT_CAT.attackRange)
+      return this.startAttack();
     this.chasePlayer(player);
   }
 
@@ -215,13 +223,12 @@ export class MutantCat extends Enemy {
    * @returns {void}
    */
   applyAttackDisplaySize() {
-    const extraHeight = MUTANT_CAT.displayHeight *
-      (MUTANT_CAT.attackDisplayScale - 1);
-    this.y -= extraHeight / 2;
-    this.setDisplaySize(
+    if (this.isAttackDisplayScaled) return;
+    this.resizeKeepingBodyBottom(
       MUTANT_CAT.displayWidth * MUTANT_CAT.attackDisplayScale,
       MUTANT_CAT.displayHeight * MUTANT_CAT.attackDisplayScale,
     );
+    this.isAttackDisplayScaled = true;
   }
 
   /**
@@ -229,10 +236,21 @@ export class MutantCat extends Enemy {
    * @returns {void}
    */
   restoreDefaultDisplaySize() {
-    const extraHeight = MUTANT_CAT.displayHeight *
-      (MUTANT_CAT.attackDisplayScale - 1);
-    this.setDisplaySize(MUTANT_CAT.displayWidth, MUTANT_CAT.displayHeight);
-    this.y += extraHeight / 2;
+    if (!this.isAttackDisplayScaled) return;
+    this.resizeKeepingBodyBottom(
+      MUTANT_CAT.displayWidth,
+      MUTANT_CAT.displayHeight,
+    );
+    this.isAttackDisplayScaled = false;
+  }
+
+  /** Ändert die Darstellung ohne die Physics-Bodenkante zu verschieben. */
+  resizeKeepingBodyBottom(width, height) {
+    const bodyBottom = this.body.bottom;
+    this.setDisplaySize(width, height);
+    this.body.updateFromGameObject();
+    this.y += bodyBottom - this.body.bottom;
+    this.body.updateFromGameObject();
   }
 
   /**
@@ -275,6 +293,9 @@ export class MutantCat extends Enemy {
     if (this.firstBiteHitAt === null) this.firstBiteHitAt = time;
     this.receivedBiteHits += 1;
     this.setVelocityX(0);
+    this.off(this.getAnimationCompleteEvent(
+      MUTANT_CAT_ATTACK_ANIMATION_KEY,
+    ));
     this.anims.stop();
     if (wasAttacking) this.restoreDefaultDisplaySize();
   }

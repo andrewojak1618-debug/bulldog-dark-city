@@ -55,6 +55,22 @@ export class CollectibleSystem {
   }
 
   /**
+   * Setzt einen bekannten Sammelstand auf einen bereinigten Wert.
+   * @param {string} key - Schlüssel der Objektart.
+   * @param {number} count - Neuer Zählerstand.
+   * @returns {number} Gespeicherter Zählerstand.
+   */
+  setCount(key, count) {
+    if (!this.counts.has(key)) {
+      throw new Error(`Unbekanntes Sammelobjekt: ${key}`);
+    }
+    const safeCount = this.getSafeInitialCount(count);
+    this.counts.set(key, safeCount);
+    this.emitChange(key, safeCount);
+    return safeCount;
+  }
+
+  /**
    * Erstellt eine serialisierbare Kopie aller Sammelstände.
    * @returns {Record<string, number>} Aktuelle Sammelstände.
    */

@@ -15,6 +15,7 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
     scene.add.existing(this);
     this.settings = settings;
     this.pulseTween = null;
+    this.isReady = false;
     this.add(this.createContent(scene));
     this.setScrollFactor(0).setDepth(HUD.depth).setVisible(false);
     this.bindCollectibles(collectibles);
@@ -58,9 +59,15 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
   /** Schaltet die Anzeige abhängig vom vollständigen Serumstand. */
   setReady(count) {
     const isReady = count >= HUD.serum.fill.maximum;
+    this.isReady = isReady;
     this.setVisible(isReady);
     if (isReady && !this.pulseTween) this.startPulse();
     if (!isReady) this.stopPulse();
+  }
+
+  /** Stellt den Hinweis nach einem HUD-Wechsel nur bei vollem Serum wieder her. */
+  restoreVisibility() {
+    this.setVisible(this.isReady);
   }
 
   /** Startet den dezenten Neon-Puls der Bereitschaftsanzeige. */

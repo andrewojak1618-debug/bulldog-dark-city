@@ -2,6 +2,10 @@ import { MutantCat } from "../entities/enemies/mutant-cat.class.js";
 import { MutantCatAnimationSystem } from "./mutant-cat-animation-system.class.js";
 import { MutantCatAudioSystem } from
   "./mutant-cat-audio-system.class.js";
+import { BulldogMutationStateSystem } from
+  "./bulldog-mutation-state-system.class.js";
+import { MutantCatGroundingSystem } from
+  "./mutant-cat-grounding-system.class.js";
 import {
   MUTANT_CAT,
   MUTANT_CAT_ATTENTIVE_TEXTURE,
@@ -66,6 +70,7 @@ export class MutantCatSystem {
     let wasKnockedOut = false;
 
     cats.forEach((cat) => {
+      MutantCatGroundingSystem.update(cat);
       cat?.updateBehavior(player, time);
       this.resolvePlayerAttack(cat, player, time);
       if (wasKnockedOut || !cat?.consumeAttackHit(player)) return;
@@ -98,6 +103,9 @@ export class MutantCatSystem {
    * @returns {boolean} `true`, wenn der Angriff die Bulldogge K. o. setzt.
    */
   static resolveCatAttack(player, health, time) {
+    if (!BulldogMutationStateSystem.canReceiveNormalDamage(player)) {
+      return false;
+    }
     const remainingHealth = health.takeDamage(MUTANT_CAT.attackDamage);
     if (remainingHealth === 0) {
       player.knockOut();

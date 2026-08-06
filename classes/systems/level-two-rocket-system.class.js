@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
+import { BulldogMutationStateSystem } from
+  "./bulldog-mutation-state-system.class.js";
 
 /**
  * Steuert die ausweichbaren Raketen der großen Alarmdrohne.
@@ -129,9 +131,7 @@ export class LevelTwoRocketSystem {
    */
   update(time) {
     if (this.playerKnockedOut) return true;
-    const bigDrone = this.drones.find((drone) =>
-      drone.getData("drone")?.tracksPlayerWithBeam,
-    );
+    const bigDrone = this.getBigDrone();
     const isAlert = Boolean(bigDrone?.getData("isAlert"));
 
     if (isAlert && !this.wasBigDroneAlert) {
@@ -143,6 +143,13 @@ export class LevelTwoRocketSystem {
     this.fire(bigDrone);
     this.nextShotAt = time + LEVEL_TWO.drones.rocket.cooldownMs;
     return false;
+  }
+
+  /** Liefert die große, raketentragende Drohne. */
+  getBigDrone() {
+    return this.drones.find((drone) =>
+      drone.getData("drone")?.tracksPlayerWithBeam
+    );
   }
 
   /**
@@ -193,6 +200,11 @@ export class LevelTwoRocketSystem {
       .setDepth(settings.depth)
       .setRotation(angle - Math.PI)
       .play(settings.animationKey);
+    this.configureRocketBody(rocket, angle, settings);
+  }
+
+  /** Konfiguriert Hitbox und konstante Fluggeschwindigkeit. */
+  configureRocketBody(rocket, angle, settings) {
     rocket.body.setCircle(
       settings.bodyRadius,
       settings.bodyOffsetX,
@@ -212,16 +224,28 @@ export class LevelTwoRocketSystem {
    */
   hitPlayer(rocket) {
     if (!rocket?.active || rocket.getData("isExploding")) return;
-    const remainingHealth = this.health.takeDamage(
-      LEVEL_TWO.drones.rocket.damage,
-    );
+    if (!BulldogMutationStateSystem.canReceiveNormalDamage(this.player)) {
+      this.explode(rocket);
+      return;
+    }
+    const remainingHealth = this.applyRocketDamage();
+    this.showPlayerHitReaction(remainingHealth);
+    this.explode(rocket);
+  }
+
+  /** Zieht den zentral konfigurierten Raketenschaden ab. */
+  applyRocketDamage() {
+    return this.health.takeDamage(LEVEL_TWO.drones.rocket.damage);
+  }
+
+  /** Startet abhängig von den Restleben Treffer- oder K.-o.-Reaktion. */
+  showPlayerHitReaction(remainingHealth) {
     this.playerKnockedOut = remainingHealth <= 0;
     if (this.playerKnockedOut) {
       this.player.knockOut();
     } else {
       this.player.takeHit(this.scene.time.now);
     }
-    this.explode(rocket);
   }
 
   /**
@@ -247,9 +271,7 @@ export class LevelTwoRocketSystem {
     const { x, y } = rocket;
     rocket.destroy();
     const settings = LEVEL_TWO.drones.rocket;
-    this.scene.sound.play(settings.explosionSoundKey, {
-      volume: settings.explosionSoundVolume,
-    });
+    this.playExplosionSound(settings);
     const explosion = this.scene.add
       .sprite(x, y, settings.explosionKey, 1)
       .setScale(settings.explosionScale)
@@ -257,6 +279,13 @@ export class LevelTwoRocketSystem {
       .play(settings.explosionAnimationKey);
     explosion.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
       explosion.destroy();
+    });
+  }
+
+  /** Spielt den Explosionssound mit zentral konfigurierter Lautstärke. */
+  playExplosionSound(settings) {
+    this.scene.sound.play(settings.explosionSoundKey, {
+      volume: settings.explosionSoundVolume,
     });
   }
 }

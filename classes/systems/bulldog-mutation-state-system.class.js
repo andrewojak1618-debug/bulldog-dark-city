@@ -2,6 +2,8 @@ import Phaser from "phaser";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_ANIMATION_TIMING,
+  BULLDOG_EVENTS,
+  BULLDOG_TEXTURES,
 } from "../../js/config/bulldog-animation-settings.js";
 import { BULLDOG_GAMEPLAY } from
   "../../js/config/bulldog-gameplay-settings.js";
@@ -41,6 +43,11 @@ export class BulldogMutationStateSystem {
    */
   static canStart(player) {
     return !player.isMutating && !player.isMutated && !player.isKnockedOut;
+  }
+
+  /** Prüft die Immunität der Mutation gegen gewöhnliche Schadensquellen. */
+  static canReceiveNormalDamage(player) {
+    return !player.isMutating && !player.isMutated;
   }
 
   /**
@@ -100,12 +107,72 @@ export class BulldogMutationStateSystem {
    */
   static finish(player) {
     if (!player.isMutating) return;
-    player.off(this.getCompleteEventName());
-    player.mutationFallbackEvent?.remove(false);
-    player.mutationFallbackEvent = null;
+    this.clearTransition(player, this.getCompleteEventName());
     player.isMutating = false;
     player.isMutated = true;
     player.play(BULLDOG_ANIMATION_KEYS.mutationIdle);
+    player.emit(BULLDOG_EVENTS.mutationCompleted);
+  }
+
+  /** Startet die rückwärts abgespielte Rückverwandlung. */
+  static revert(player) {
+    if (!player.isMutated || player.isMutating || player.isKnockedOut) {
+      return false;
+    }
+    player.isMutating = true;
+    player.cancelActiveActionStates();
+    player.setVelocity(0, 0);
+    player.play(BULLDOG_ANIMATION_KEYS.mutationRevert);
+    this.registerReversionCompletion(player);
+    return true;
+  }
+
+  /** Registriert Animationsende und Rückfallebene der Rückverwandlung. */
+  static registerReversionCompletion(player) {
+    const eventName = this.getRevertCompleteEventName();
+    player.once(eventName, () => this.finishReversion(player));
+    player.mutationFallbackEvent = player.scene.time.delayedCall(
+      BULLDOG_ANIMATION_TIMING.mutationFallbackMs,
+      () => this.finishReversion(player),
+    );
+  }
+
+  /** Liefert den vollständigen Ereignisnamen der Rückverwandlung. */
+  static getRevertCompleteEventName() {
+    return Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
+      BULLDOG_ANIMATION_KEYS.mutationRevert;
+  }
+
+  /** Stellt nach der Rückverwandlung Form, Hitbox und Standbild wieder her. */
+  static finishReversion(player) {
+    if (!player.isMutating || !player.isMutated) return;
+    this.clearTransition(player, this.getRevertCompleteEventName());
+    player.isMutating = false;
+    player.isMutated = false;
+    this.restoreNormalVisuals(player);
+    player.emit(BULLDOG_EVENTS.mutationReverted);
+  }
+
+  /** Stellt normale Größe und Hitbox bei unverändertem Bodenkontakt her. */
+  static restoreNormalVisuals(player) {
+    const feetY = player.body.bottom;
+    player.setTexture(BULLDOG_TEXTURES.stand.key, 0);
+    player.setDisplaySize(
+      BULLDOG_GAMEPLAY.displayWidth,
+      BULLDOG_GAMEPLAY.displayHeight,
+    );
+    player.body.setSize(BULLDOG_GAMEPLAY.bodyWidth, BULLDOG_GAMEPLAY.bodyHeight)
+      .setOffset(BULLDOG_GAMEPLAY.bodyOffsetX, BULLDOG_GAMEPLAY.bodyOffsetY);
+    player.body.updateFromGameObject();
+    player.y += feetY - player.body.bottom;
+    player.body.updateFromGameObject();
+  }
+
+  /** Entfernt Listener und zeitliche Rückfallebene eines Formwechsels. */
+  static clearTransition(player, eventName) {
+    player.off(eventName);
+    player.mutationFallbackEvent?.remove(false);
+    player.mutationFallbackEvent = null;
   }
 
   /**
