@@ -335,6 +335,19 @@ export class LevelTwoScene extends Phaser.Scene {
     });
   }
 
+  /** Sichert den Levelstand und startet den vorbereiteten dritten Abschnitt. */
+  completeLevel() {
+    const playerState = {
+      health: this.healthSystem.getCurrent(),
+      collectibles: this.collectibleSystem.getSnapshot(),
+    };
+    this.backgroundMusic.stop();
+    this.scene.start(SCENES.levelThree, {
+      playerState,
+      enterFromPreviousLevel: true,
+    });
+  }
+
   /**
    * Aktualisiert die levelübergreifende Bewegung und Animation der Bulldogge.
    * @param {number} time - Aktuelle Szenenzeit in Millisekunden.

@@ -1,0 +1,159 @@
+import Phaser from "phaser";
+import { Bulldog } from "../../entities/characters/bulldog.class.js";
+import { InputSystem } from "../../input/input-system.class.js";
+import { BulldogAnimationSystem } from
+  "../../systems/bulldog-animation-system.class.js";
+import { LevelThreeEnvironmentSystem } from
+  "../../systems/level-three-environment-system.class.js";
+import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
+import {
+  BULLDOG_ANIMATION_KEYS,
+  BULLDOG_TEXTURES,
+} from "../../../js/config/bulldog-animation-settings.js";
+import { SCENES } from "../../../js/config/game-settings.js";
+import { LEVEL_THREE } from "../../../js/config/level-three-settings.js";
+import { PLAYER_CAMERA } from
+  "../../../js/config/player-camera-settings.js";
+
+/** Stellt das technische Grundgerüst des dritten Levels bereit. */
+export class LevelThreeScene extends Phaser.Scene {
+  /** Erstellt die Szene mit ihrem zentralen Szenenschlüssel. */
+  constructor() {
+    super(SCENES.levelThree);
+  }
+
+  /** Übernimmt Lebens- und Sammelstände aus Level zwei. */
+  init(data = {}) {
+    this.initialPlayerState = data.playerState ?? {};
+    this.isEnteringLevel = Boolean(data.enterFromPreviousLevel);
+  }
+
+  /** Lädt Bulldogge, HUD und orangefarbenen Haupthintergrund. */
+  preload() {
+    BulldogAnimationSystem.load(this);
+    LevelThreeEnvironmentSystem.load(this);
+    LevelHudSystem.load(this);
+  }
+
+  /** Baut das erste testbare Level-3-Grundgerüst auf. */
+  create() {
+    this.configureWorld();
+    LevelThreeEnvironmentSystem.create(this);
+    this.createGroundCollision();
+    BulldogAnimationSystem.register(this);
+    this.createPlayer();
+    this.createHud();
+    this.configureCamera();
+    this.createMenuHint();
+    this.bindSceneControls();
+  }
+
+  /** Erstellt Bulldogge, Steuerung und Bodenverbindung. */
+  createPlayer() {
+    const spawn = LEVEL_THREE.playerSpawn;
+    const x = this.isEnteringLevel ? LEVEL_THREE.levelEntry.startX :
+      spawn.startX;
+    this.player = new Bulldog(
+      this,
+      x,
+      spawn.startY,
+      BULLDOG_TEXTURES.stand.key,
+    );
+    this.inputSystem = new InputSystem(this);
+    this.physics.add.collider(this.player, this.platforms);
+    this.alignPlayerWithGround();
+  }
+
+  /** Setzt die Fußkante ohne sichtbaren Fall auf die Level-3-Laufebene. */
+  alignPlayerWithGround() {
+    const body = this.player.body;
+    body?.updateFromGameObject();
+    if (!Number.isFinite(body?.bottom)) return;
+    const entry = LEVEL_THREE.levelEntry;
+    const targetY = LEVEL_THREE.ground.surfaceY - entry.groundSnapInsetY;
+    this.player.y += targetY - body.bottom;
+    body.updateFromGameObject();
+    body.setVelocityY(entry.groundingVelocityY);
+  }
+
+  /** Erstellt die unsichtbare technische Bodenfläche des Grundgerüsts. */
+  createGroundCollision() {
+    const { width } = LEVEL_THREE.world;
+    const ground = LEVEL_THREE.ground;
+    const y = ground.surfaceY + ground.collisionHeight / 2;
+    const body = this.add.rectangle(width / 2, y, width,
+      ground.collisionHeight).setVisible(false);
+    this.platforms = this.physics.add.staticGroup();
+    this.platforms.add(body);
+  }
+
+  /** Erstellt HUD und Mutation mit den übernommenen Spielerwerten. */
+  createHud() {
+    const hud = LevelHudSystem.create(
+      this,
+      this.initialPlayerState,
+      this.player,
+    );
+    this.healthSystem = hud.health;
+    this.collectibleSystem = hud.collectibles;
+    this.mutationSystem = hud.mutation;
+  }
+
+  /** Konfiguriert identische Welt- und Kameragrenzen zu Level zwei. */
+  configureWorld() {
+    const world = LEVEL_THREE.world;
+    this.physics.world.setBounds(0, 0, world.width, world.height);
+    this.cameras.main.setBounds(0, 0, world.width, world.height)
+      .setBackgroundColor(world.backgroundColor);
+  }
+
+  /** Aktiviert dieselbe weiche Kameraführung und Deadzone wie zuvor. */
+  configureCamera() {
+    this.cameras.main.startFollow(
+      this.player,
+      true,
+      PLAYER_CAMERA.lerpX,
+      PLAYER_CAMERA.lerpY,
+    );
+    this.cameras.main.setDeadzone(
+      PLAYER_CAMERA.deadzoneWidth,
+      PLAYER_CAMERA.deadzoneHeight,
+    );
+  }
+
+  /** Lässt die Bulldogge automatisch vom linken Rand ins Level laufen. */
+  updateLevelEntry() {
+    if (!this.isEnteringLevel) return false;
+    const entry = LEVEL_THREE.levelEntry;
+    this.player.setVelocityX(entry.runSpeed);
+    this.player.play(BULLDOG_ANIMATION_KEYS.run, true);
+    if (this.player.x < entry.targetX) return true;
+    this.player.setVelocityX(0);
+    this.isEnteringLevel = false;
+    return true;
+  }
+
+  /** Zeigt den vorläufigen Level-3-Testhinweis kamerafest an. */
+  createMenuHint() {
+    const hint = LEVEL_THREE.menuHint;
+    return this.add.text(hint.x, hint.y, hint.text, {
+      color: hint.color,
+      fontFamily: hint.fontFamily,
+      fontSize: hint.fontSize,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(hint.depth);
+  }
+
+  /** Bindet die Rückkehr zum Hauptmenü an Escape. */
+  bindSceneControls() {
+    this.input.keyboard?.once("keydown-ESC", () =>
+      this.scene.start(SCENES.menu)
+    );
+  }
+
+  /** Aktualisiert Einlauf, Mutation und normale Spielerbewegung. */
+  update(time) {
+    if (this.updateLevelEntry()) return;
+    this.mutationSystem?.update(this.inputSystem);
+    this.player?.updateMovement(this.inputSystem, time);
+  }
+}

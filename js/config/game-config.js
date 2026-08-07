@@ -3,6 +3,8 @@ import { BootScene } from "../../classes/core/scenes/boot-scene.class.js";
 import { MenuScene } from "../../classes/core/scenes/menu-scene.class.js";
 import { LevelOneScene } from "../../classes/core/scenes/level-one-scene.class.js";
 import { LevelTwoScene } from "../../classes/core/scenes/level-two-scene.class.js";
+import { LevelThreeScene } from
+  "../../classes/core/scenes/level-three-scene.class.js";
 import { BossScene } from "../../classes/core/scenes/boss-scene.class.js";
 import { GameOverScene } from "../../classes/core/scenes/game-over-scene.class.js";
 import { GAME_DIMENSIONS } from "./game-settings.js";
@@ -25,6 +27,7 @@ export const GAME_CONFIG = {
     MenuScene,
     LevelOneScene,
     LevelTwoScene,
+    LevelThreeScene,
     BossScene,
     GameOverScene,
   ],

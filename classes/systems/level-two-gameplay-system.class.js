@@ -9,11 +9,21 @@ export class LevelTwoGameplaySystem {
   /** Aktualisiert Spieler, Gegner und vorbereiteten Levelabschluss. */
   static update(scene, time, delta) {
     if (this.shouldPauseGameplay(scene)) return;
+    if (this.resolveLevelExit(scene)) return;
     scene.mutationSystem?.update(scene.inputSystem);
     this.updatePlayerAndDrones(scene, time, delta);
     if (this.resolveRocketAttack(scene, time)) return;
     if (this.resolveCatAttack(scene, time)) return;
     this.unlockExit(scene);
+  }
+
+  /** Führt den automatischen Auslauf aus und startet anschließend Level drei. */
+  static resolveLevelExit(scene) {
+    if (scene.levelExit?.update(scene.player)) {
+      scene.completeLevel();
+      return true;
+    }
+    return Boolean(scene.levelExit?.isTransitioning);
   }
 
   /** Stoppt den normalen Ablauf während Einstieg oder Gefangennahme. */
