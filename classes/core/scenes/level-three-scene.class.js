@@ -22,20 +22,30 @@ export class LevelThreeScene extends Phaser.Scene {
     super(SCENES.levelThree);
   }
 
-  /** Übernimmt Lebens- und Sammelstände aus Level zwei. */
+  /**
+   * Übernimmt Lebens- und Sammelstände aus Level zwei.
+   * @param {object} data - Optionale Zustandsdaten des vorherigen Levels.
+   * @returns {void}
+   */
   init(data = {}) {
     this.initialPlayerState = data.playerState ?? {};
     this.isEnteringLevel = Boolean(data.enterFromPreviousLevel);
   }
 
-  /** Lädt Bulldogge, HUD und orangefarbenen Haupthintergrund. */
+  /**
+   * Lädt Bulldogge, HUD und die vollständige Level-3-Umgebung.
+   * @returns {void}
+   */
   preload() {
     BulldogAnimationSystem.load(this);
     LevelThreeEnvironmentSystem.load(this);
     LevelHudSystem.load(this);
   }
 
-  /** Baut das erste testbare Level-3-Grundgerüst auf. */
+  /**
+   * Baut das testbare Level-3-Grundgerüst auf.
+   * @returns {void}
+   */
   create() {
     this.configureWorld();
     LevelThreeEnvironmentSystem.create(this);
@@ -48,7 +58,10 @@ export class LevelThreeScene extends Phaser.Scene {
     this.bindSceneControls();
   }
 
-  /** Erstellt Bulldogge, Steuerung und Bodenverbindung. */
+  /**
+   * Erstellt Bulldogge, Steuerung und Bodenverbindung.
+   * @returns {void}
+   */
   createPlayer() {
     const spawn = LEVEL_THREE.playerSpawn;
     const x = this.isEnteringLevel ? LEVEL_THREE.levelEntry.startX :
@@ -64,30 +77,51 @@ export class LevelThreeScene extends Phaser.Scene {
     this.alignPlayerWithGround();
   }
 
-  /** Setzt die Fußkante ohne sichtbaren Fall auf die Level-3-Laufebene. */
+  /**
+   * Setzt die Fußkante ohne sichtbaren Fall auf die Level-3-Laufebene.
+   * @returns {void}
+   */
   alignPlayerWithGround() {
     const body = this.player.body;
     body?.updateFromGameObject();
     if (!Number.isFinite(body?.bottom)) return;
     const entry = LEVEL_THREE.levelEntry;
-    const targetY = LEVEL_THREE.ground.surfaceY - entry.groundSnapInsetY;
+    const targetY = this.getGroundSurfaceY() - entry.groundSnapInsetY;
     this.player.y += targetY - body.bottom;
     body.updateFromGameObject();
     body.setVelocityY(entry.groundingVelocityY);
   }
 
-  /** Erstellt die unsichtbare technische Bodenfläche des Grundgerüsts. */
+  /**
+   * Erstellt die unsichtbare technische Bodenfläche des Grundgerüsts.
+   * @returns {void}
+   */
   createGroundCollision() {
     const { width } = LEVEL_THREE.world;
-    const ground = LEVEL_THREE.ground;
-    const y = ground.surfaceY + ground.collisionHeight / 2;
-    const body = this.add.rectangle(width / 2, y, width,
-      ground.collisionHeight).setVisible(false);
+    const ground = LEVEL_THREE.groundPlatform;
+    const y = this.getGroundSurfaceY() + ground.collisionHeight / 2;
+    const body = this.add.rectangle(
+      width / 2,
+      y,
+      width,
+      ground.collisionHeight,
+    ).setVisible(false);
     this.platforms = this.physics.add.staticGroup();
     this.platforms.add(body);
   }
 
-  /** Erstellt HUD und Mutation mit den übernommenen Spielerwerten. */
+  /**
+   * Gibt die von der sichtbaren Bodenposition unabhängige Laufkante zurück.
+   * @returns {number} Vertikale Position der technischen Laufkante.
+   */
+  getGroundSurfaceY() {
+    return LEVEL_THREE.groundPlatform.collisionSurfaceY;
+  }
+
+  /**
+   * Erstellt HUD und Mutation mit den übernommenen Spielerwerten.
+   * @returns {void}
+   */
   createHud() {
     const hud = LevelHudSystem.create(
       this,
@@ -99,7 +133,10 @@ export class LevelThreeScene extends Phaser.Scene {
     this.mutationSystem = hud.mutation;
   }
 
-  /** Konfiguriert identische Welt- und Kameragrenzen zu Level zwei. */
+  /**
+   * Konfiguriert identische Welt- und Kameragrenzen zu Level zwei.
+   * @returns {void}
+   */
   configureWorld() {
     const world = LEVEL_THREE.world;
     this.physics.world.setBounds(0, 0, world.width, world.height);
@@ -107,7 +144,10 @@ export class LevelThreeScene extends Phaser.Scene {
       .setBackgroundColor(world.backgroundColor);
   }
 
-  /** Aktiviert dieselbe weiche Kameraführung und Deadzone wie zuvor. */
+  /**
+   * Aktiviert dieselbe weiche Kameraführung und Deadzone wie zuvor.
+   * @returns {void}
+   */
   configureCamera() {
     this.cameras.main.startFollow(
       this.player,
@@ -121,7 +161,10 @@ export class LevelThreeScene extends Phaser.Scene {
     );
   }
 
-  /** Lässt die Bulldogge automatisch vom linken Rand ins Level laufen. */
+  /**
+   * Lässt die Bulldogge automatisch vom linken Rand ins Level laufen.
+   * @returns {boolean} Ob die normale Steuerung in diesem Frame pausiert.
+   */
   updateLevelEntry() {
     if (!this.isEnteringLevel) return false;
     const entry = LEVEL_THREE.levelEntry;
@@ -133,7 +176,10 @@ export class LevelThreeScene extends Phaser.Scene {
     return true;
   }
 
-  /** Zeigt den vorläufigen Level-3-Testhinweis kamerafest an. */
+  /**
+   * Zeigt den vorläufigen Level-3-Testhinweis kamerafest an.
+   * @returns {Phaser.GameObjects.Text} Erstellter Menühinweis.
+   */
   createMenuHint() {
     const hint = LEVEL_THREE.menuHint;
     return this.add.text(hint.x, hint.y, hint.text, {
@@ -143,14 +189,21 @@ export class LevelThreeScene extends Phaser.Scene {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(hint.depth);
   }
 
-  /** Bindet die Rückkehr zum Hauptmenü an Escape. */
+  /**
+   * Bindet die Rückkehr zum Hauptmenü an Escape.
+   * @returns {void}
+   */
   bindSceneControls() {
-    this.input.keyboard?.once("keydown-ESC", () =>
-      this.scene.start(SCENES.menu)
-    );
+    this.input.keyboard?.once("keydown-ESC", () => {
+      this.scene.start(SCENES.menu);
+    });
   }
 
-  /** Aktualisiert Einlauf, Mutation und normale Spielerbewegung. */
+  /**
+   * Aktualisiert Einlauf, Mutation und normale Spielerbewegung.
+   * @param {number} time - Vergangene Spielzeit in Millisekunden.
+   * @returns {void}
+   */
   update(time) {
     if (this.updateLevelEntry()) return;
     this.mutationSystem?.update(this.inputSystem);

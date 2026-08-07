@@ -17,6 +17,20 @@ export class BootScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
-    this.scene.start(SCENES.menu);
+    this.scene.start(this.getInitialScene());
+  }
+
+  /**
+   * Erlaubt lokal einen direkten Einstieg in das dritte Level.
+   * @returns {string} Schlüssel der ersten sichtbaren Szene.
+   */
+  getInitialScene() {
+    if (!import.meta.env.DEV) return SCENES.menu;
+    const requestedScene = new URLSearchParams(
+      window.location.search,
+    ).get("debugScene");
+
+    return requestedScene === SCENES.levelThree ?
+      SCENES.levelThree : SCENES.menu;
   }
 }
