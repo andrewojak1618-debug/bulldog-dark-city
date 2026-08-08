@@ -150,21 +150,27 @@ Der Fokus liegt auf einer Mischung aus:
 - Timing
 - Transformationen
 
-## 🚀 Geplante Features
+## 🚀 Features
 
-- 2D-Sidescroller
-- flüssige Animationen
-- dynamische Bosskämpfe
-- Mutationssystem
-- Sammelobjekte
+Bereits im spielbaren Prototyp umgesetzt:
+
+- 2D-Sidescroller mit Kamera- und Levelgrenzen
+- animierte Bewegung, Sprung, Landung, Angriff und K. o.
+- zeitlich begrenztes Mutationssystem mit eigener HUD-Anzeige
+- sammelbare Münzen, Serum und Lebensenergie
+- Hundefänger, mutierte Katzen, Drohnen und eine Roboterkatze
+- Nahkampf, Lebenssystem, Trefferreaktionen und Gegnerbelohnungen
+- Intro- und Game-over-Videosequenzen
+- Musik und situationsabhängige Soundeffekte
+- Übergänge zwischen mehreren Levels
+
+Noch in Entwicklung oder geplant:
+
+- dynamischer Bosskampf
 - Upgrade-System
-- Checkpoints
-- Speicherstände
-- verschiedene Gegnertypen
-- Zwischensequenzen
-- mehrere Level
-- Geheimräume
-- alternative Enden
+- Checkpoints und dauerhafte Speicherstände
+- zusätzliche Level und Gegnertypen
+- Geheimräume und alternative Enden
 
 ## 💻 Technik
 
@@ -176,12 +182,15 @@ Das Projekt wird mit modernen Webtechnologien entwickelt.
   `<canvas>` darin automatisch über die Einstellung `parent: 'game'`.
 - **Objektorientiertes JavaScript:** Player, Gegner, Boss, Projektile,
   Plattformen, Level, UI und Animationen
-- **JSON:** Leveldaten, Gegnerpositionen, Upgrades, Assets und Balancing
-- **HTML und CSS:** Hauptmenü, Einstellungen, Pause, Ladebildschirm und
-  responsive Benutzeroberfläche
-- **LocalStorage:** Einstellungen, Lautstärke, Tastaturbelegung, Rekorde,
-  freigeschaltete Inhalte und Spielstand
+- **JavaScript-Konfigurationen:** Leveldaten, Gegnerpositionen, Assets,
+  Animationen und Balancing
+- **Phaser-Szenen:** Hauptmenü, Level, Videoübergänge und Game-over-Ablauf
+- **HTML und CSS:** semantische Seitenhülle und responsive Canvas-Einbettung
+- **Szenenübergreifender Spielzustand:** Leben und Sammelobjekte werden beim
+  Levelwechsel übernommen
+- **LocalStorage:** für dauerhafte Einstellungen und Spielstände geplant
 - **Vite:** lokaler Entwicklungsserver und Produktions-Build
+- **Node-Test-Runner:** automatisierte Tests für zentrale Spiellogik
 
 ## 📂 Projektstruktur
 
@@ -216,12 +225,16 @@ bulldog-dark-city/
 │   ├── tilesets/
 │   └── ui/
 ├── audio/
+├── fonts/
 ├── styles/
 ├── docs/
 ├── templates/
+├── tests/
+├── video/
 ├── index.html
 ├── style.css
 ├── script.js
+├── vite.config.js
 └── package.json
 ```
 
@@ -245,29 +258,29 @@ Wondershare-Produkten erstellt, aufgenommen oder nachbearbeitet.
 
 ### Aktuelle Phase
 
-**Vorproduktion (Pre-Production)**
+**Spielbarer Gameplay-Prototyp / Vertical Slice**
 
-Derzeit befinden wir uns in der Konzeptions- und Planungsphase.
+Die grundlegenden Spielsysteme sind umgesetzt und werden schrittweise um neue
+Level, Gegner, Animationen, Sounds und Balancing erweitert.
 
 Aktueller Fortschritt:
 
-- ✅ Grundidee entwickelt
-- ✅ Spielgenre definiert
-- ✅ Storykonzept erstellt
-- ✅ Hauptcharakter entwickelt
-- ✅ Mutationssystem geplant
-- ✅ Gegnerkonzept erstellt
-- ✅ Endboss entworfen
-- ✅ erste Cover-Art erstellt
-- ✅ Technologiestack festgelegt
-- ⏳ Game Design Document
-- ⏳ Gameplay-Prototyp
-- ⏳ erstes Level
-- ⏳ Animationen
-- ⏳ Sounddesign
-- ⏳ Bosskampf
-- ⏳ weitere Level
-- ⏳ vollständige Spielkampagne
+- ✅ Grundidee, Spielgenre und Storykonzept entwickelt
+- ✅ Phaser- und Vite-Grundarchitektur aufgebaut
+- ✅ responsives Canvas und vollständiges Startmenü umgesetzt
+- ✅ Tastatur-, Maus-, Touch- und vorbereitete Gamepad-Bedienung
+- ✅ Level 1 mit Plattformen, Hundefänger, Items und Levelausgang
+- ✅ Level 2 mit Katzen, Drohnen, Raketen, beweglichen Plattformen und Ausgang
+- 🚧 Level 3 mit Arenaumgebung, Hindernissen und Roboterkatze
+- ✅ Bewegung, Sprung, Landung, Angriff und Trefferreaktionen
+- ✅ Mutationssystem mit zeitlicher Rückverwandlung
+- ✅ Lebens-, Münz-, Serum- und Mutationsanzeigen
+- ✅ Sammelobjekte, Belohnungen und Übernahme des Spielerzustands
+- ✅ Intro-, Game-over-, Musik- und Soundintegration
+- ✅ Produktions-Build und FTP-taugliche Vite-Konfiguration
+- ⏳ Endboss und vollständiger Bosskampf
+- ⏳ Checkpoints, Speicherstände und Upgrade-System
+- ⏳ weitere Level und vollständige Spielkampagne
 
 ## Installation und Start
 

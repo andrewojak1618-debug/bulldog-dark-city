@@ -1,29 +1,43 @@
 import { LEVEL_THREE } from "../../js/config/level-three-settings.js";
 
-/** Laedt und erstellt die kollidierbaren Hindernisse des dritten Levels. */
+/** Lädt und erstellt die kollidierbaren Hindernisse des dritten Levels. */
 export class LevelThreeObstacleSystem {
   /**
-   * Laedt das Spritesheet der kleinen Katzenbox.
+   * Lädt die Spritesheets aller konfigurierten Katzenboxen.
    * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
    * @returns {void}
    */
   static load(scene) {
-    const settings = LEVEL_THREE.catBoxSmall;
-    scene.load.spritesheet(settings.key, settings.path, {
-      frameWidth: settings.frameWidth,
-      frameHeight: settings.frameHeight,
+    this.getCatBoxSettings().forEach((settings) => {
+      scene.load.spritesheet(settings.key, settings.path, {
+        frameWidth: settings.frameWidth,
+        frameHeight: settings.frameHeight,
+      });
     });
   }
 
   /**
-   * Erstellt Animation, Grafik und statische Kollision der Katzenbox.
+   * Erstellt Animation, Grafik und statische Kollision aller Katzenboxen.
    * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
    * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
    * @param {number} surfaceY - Gemeinsame Laufkante von Boden und Box.
-   * @returns {Phaser.GameObjects.Sprite} Sichtbare Katzenbox.
+   * @returns {Phaser.GameObjects.Sprite[]} Sichtbare Katzenboxen.
    */
   static create(scene, platforms, surfaceY) {
-    const settings = LEVEL_THREE.catBoxSmall;
+    return this.getCatBoxSettings().map((settings) =>
+      this.createCatBox(scene, platforms, settings, surfaceY),
+    );
+  }
+
+  /**
+   * Erstellt eine konfigurierte Katzenbox samt Animation und Kollision.
+   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
+   * @param {object} settings - Zentrale Boxkonfiguration.
+   * @param {number} surfaceY - Gemeinsame Laufkante von Boden und Box.
+   * @returns {Phaser.GameObjects.Sprite} Sichtbare Katzenbox.
+   */
+  static createCatBox(scene, platforms, settings, surfaceY) {
     const bottomY = surfaceY + settings.verticalOffsetY;
     this.registerAnimation(scene, settings);
     this.createCollision(scene, platforms, settings, bottomY);
@@ -33,6 +47,14 @@ export class LevelThreeObstacleSystem {
       .setDisplaySize(settings.displayWidth, settings.displayHeight)
       .setDepth(settings.depth)
       .play(settings.animationKey);
+  }
+
+  /**
+   * Gibt alle zentral konfigurierten Katzenboxen zurück.
+   * @returns {object[]} Konfigurationen der Level-3-Katzenboxen.
+   */
+  static getCatBoxSettings() {
+    return [LEVEL_THREE.catBoxSmall, LEVEL_THREE.catBoxLarge];
   }
 
   /**

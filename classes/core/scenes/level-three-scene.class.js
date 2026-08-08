@@ -7,6 +7,7 @@ import { LevelThreeEnvironmentSystem } from
   "../../systems/level-three-environment-system.class.js";
 import { LevelThreeObstacleSystem } from
   "../../systems/level-three-obstacle-system.class.js";
+import { RobotCatSystem } from "../../systems/robot-cat-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
 import {
   BULLDOG_ANIMATION_KEYS,
@@ -42,6 +43,7 @@ export class LevelThreeScene extends Phaser.Scene {
     BulldogAnimationSystem.load(this);
     LevelThreeEnvironmentSystem.load(this);
     LevelThreeObstacleSystem.load(this);
+    RobotCatSystem.load(this);
     LevelHudSystem.load(this);
   }
 
@@ -53,7 +55,12 @@ export class LevelThreeScene extends Phaser.Scene {
     this.configureWorld();
     LevelThreeEnvironmentSystem.create(this);
     this.createGroundCollision();
-    this.catBoxSmall = LevelThreeObstacleSystem.create(
+    this.catBoxes = LevelThreeObstacleSystem.create(
+      this,
+      this.platforms,
+      this.getGroundSurfaceY(),
+    );
+    this.robotCat = RobotCatSystem.create(
       this,
       this.platforms,
       this.getGroundSurfaceY(),
@@ -208,11 +215,13 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Aktualisiert Einlauf, Mutation und normale Spielerbewegung.
+   * Aktualisiert Einlauf, Gegnerpatrouille, Mutation und Spielerbewegung.
    * @param {number} time - Vergangene Spielzeit in Millisekunden.
+   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
    * @returns {void}
    */
-  update(time) {
+  update(time, delta) {
+    RobotCatSystem.update(this.robotCat, delta);
     if (this.updateLevelEntry()) return;
     this.mutationSystem?.update(this.inputSystem);
     this.player?.updateMovement(this.inputSystem, time);
