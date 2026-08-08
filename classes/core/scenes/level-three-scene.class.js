@@ -5,6 +5,8 @@ import { BulldogAnimationSystem } from
   "../../systems/bulldog-animation-system.class.js";
 import { LevelThreeEnvironmentSystem } from
   "../../systems/level-three-environment-system.class.js";
+import { LevelThreeObstacleSystem } from
+  "../../systems/level-three-obstacle-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
 import {
   BULLDOG_ANIMATION_KEYS,
@@ -39,6 +41,7 @@ export class LevelThreeScene extends Phaser.Scene {
   preload() {
     BulldogAnimationSystem.load(this);
     LevelThreeEnvironmentSystem.load(this);
+    LevelThreeObstacleSystem.load(this);
     LevelHudSystem.load(this);
   }
 
@@ -50,6 +53,11 @@ export class LevelThreeScene extends Phaser.Scene {
     this.configureWorld();
     LevelThreeEnvironmentSystem.create(this);
     this.createGroundCollision();
+    this.catBoxSmall = LevelThreeObstacleSystem.create(
+      this,
+      this.platforms,
+      this.getGroundSurfaceY(),
+    );
     BulldogAnimationSystem.register(this);
     this.createPlayer();
     this.createHud();
