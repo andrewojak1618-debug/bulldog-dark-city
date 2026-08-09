@@ -10,7 +10,7 @@ export const GAME_DIMENSIONS = Object.freeze({
 /**
  * Enthält die eindeutigen Schlüssel aller Spielszenen.
  * @type {{boot: string, menu: string, levelOne: string, levelTwo: string,
- * levelThree: string, boss: string, gameOver: string}}
+ * levelThree: string, boss: string, gameOver: string, victory: string}}
  */
 export const SCENES = Object.freeze({
   boot: "BootScene",
@@ -20,4 +20,5 @@ export const SCENES = Object.freeze({
   levelThree: "LevelThreeScene",
   boss: "BossScene",
   gameOver: "GameOverScene",
+  victory: "VictoryScene",
 });

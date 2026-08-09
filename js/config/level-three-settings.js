@@ -159,7 +159,7 @@ export const LEVEL_THREE = Object.freeze({
     groundingVelocityY: 1,
   }),
   menuHint: Object.freeze({
-    x: 360,
+    x: 112,
     y: 24,
     text: "LEVEL 3 · ESC · ZURÜCK ZUM MENÜ",
     color: "#d7d2dc",

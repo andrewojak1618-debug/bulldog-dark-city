@@ -17,8 +17,8 @@ export const BULLDOG_GAMEPLAY = Object.freeze({
   fallGravityBoost: 150,
   maxFallSpeed: 1050,
   mutation: Object.freeze({
-    displayWidth: 160,
-    displayHeight: 187.5,
+    displayWidth: 245.76,
+    displayHeight: 288,
     bodyWidth: 320,
     bodyHeight: 416,
     bodyOffsetX: 96,

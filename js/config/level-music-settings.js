@@ -23,4 +23,15 @@ export const LEVEL_MUSIC = Object.freeze({
     fadeInMs: 1600,
     fadeOutMs: 800,
   }),
+  levelThree: Object.freeze({
+    key: "level-three-robot-cat-boss-music",
+    path: getAssetPath(
+      "audio",
+      "music/level-three-robot-cat-boss-loop.ogg",
+    ),
+    volume: 0.32,
+    loop: true,
+    fadeInMs: 1_500,
+    fadeOutMs: 900,
+  }),
 });

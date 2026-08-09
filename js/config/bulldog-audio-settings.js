@@ -16,7 +16,7 @@ export const BULLDOG_AUDIO = Object.freeze({
       "audio",
       "sfx/characters/bulldog/wait-breathe-loop.ogg",
     ),
-    volume: 0.7,
+    volume: 0.55,
     loop: true,
   }),
 });

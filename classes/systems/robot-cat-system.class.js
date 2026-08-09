@@ -4,6 +4,8 @@ import {
   ROBOT_CAT_STATES,
   ROBOT_CAT_WALK_TEXTURE,
 } from "../../js/config/robot-cat-settings.js";
+import { RobotCatAnimationSystem } from
+  "./robot-cat-animation-system.class.js";
 
 /** Lädt, erstellt und steuert die Roboterkatze des dritten Levels. */
 export class RobotCatSystem {
@@ -13,25 +15,19 @@ export class RobotCatSystem {
    * @returns {void}
    */
   static load(scene) {
-    [ROBOT_CAT_WALK_TEXTURE, ROBOT_CAT_FLIGHT_TEXTURE].forEach((texture) => {
-      scene.load.spritesheet(texture.key, texture.path, {
-        frameWidth: texture.frameWidth,
-        frameHeight: texture.frameHeight,
-      });
-    });
+    RobotCatAnimationSystem.load(scene);
   }
 
   /**
    * Erstellt die patrouillierende Roboterkatze auf der Laufebene.
    * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
    * @param {number} surfaceY - Gemeinsame Laufkante des Levels.
    * @returns {Phaser.GameObjects.Sprite} Erstellte Roboterkatze.
    */
-  static create(scene, platforms, surfaceY) {
+  static create(scene, surfaceY) {
     const groundY = surfaceY + ROBOT_CAT.groundOffsetY;
-    this.registerAnimations(scene);
-    const collision = this.createCollision(scene, platforms, groundY);
+    RobotCatAnimationSystem.register(scene);
+    const collision = this.createCollision(scene, groundY);
     const robotCat = this.createSprite(scene, groundY);
     this.initializeMovementData(robotCat, collision, groundY);
     return robotCat;
@@ -81,68 +77,33 @@ export class RobotCatSystem {
   /**
    * Erstellt eine statische Hitbox innerhalb der sichtbaren Roboterkontur.
    * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
    * @param {number} groundY - Unterkante der Roboterkatze.
    * @returns {Phaser.GameObjects.Rectangle} Unsichtbare Roboter-Hitbox.
    */
-  static createCollision(scene, platforms, groundY) {
+  static createCollision(scene, groundY) {
     const collision = scene.add.rectangle(
       ROBOT_CAT.spawnX,
       groundY - ROBOT_CAT.collisionHeight / 2,
       ROBOT_CAT.collisionWidth,
       ROBOT_CAT.collisionHeight,
     ).setVisible(false);
-    platforms.add(collision);
+    scene.physics.add.existing(collision, true);
     return collision;
   }
 
   /**
-   * Registriert Lauf- und Abhebeanimation jeweils genau einmal.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Erlaubt die seitliche Blockade nur auf der gemeinsamen Laufebene.
+   * Dadurch kann die Bulldogge nicht auf der hohen Gegner-Hitbox landen.
+   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatze mit Blockierfläche.
+   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
+   * @param {number} surfaceY - Technische Laufkante des Levels.
+   * @returns {boolean} Ob Phaser die seitliche Kollision auflösen darf.
    */
-  static registerAnimations(scene) {
-    this.registerWalkAnimation(scene);
-    this.registerTakeoffAnimation(scene);
-  }
-
-  /**
-   * Registriert die endlose Laufanimation.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
-   */
-  static registerWalkAnimation(scene) {
-    const texture = ROBOT_CAT_WALK_TEXTURE;
-    if (scene.anims.exists(texture.animationKey)) return;
-    scene.anims.create({
-      key: texture.animationKey,
-      frames: scene.anims.generateFrameNumbers(texture.key, {
-        start: 0,
-        end: texture.frameCount - 1,
-      }),
-      frameRate: ROBOT_CAT.walkFrameRate,
-      repeat: -1,
-      yoyo: true,
-    });
-  }
-
-  /**
-   * Registriert die einmalige Abhebeanimation in festgelegter Reihenfolge.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
-   */
-  static registerTakeoffAnimation(scene) {
-    const texture = ROBOT_CAT_FLIGHT_TEXTURE;
-    if (scene.anims.exists(texture.takeoffAnimationKey)) return;
-    scene.anims.create({
-      key: texture.takeoffAnimationKey,
-      frames: texture.takeoffSequence.map((frame) => ({
-        key: texture.key,
-        frame,
-      })),
-      frameRate: ROBOT_CAT.flightFrameRate,
-      repeat: 0,
-    });
+  static canBlockGroundedPlayer(robotCat, player, surfaceY) {
+    const collision = robotCat?.getData("collision");
+    if (!collision?.body?.enable || !player?.body) return false;
+    const groundTolerance = 12;
+    return player.body.bottom >= surfaceY - groundTolerance;
   }
 
   /**
@@ -152,7 +113,11 @@ export class RobotCatSystem {
    * @returns {void}
    */
   static update(robotCat, delta) {
-    if (!robotCat?.active) return;
+    if (
+      !robotCat?.active ||
+      robotCat.getData("isHitReacting") ||
+      robotCat.getData("isDefeated")
+    ) return;
     const state = robotCat.getData("movementState");
     if (state === ROBOT_CAT_STATES.takingOff) return this.updateTakeoff(robotCat, delta);
     if (state === ROBOT_CAT_STATES.flying) return this.updateFlight(robotCat, delta);

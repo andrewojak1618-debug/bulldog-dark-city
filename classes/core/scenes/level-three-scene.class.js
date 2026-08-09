@@ -8,14 +8,27 @@ import { LevelThreeEnvironmentSystem } from
 import { LevelThreeObstacleSystem } from
   "../../systems/level-three-obstacle-system.class.js";
 import { RobotCatSystem } from "../../systems/robot-cat-system.class.js";
+import { RobotCatCombatSystem } from
+  "../../systems/robot-cat-combat-system.class.js";
+import { ThrowBoneSystem } from "../../systems/throw-bone-system.class.js";
+import { BackgroundMusicSystem } from
+  "../../systems/background-music-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
 import { LevelItemSystem } from "../../systems/level-item-system.class.js";
+import { HealthSystem } from "../../systems/health-system.class.js";
+import { BossPhaseHealthBar } from
+  "../../ui/boss-phase-health-bar.class.js";
 import {
   BULLDOG_ANIMATION_KEYS,
+  BULLDOG_EVENTS,
   BULLDOG_TEXTURES,
 } from "../../../js/config/bulldog-animation-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { LEVEL_THREE } from "../../../js/config/level-three-settings.js";
+import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
+import { ROBOT_CAT_COMBAT, ROBOT_CAT_DEAD_TEXTURE } from
+  "../../../js/config/robot-cat-settings.js";
+import { ENDING } from "../../../js/config/ending-settings.js";
 import { PLAYER_CAMERA } from
   "../../../js/config/player-camera-settings.js";
 
@@ -45,8 +58,10 @@ export class LevelThreeScene extends Phaser.Scene {
     LevelThreeEnvironmentSystem.load(this);
     LevelThreeObstacleSystem.load(this);
     RobotCatSystem.load(this);
+    ThrowBoneSystem.load(this);
     LevelHudSystem.load(this);
     LevelItemSystem.load(this);
+    BackgroundMusicSystem.load(this, LEVEL_MUSIC.levelThree);
   }
 
   /**
@@ -64,16 +79,56 @@ export class LevelThreeScene extends Phaser.Scene {
     );
     this.robotCat = RobotCatSystem.create(
       this,
-      this.platforms,
       this.getGroundSurfaceY(),
     );
+    this.createRobotCatHealth();
     BulldogAnimationSystem.register(this);
     this.createPlayer();
+    this.createBackgroundMusic();
     this.createHud();
     this.createItems();
+    this.throwBoneSystem = ThrowBoneSystem.create(
+      this,
+      this.player,
+      this.robotCat,
+      this.robotCatHealth,
+    );
     this.configureCamera();
     this.createMenuHint();
     this.bindSceneControls();
+    this.bindVictoryTransition();
+  }
+
+  /**
+   * Startet den Endübergang erst nach dem vollständigen Todesablauf.
+   * @returns {void}
+   */
+  bindVictoryTransition() {
+    const eventName = Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
+      ROBOT_CAT_DEAD_TEXTURE.animationKey;
+    this.robotCat.once(eventName, () => this.startVictoryTransition());
+  }
+
+  /**
+   * Friert den Kampf ein, blendet Musik und Bild aus und öffnet das Ende.
+   * @returns {void}
+   */
+  startVictoryTransition() {
+    if (this.isVictoryStarting) return;
+    this.isVictoryStarting = true;
+    this.player.setVelocity(0, 0);
+    this.physics.pause();
+    this.backgroundMusic.fadeOutAndStop(ENDING.transition.fadeToBlackMs);
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => this.scene.start(SCENES.victory),
+    );
+    this.cameras.main.fadeOut(
+      ENDING.transition.fadeToBlackMs,
+      0,
+      0,
+      0,
+    );
   }
 
   /**
@@ -92,7 +147,31 @@ export class LevelThreeScene extends Phaser.Scene {
     );
     this.inputSystem = new InputSystem(this);
     this.physics.add.collider(this.player, this.platforms);
+    this.physics.add.collider(
+      this.player,
+      this.robotCat.getData("collision"),
+      undefined,
+      () => RobotCatSystem.canBlockGroundedPlayer(
+        this.robotCat,
+        this.player,
+        this.getGroundSurfaceY(),
+      ),
+    );
     this.alignPlayerWithGround();
+  }
+
+  /**
+   * Startet die Bossmusik und blendet sie bei einem Spieler-K.-o. aus.
+   * @returns {void}
+   */
+  createBackgroundMusic() {
+    this.backgroundMusic = new BackgroundMusicSystem(this);
+    this.backgroundMusic.play(LEVEL_MUSIC.levelThree);
+    this.player.once(BULLDOG_EVENTS.knockedOut, () => {
+      this.backgroundMusic.fadeOutAndStop(
+        LEVEL_MUSIC.levelThree.fadeOutMs,
+      );
+    });
   }
 
   /**
@@ -151,7 +230,19 @@ export class LevelThreeScene extends Phaser.Scene {
     this.mutationSystem = hud.mutation;
   }
 
-  /** Erstellt die zentral positionierten Coins und Seren von Level drei. */
+  /**
+   * Erstellt das Bossleben und die dreiphasige Anzeige oben im Canvas.
+   * @returns {void}
+   */
+  createRobotCatHealth() {
+    this.robotCatHealth = new HealthSystem(ROBOT_CAT_COMBAT.maximumHealth);
+    new BossPhaseHealthBar(this, this.robotCatHealth);
+  }
+
+  /**
+   * Erstellt die zentral positionierten Coins und Seren von Level drei.
+   * @returns {void}
+   */
   createItems() {
     this.levelItems = LevelItemSystem.create(
       this,
@@ -235,9 +326,16 @@ export class LevelThreeScene extends Phaser.Scene {
    * @returns {void}
    */
   update(time, delta) {
+    if (this.isVictoryStarting) return;
     RobotCatSystem.update(this.robotCat, delta);
     if (this.updateLevelEntry()) return;
     this.mutationSystem?.update(this.inputSystem);
     this.player?.updateMovement(this.inputSystem, time);
+    this.throwBoneSystem?.update();
+    RobotCatCombatSystem.update(
+      this.robotCat,
+      this.player,
+      this.robotCatHealth,
+    );
   }
 }
