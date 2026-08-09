@@ -9,6 +9,7 @@ import { LevelThreeObstacleSystem } from
   "../../systems/level-three-obstacle-system.class.js";
 import { RobotCatSystem } from "../../systems/robot-cat-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
+import { LevelItemSystem } from "../../systems/level-item-system.class.js";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_TEXTURES,
@@ -45,6 +46,7 @@ export class LevelThreeScene extends Phaser.Scene {
     LevelThreeObstacleSystem.load(this);
     RobotCatSystem.load(this);
     LevelHudSystem.load(this);
+    LevelItemSystem.load(this);
   }
 
   /**
@@ -68,6 +70,7 @@ export class LevelThreeScene extends Phaser.Scene {
     BulldogAnimationSystem.register(this);
     this.createPlayer();
     this.createHud();
+    this.createItems();
     this.configureCamera();
     this.createMenuHint();
     this.bindSceneControls();
@@ -146,6 +149,17 @@ export class LevelThreeScene extends Phaser.Scene {
     this.healthSystem = hud.health;
     this.collectibleSystem = hud.collectibles;
     this.mutationSystem = hud.mutation;
+  }
+
+  /** Erstellt die zentral positionierten Coins und Seren von Level drei. */
+  createItems() {
+    this.levelItems = LevelItemSystem.create(
+      this,
+      this.player,
+      this.healthSystem,
+      this.collectibleSystem,
+      LEVEL_THREE.itemPlacements,
+    );
   }
 
   /**

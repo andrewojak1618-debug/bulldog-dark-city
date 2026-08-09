@@ -7,6 +7,16 @@ export const LEVEL_THREE = Object.freeze({
     height: 600,
     backgroundColor: 0x160805,
   }),
+  itemPlacements: Object.freeze([
+    Object.freeze({ type: "coin", x: 300, y: 445, size: 50 }),
+    Object.freeze({ type: "serum", x: 500, y: 330, size: 58 }),
+    Object.freeze({ type: "coin", x: 750, y: 445, size: 50 }),
+    Object.freeze({ type: "coin", x: 1_050, y: 445, size: 50 }),
+    Object.freeze({ type: "coin", x: 1_400, y: 445, size: 50 }),
+    Object.freeze({ type: "serum", x: 1_650, y: 300, size: 58 }),
+    Object.freeze({ type: "coin", x: 1_900, y: 445, size: 50 }),
+    Object.freeze({ type: "coin", x: 2_200, y: 445, size: 50 }),
+  ]),
   background: Object.freeze({
     key: "dark-city-level-three-background-orange-main-01",
     path: getAssetPath(
