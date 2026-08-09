@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
+import { TouchControlSystem } from
+  "../../input/touch-control-system.class.js";
 import { BulldogAnimationSystem } from "../../systems/bulldog-animation-system.class.js";
 import { DogCatcherAnimationSystem } from
   "../../systems/dog-catcher-animation-system.class.js";
@@ -11,7 +13,6 @@ import { LevelExitSystem } from "../../systems/level-exit-system.class.js";
 import { BackgroundMusicSystem } from
   "../../systems/background-music-system.class.js";
 import { LevelEnvironmentSystem } from "../../systems/level-environment-system.class.js";
-import { LevelFlowSystem } from "../../systems/level-flow-system.class.js";
 import { LevelOnePlatformSystem } from
   "../../systems/level-one-platform-system.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
@@ -25,9 +26,7 @@ import { SCENES } from "../../../js/config/game-settings.js";
 import { PLAYER_CAMERA } from
   "../../../js/config/player-camera-settings.js";
 
-/**
- * Stellt den technischen Prototyp des ersten Levels bereit.
- */
+/** Stellt das eigenständige erste Level von Bulldog Dark City bereit. */
 export class LevelOneScene extends Phaser.Scene {
   /**
    * Erstellt Level eins mit seinem eindeutigen Szenenschlüssel.
@@ -88,7 +87,7 @@ export class LevelOneScene extends Phaser.Scene {
       this.healthSystem,
       this.collectibleSystem,
     );
-    this.createDebugOverlay();
+    this.createMovementInfoPopup();
     this.bindSceneControls();
     this.cameras.main.fadeIn(TEST_LEVEL.sceneFadeInMs, 0, 0, 0);
   }
@@ -116,6 +115,11 @@ export class LevelOneScene extends Phaser.Scene {
       BULLDOG_TEXTURES.stand.key,
     );
     this.inputSystem = new InputSystem(this);
+    this.touchControls = TouchControlSystem.create(
+      this,
+      this.inputSystem,
+      this.player,
+    );
     this.physics.add.collider(this.player, this.platforms);
     this.player.onceKnockOutComplete(() => {
       this.scene.start(SCENES.gameOver);
@@ -155,41 +159,34 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Zeigt Steuerung und Status unabhängig von der Kameraposition an.
+   * Zeigt die Desktop-Steuerung zu Levelbeginn kurz als mittiges Popup.
+   * Touchgeräte erhalten stattdessen ihre sichtbaren Bildschirmbuttons.
    * @returns {void}
    */
-  createDebugOverlay() {
-    const { depth, instructions, position } = TEST_LEVEL.debugOverlay;
-    this.add
-      .text(
-        instructions.x,
-        instructions.y,
-        instructions.text,
-        {
-          fontFamily: instructions.fontFamily,
-          fontSize: `${instructions.fontSize}px`,
-          color: instructions.color,
-          backgroundColor: instructions.backgroundColor,
-          padding: {
-            x: instructions.paddingX,
-            y: instructions.paddingY,
-          },
-          lineSpacing: instructions.lineSpacing,
-        },
-      )
+  createMovementInfoPopup() {
+    if (TouchControlSystem.isSupported()) return;
+    const settings = TEST_LEVEL.movementInfoPopup;
+    const popup = this.add.text(settings.x, settings.y, settings.text, {
+      fontFamily: settings.fontFamily,
+      fontSize: `${settings.fontSize}px`,
+      color: settings.color,
+      align: "center",
+      backgroundColor: settings.backgroundColor,
+      padding: { x: settings.paddingX, y: settings.paddingY },
+      lineSpacing: settings.lineSpacing,
+    })
+      .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(depth);
-    this.positionText = this.add
-      .text(position.x, position.y, "", {
-        fontFamily: position.fontFamily,
-        fontSize: `${position.fontSize}px`,
-        color: position.color,
-        backgroundColor: position.backgroundColor,
-        padding: { x: position.paddingX, y: position.paddingY },
-      })
-      .setOrigin(1, 0)
-      .setScrollFactor(0)
-      .setDepth(depth);
+      .setDepth(settings.depth);
+    this.time.delayedCall(settings.visibleDurationMs, () => {
+      this.tweens.add({
+        targets: popup,
+        alpha: 0,
+        duration: settings.fadeDurationMs,
+        ease: "Sine.easeIn",
+        onComplete: () => popup.destroy(),
+      });
+    });
   }
 
   /**
@@ -230,7 +227,7 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Aktualisiert Spielerbewegung und technische Positionsanzeige.
+   * Aktualisiert Spielerbewegung, Gegner, Umgebung und Levelausgang.
    * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
    * @param {number} delta - Vergangene Millisekunden seit dem letzten Frame.
    * @returns {void}
@@ -251,10 +248,5 @@ export class LevelOneScene extends Phaser.Scene {
       this.completeLevel();
       return;
     }
-    const currentZone = LevelFlowSystem.getZoneAt(this.player.x);
-    this.positionText?.setText(
-      `X ${Math.round(this.player.x)}  Y ${Math.round(this.player.y)}` +
-        `\n${currentZone.label}`,
-    );
   }
 }

@@ -1,4 +1,6 @@
 import { MenuDialog } from "../../ui/menu-dialog.class.js";
+import { globalMuteSystem } from
+  "../../systems/global-mute-system.class.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 
 /**
@@ -54,11 +56,15 @@ export class MenuNavigationController {
    * @returns {void}
    */
   openOptionsDialog() {
+    const isMuted = globalMuteSystem.isMuted();
     this.openDialog({
       title: "OPTIONEN",
-      message:
-        "Audio-, Grafik- und Steuerungsoptionen werden in einer kommenden Karte ergänzt.",
-      confirmLabel: "VERSTANDEN",
+      message: isMuted
+        ? "Der globale Ton ist AUS. Diese Einstellung bleibt nach einem Neustart gespeichert."
+        : "Der globale Ton ist AN. Diese Einstellung bleibt nach einem Neustart gespeichert.",
+      confirmLabel: isMuted ? "TON AN" : "TON AUS",
+      cancelLabel: "ZURÜCK",
+      onConfirm: () => globalMuteSystem.toggle(),
     });
   }
 

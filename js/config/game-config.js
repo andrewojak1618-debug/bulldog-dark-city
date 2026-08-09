@@ -16,7 +16,12 @@ export const GAME_CONFIG = {
   width: GAME_DIMENSIONS.width,
   height: GAME_DIMENSIONS.height,
   backgroundColor: "#10131a",
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
   input: {
+    activePointers: 4,
     gamepad: true,
   },
   physics: {

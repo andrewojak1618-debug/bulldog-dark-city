@@ -1,5 +1,9 @@
 import Phaser from "phaser";
 import { IntroSkipHint } from "../../ui/intro-skip-hint.class.js";
+import { InputDeviceDetector } from
+  "../../input/input-device-detector.class.js";
+import { globalMuteSystem } from
+  "../../systems/global-mute-system.class.js";
 import { ENDING } from "../../../js/config/ending-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 
@@ -33,8 +37,9 @@ export class VictoryScene extends Phaser.Scene {
     this.video = this.add.video(width / 2, height / 2, video.key)
       .setDepth(depths.video)
       .setAlpha(0)
-      .setMute(false)
+      .setMute(globalMuteSystem.isMuted())
       .setVolume(video.volume);
+    this.unregisterVideoMute = globalMuteSystem.registerVideo(this.video);
     this.video.once("created", () => this.sizeAndRevealVideo());
     this.video.once("playing", () => this.sizeAndRevealVideo());
     this.video.once("complete", () => this.finish());
@@ -79,22 +84,34 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Bindet die Leertaste einmalig an das Überspringen der Endsequenz.
+   * Aktiviert den passenden Skip-Hinweis für Tastatur oder Touch.
    * @returns {void}
    */
   enableSkip() {
     const keyboard = this.input.keyboard;
-    if (!keyboard || this.isFinished) return;
+    if (this.isFinished) return;
     const { width, height } = this.scale;
     const { skip, depths } = ENDING;
+    const isTouchMode = this.isTouchMode();
+    const hintStyle = isTouchMode ? {
+      ...skip,
+      hint: skip.touchHint,
+      actionHint: skip.touchActionHint,
+    } : skip;
     this.skipHint = new IntroSkipHint(
       this,
       width / 2,
       height - skip.hintOffsetY,
-      skip,
+      hintStyle,
     ).setDepth(depths.skipHint).setAlpha(skip.hintAlpha);
-    this.skipHandler = (event) => this.handleSkip(event);
-    keyboard.on("keydown-SPACE", this.skipHandler);
+    if (keyboard) {
+      this.skipHandler = (event) => this.handleSkip(event);
+      keyboard.on("keydown-SPACE", this.skipHandler);
+    }
+    if (isTouchMode) {
+      this.touchSkipHandler = () => this.startSkip();
+      this.input.on("pointerdown", this.touchSkipHandler);
+    }
   }
 
   /**
@@ -103,8 +120,17 @@ export class VictoryScene extends Phaser.Scene {
    * @returns {void}
    */
   handleSkip(event) {
-    if (event.repeat || this.isSkipping || this.isFinished) return;
+    if (event.repeat) return;
     event.preventDefault();
+    this.startSkip();
+  }
+
+  /**
+   * Startet die gemeinsame Ausblendung für Tastatur und Touch genau einmal.
+   * @returns {void}
+   */
+  startSkip() {
+    if (this.isSkipping || this.isFinished) return;
     this.isSkipping = true;
     this.disableSkip();
     const initialVolume = this.video?.getVolume() ?? 0;
@@ -117,6 +143,14 @@ export class VictoryScene extends Phaser.Scene {
         this.video?.setVolume(initialVolume * (1 - tween.progress)),
       onComplete: () => this.finish(),
     });
+  }
+
+  /**
+   * Erkennt Handy, Tablet und den lokalen Touch-Testmodus.
+   * @returns {boolean} Ob der mobile Skipbutton verwendet werden soll.
+   */
+  isTouchMode() {
+    return InputDeviceDetector.isTouchLayout();
   }
 
   /**
@@ -150,11 +184,13 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Entfernt Timer, Tastaturereignis, Hinweis und Video sicher.
+   * Entfernt Timer, Eingabeereignisse, Hinweis und Video sicher.
    * @returns {void}
    */
   cleanup() {
     this.disableSkip();
+    this.unregisterVideoMute?.();
+    this.unregisterVideoMute = null;
     if (this.video) {
       this.tweens.killTweensOf(this.video);
       this.video.stop();
@@ -164,7 +200,7 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Entfernt Skip-Timer, Tastaturereignis und sichtbaren Hinweis.
+   * Entfernt Skip-Timer, Eingabeereignisse und sichtbaren Hinweis.
    * @returns {void}
    */
   disableSkip() {
@@ -173,6 +209,10 @@ export class VictoryScene extends Phaser.Scene {
     if (this.skipHandler) {
       this.input.keyboard?.off("keydown-SPACE", this.skipHandler);
       this.skipHandler = null;
+    }
+    if (this.touchSkipHandler) {
+      this.input.off("pointerdown", this.touchSkipHandler);
+      this.touchSkipHandler = null;
     }
     this.skipHint?.destroy();
     this.skipHint = null;

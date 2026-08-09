@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
+import { TouchControlSystem } from
+  "../../input/touch-control-system.class.js";
 import { BulldogAnimationSystem } from
   "../../systems/bulldog-animation-system.class.js";
 import { LevelThreeEnvironmentSystem } from
@@ -92,6 +94,10 @@ export class LevelThreeScene extends Phaser.Scene {
       this.player,
       this.robotCat,
       this.robotCatHealth,
+      this.inputSystem,
+    );
+    this.touchControls?.bindThrowInventory(
+      this.throwBoneSystem.inventory,
     );
     this.configureCamera();
     this.createMenuHint();
@@ -146,6 +152,12 @@ export class LevelThreeScene extends Phaser.Scene {
       BULLDOG_TEXTURES.stand.key,
     );
     this.inputSystem = new InputSystem(this);
+    this.touchControls = TouchControlSystem.create(
+      this,
+      this.inputSystem,
+      this.player,
+      { showThrowControls: true },
+    );
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(
       this.player,

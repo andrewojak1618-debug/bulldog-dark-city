@@ -1,5 +1,5 @@
-@media (max-width: 800px) {
-  body {
-    overflow: hidden;
+@media (prefers-reduced-motion: reduce) {
+  .orientation-notice__icon {
+    text-shadow: none;
   }
 }

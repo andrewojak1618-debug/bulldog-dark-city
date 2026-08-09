@@ -1,4 +1,6 @@
 import Phaser from "phaser";
+import { globalMuteSystem } from
+  "../../systems/global-mute-system.class.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { GAME_OVER } from "../../../js/config/game-over-settings.js";
 
@@ -32,13 +34,15 @@ export class GameOverScene extends Phaser.Scene {
     this.video = this.add
       .video(width / 2, height / 2, video.key)
       .setAlpha(0)
-      .setMute(false)
+      .setMute(globalMuteSystem.isMuted())
       .setVolume(video.volume);
+    this.unregisterVideoMute = globalMuteSystem.registerVideo(this.video);
     this.isVideoSized = false;
     this.video.once("created", () => this.sizeAndRevealVideo());
     this.video.once("playing", () => this.sizeAndRevealVideo());
     this.video.once("complete", () => this.returnToMenu());
     this.video.once("error", () => this.showFallback());
+    this.events.once("shutdown", () => this.cleanup());
     this.video.play(false);
   }
 
@@ -47,6 +51,7 @@ export class GameOverScene extends Phaser.Scene {
    * @returns {void}
    */
   returnToMenu() {
+    this.cleanup();
     this.scene.start(SCENES.menu);
   }
 
@@ -68,7 +73,7 @@ export class GameOverScene extends Phaser.Scene {
   showFallback() {
     const { width, height } = this.scale;
     const { fallback } = GAME_OVER;
-    this.video?.destroy();
+    this.cleanup();
     this.cameras.main.setBackgroundColor("#050309");
     this.add
       .text(width / 2, height / 2, fallback.text, {
@@ -77,5 +82,19 @@ export class GameOverScene extends Phaser.Scene {
         color: fallback.color,
       })
       .setOrigin(0.5);
+  }
+
+  /**
+   * Meldet das Video ab und gibt die Phaser-Instanz sicher frei.
+   * @returns {void}
+   */
+  cleanup() {
+    this.unregisterVideoMute?.();
+    this.unregisterVideoMute = null;
+    if (this.video) {
+      this.video.stop();
+      this.video.destroy();
+      this.video = null;
+    }
   }
 }

@@ -26,15 +26,17 @@ export class ThrowBoneSystem {
    * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
    * @param {Phaser.GameObjects.Sprite} robotCat - Ziel der Wurfknochen.
    * @param {import("./health-system.class.js").HealthSystem} robotCatHealth - Bossleben.
+   * @param {import("../input/input-system.class.js").InputSystem} input - Spielereingaben.
    * @returns {ThrowBoneSystem} Vollständig erstelltes Wurfknochensystem.
    */
-  static create(scene, player, robotCat, robotCatHealth) {
+  static create(scene, player, robotCat, robotCatHealth, input) {
     this.registerAnimations(scene);
     const system = new ThrowBoneSystem(
       scene,
       player,
       robotCat,
       robotCatHealth,
+      input,
     );
     system.createPickups();
     return system;
@@ -66,12 +68,14 @@ export class ThrowBoneSystem {
    * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
    * @param {Phaser.GameObjects.Sprite} robotCat - Ziel der Wurfknochen.
    * @param {import("./health-system.class.js").HealthSystem} robotCatHealth - Bossleben.
+   * @param {import("../input/input-system.class.js").InputSystem} input - Spielereingaben.
    */
-  constructor(scene, player, robotCat, robotCatHealth) {
+  constructor(scene, player, robotCat, robotCatHealth, input) {
     this.scene = scene;
     this.player = player;
     this.robotCat = robotCat;
     this.robotCatHealth = robotCatHealth;
+    this.input = input;
     this.inventory = new ThrowBoneInventory(Object.keys(THROW_BONES.types));
     this.hud = new ThrowBoneHud(scene, this.inventory);
     this.pickups = scene.physics.add.group({ allowGravity: false });
@@ -121,13 +125,21 @@ export class ThrowBoneSystem {
    * @returns {void}
    */
   update() {
-    if (this.keys?.normal && Phaser.Input.Keyboard.JustDown(this.keys.normal)) {
-      this.throw("normal");
-    }
-    if (this.keys?.nuclear && Phaser.Input.Keyboard.JustDown(this.keys.nuclear)) {
-      this.throw("nuclear");
-    }
+    if (this.shouldThrow("normal")) this.throw("normal");
+    if (this.shouldThrow("nuclear")) this.throw("nuclear");
     this.updateProjectiles();
+  }
+
+  /**
+   * Vereint Tastatur- und Touchimpulse einer Knochenart.
+   * @param {"normal"|"nuclear"} type - Gewählte Knochenart.
+   * @returns {boolean} Ob ein neuer Wurf ausgelöst wurde.
+   */
+  shouldThrow(type) {
+    const touchTriggered = this.input?.consumeThrow(type) ?? false;
+    const key = this.keys?.[type];
+    const keyboardTriggered = key && Phaser.Input.Keyboard.JustDown(key);
+    return Boolean(touchTriggered || keyboardTriggered);
   }
 
   /**

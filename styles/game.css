@@ -1,10 +1,92 @@
 #game canvas {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   display: block;
-  max-width: 100%;
-  height: auto;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 #game {
-  width: 100%;
-  max-width: 720px;
+  position: relative;
+  width: min(100vw, calc(100vh * 1.5), 720px);
+  width: min(100vw, calc(100svh * 1.5), 720px);
+  aspect-ratio: 3 / 2;
+  max-height: 480px;
+  overflow: hidden;
+}
+
+.mute-toggle {
+  position: absolute;
+  top: 20px;
+  right: 14px;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid rgb(231 45 175 / 75%);
+  border-radius: 4px;
+  color: #ffffff;
+  font: 10px/1 Arial, sans-serif;
+  background: rgb(8 6 13 / 76%);
+  box-shadow: 0 0 5px rgb(231 45 175 / 32%);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mute-toggle:hover,
+.mute-toggle:focus-visible,
+.mute-toggle[aria-pressed="true"] {
+  border-color: #70ffae;
+  outline: none;
+  box-shadow: 0 0 6px rgb(112 255 174 / 52%);
+}
+
+.orientation-notice {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  color: #f4edf7;
+  text-align: center;
+  background:
+    radial-gradient(circle at center, #341347 0%, #10131a 68%);
+}
+
+.orientation-notice__icon {
+  color: #f21fa7;
+  font: 64px/1 "Permanent Marker", cursive;
+  text-shadow: 0 0 18px rgb(242 31 167 / 70%);
+}
+
+.orientation-notice h1,
+.orientation-notice p {
+  margin: 0;
+  font-family: "Permanent Marker", cursive;
+}
+
+.orientation-notice h1 {
+  font-size: clamp(28px, 8vw, 44px);
+}
+
+.orientation-notice p {
+  max-width: 360px;
+  color: #c8bdce;
+  font-size: clamp(16px, 4.5vw, 22px);
+}
+
+body.is-portrait-locked #game {
+  visibility: hidden;
+}
+
+body.is-portrait-locked .orientation-notice {
+  display: flex;
 }

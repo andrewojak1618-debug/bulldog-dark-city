@@ -1,8 +1,6 @@
 import { getAssetPath } from "./asset-paths.js";
 
-/**
- * Zentrale Werte des technischen Level-One-Prototyps.
- */
+/** Zentrale Konfiguration des eigenständigen ersten Levels. */
 export const TEST_LEVEL = Object.freeze({
   world: Object.freeze({
     width: 2400,
@@ -14,67 +12,23 @@ export const TEST_LEVEL = Object.freeze({
     startY: 390,
   }),
   sceneFadeInMs: 260,
-  debugOverlay: Object.freeze({
+  movementInfoPopup: Object.freeze({
     depth: 100,
-    instructions: Object.freeze({
-      x: 18,
-      y: 132,
-      text:
-        "TECHNISCHER TESTLEVEL\nA/D oder ←/→ · Bewegung\n" +
-        "W, ↑ oder Leertaste · Sprung\n" +
-        "J, Linksklick oder Gamepad-X · Biss\nESC · Menü",
-      fontFamily: "Arial",
-      fontSize: 13,
-      color: "#d7d2dc",
-      backgroundColor: "rgba(4, 6, 12, 0.82)",
-      paddingX: 10,
-      paddingY: 8,
-      lineSpacing: 4,
-    }),
-    position: Object.freeze({
-      x: 702,
-      y: 132,
-      fontFamily: "Arial",
-      fontSize: 12,
-      color: "#35d9a5",
-      backgroundColor: "rgba(4, 6, 12, 0.82)",
-      paddingX: 8,
-      paddingY: 6,
-    }),
-  }),
-  flow: Object.freeze({
-    zones: Object.freeze([
-      Object.freeze({
-        key: "start",
-        label: "STARTZONE",
-        startX: 0,
-        endX: 350,
-      }),
-      Object.freeze({
-        key: "introduction",
-        label: "EINFÜHRUNG",
-        startX: 350,
-        endX: 850,
-      }),
-      Object.freeze({
-        key: "escalation",
-        label: "STEIGERUNG",
-        startX: 850,
-        endX: 1400,
-      }),
-      Object.freeze({
-        key: "challenge",
-        label: "HERAUSFORDERUNG",
-        startX: 1400,
-        endX: 2000,
-      }),
-      Object.freeze({
-        key: "goal",
-        label: "ZIELZONE",
-        startX: 2000,
-        endX: 2400,
-      }),
-    ]),
+    x: 360,
+    y: 188,
+    text:
+      "LEVEL 1 · BEWEGUNGSINFO\nA/D oder ←/→ · Bewegung\n" +
+      "W, ↑ oder Leertaste · Sprung\n" +
+      "J, Linksklick oder Gamepad-X · Biss\nESC · Menü",
+    fontFamily: "Arial",
+    fontSize: 13,
+    color: "#d7d2dc",
+    backgroundColor: "rgba(4, 6, 12, 0.86)",
+    paddingX: 12,
+    paddingY: 10,
+    lineSpacing: 4,
+    visibleDurationMs: 4_500,
+    fadeDurationMs: 500,
   }),
   platformCollision: Object.freeze({
     edgeInset: 52,

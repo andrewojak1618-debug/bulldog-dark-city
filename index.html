@@ -8,7 +8,26 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <main id="game" aria-label="Bulldog: Dark City"></main>
+    <main id="game" aria-label="Bulldog: Dark City">
+      <button
+        id="mute-toggle"
+        class="mute-toggle"
+        type="button"
+        aria-label="Alle Töne stummschalten"
+        aria-pressed="false"
+        title="Alle Töne stummschalten"
+      >🔊</button>
+    </main>
+    <section
+      id="orientation-notice"
+      class="orientation-notice"
+      aria-live="polite"
+      aria-hidden="true"
+    >
+      <span class="orientation-notice__icon" aria-hidden="true">↻</span>
+      <h1>Bitte Gerät drehen</h1>
+      <p>Bulldog: Dark City wird im Querformat gespielt.</p>
+    </section>
     <script type="module" src="/script.js"></script>
   </body>
 </html>

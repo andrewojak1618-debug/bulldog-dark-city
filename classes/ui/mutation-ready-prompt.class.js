@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 import { COLLECTIBLE_KEYS, HUD } from "../../js/config/hud-settings.js";
+import { InputDeviceDetector } from
+  "../input/input-device-detector.class.js";
 
 /** Zeigt die verfügbare Tastenkombination bei vollständig gefülltem Serum. */
 export class MutationReadyPrompt extends Phaser.GameObjects.Container {
@@ -23,12 +25,30 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
 
   /** Erstellt Tastenkappe und erklärende Beschriftung. */
   createContent(scene) {
+    if (this.isTouchMode()) {
+      return [
+        scene.add.text(
+          0,
+          12,
+          "PRESS M MUTATION",
+          this.settings.labelStyle,
+        ).setOrigin(0, 0.5),
+      ];
+    }
     const keyCap = this.createKeyCap(scene);
     const keyText = scene.add.text(24, 12, "J + F", this.settings.keyStyle)
       .setOrigin(0.5);
     const label = scene.add.text(55, 12, "MUTATION BEREIT", this.settings.labelStyle)
       .setOrigin(0, 0.5);
     return [keyCap, keyText, label];
+  }
+
+  /**
+   * Erkennt Handy, Tablet und den lokalen Touch-Testmodus.
+   * @returns {boolean} Ob die mobile Mutationsanweisung sichtbar sein soll.
+   */
+  isTouchMode() {
+    return InputDeviceDetector.isTouchLayout();
   }
 
   /** Zeichnet eine kompakte Tastenkappe mit leichtem Schatten. */

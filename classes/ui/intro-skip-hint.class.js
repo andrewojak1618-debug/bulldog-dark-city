@@ -57,12 +57,13 @@ export class IntroSkipHint extends Phaser.GameObjects.Container {
       style.keyMinWidth,
       keyLabelWidth + style.keyPaddingX * 2,
     );
-    const groupWidth = keyWidth + style.actionGap + actionWidth;
+    const actionGap = actionWidth > 0 ? style.actionGap : 0;
+    const groupWidth = keyWidth + actionGap + actionWidth;
     const keyX = -groupWidth / 2 + keyWidth / 2;
     return {
       keyX,
       keyWidth,
-      actionX: keyX + keyWidth / 2 + style.actionGap,
+      actionX: keyX + keyWidth / 2 + actionGap,
     };
   }
 

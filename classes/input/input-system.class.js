@@ -1,5 +1,7 @@
+import { TOUCH_ACTIONS } from "../../js/config/touch-control-settings.js";
+
 /**
- * Bündelt Tastatur- und vorbereitete Gamepad-Eingaben des Spielers.
+ * Bündelt Tastatur-, Maus-, Touch- und Gamepad-Eingaben des Spielers.
  */
 export class InputSystem {
   /**
@@ -10,6 +12,8 @@ export class InputSystem {
     this.scene = scene;
     this.jumpQueued = false;
     this.attackQueued = false;
+    this.touchState = { left: false, right: false };
+    this.touchActions = new Set();
     this.wasMutationComboPressed = false;
     this.cursors = scene.input.keyboard?.createCursorKeys();
     this.keys = scene.input.keyboard?.addKeys({
@@ -57,7 +61,9 @@ export class InputSystem {
       if (!event.repeat) this.attackQueued = true;
     };
     this.queuePointerAttack = (pointer) => {
-      if (pointer.button === 0) this.attackQueued = true;
+      if (!this.isTouchPointer(pointer) && pointer.button === 0) {
+        this.attackQueued = true;
+      }
     };
     keyboard?.on("keydown-J", this.queueKeyboardAttack);
     this.scene.input.on("pointerdown", this.queuePointerAttack);
@@ -65,6 +71,22 @@ export class InputSystem {
       keyboard?.off("keydown-J", this.queueKeyboardAttack);
       this.scene.input.off("pointerdown", this.queuePointerAttack);
     });
+  }
+
+  /**
+   * Erkennt Phaser- und Browserkennzeichnungen einer Touchberührung.
+   * @param {Phaser.Input.Pointer} pointer - Auslösender Phaser-Pointer.
+   * @returns {boolean} Ob die Eingabe von einem Touchscreen stammt.
+   */
+  isTouchPointer(pointer) {
+    const nativeType = pointer.event?.pointerType;
+    const eventType = pointer.event?.type ?? "";
+    return Boolean(
+      pointer.wasTouch ||
+      pointer.pointerType === "touch" ||
+      nativeType === "touch" ||
+      eventType.startsWith("touch"),
+    );
   }
 
   /**
@@ -77,11 +99,13 @@ export class InputSystem {
     const leftPressed =
       this.cursors?.left.isDown ||
       this.keys?.left.isDown ||
+      this.touchState.left ||
       gamepad?.left ||
       gamepadAxis < -0.25;
     const rightPressed =
       this.cursors?.right.isDown ||
       this.keys?.right.isDown ||
+      this.touchState.right ||
       gamepad?.right ||
       gamepadAxis > 0.25;
 
@@ -129,8 +153,58 @@ export class InputSystem {
       this.keys?.attack?.isDown && this.keys?.mutation?.isDown,
     );
     const newCombo = comboPressed && !this.wasMutationComboPressed;
+    const touchMutation = this.consumeTouchAction(TOUCH_ACTIONS.mutation);
     this.wasMutationComboPressed = comboPressed;
-    if (newCombo) this.attackQueued = false;
-    return newCombo;
+    if (newCombo || touchMutation) this.attackQueued = false;
+    return newCombo || touchMutation;
+  }
+
+  /**
+   * Übernimmt den Zustand eines mobilen Steuerelements.
+   * @param {string} action - Aktion aus `TOUCH_ACTIONS`.
+   * @param {boolean} isPressed - Ob der Button gerade gehalten wird.
+   * @returns {void}
+   */
+  setTouchAction(action, isPressed) {
+    if (action === TOUCH_ACTIONS.left || action === TOUCH_ACTIONS.right) {
+      this.touchState[action] = isPressed;
+      return;
+    }
+    if (!isPressed) return;
+    if (action === TOUCH_ACTIONS.jump) this.jumpQueued = true;
+    else if (action === TOUCH_ACTIONS.attack) this.attackQueued = true;
+    else this.touchActions.add(action);
+  }
+
+  /**
+   * Meldet eine gepufferte Touchaktion genau einmal.
+   * @param {string} action - Zu prüfende Touchaktion.
+   * @returns {boolean} Ob die Aktion seit dem letzten Abruf ausgelöst wurde.
+   */
+  consumeTouchAction(action) {
+    const wasQueued = this.touchActions.has(action);
+    this.touchActions.delete(action);
+    return wasQueued;
+  }
+
+  /**
+   * Meldet eine mobile Wurfaktion genau einmal.
+   * @param {"normal"|"nuclear"} type - Gewählte Knochenart.
+   * @returns {boolean} Ob der passende Touchbutton gedrückt wurde.
+   */
+  consumeThrow(type) {
+    const action = type === "normal" ?
+      TOUCH_ACTIONS.normalBone : TOUCH_ACTIONS.nuclearBone;
+    return this.consumeTouchAction(action);
+  }
+
+  /**
+   * Beendet gehaltene Touchbewegungen und verwirft gepufferte Aktionen.
+   * @returns {void}
+   */
+  clearTouchState() {
+    this.touchState.left = false;
+    this.touchState.right = false;
+    this.touchActions.clear();
   }
 }

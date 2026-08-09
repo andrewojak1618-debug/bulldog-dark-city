@@ -10,6 +10,12 @@ export const MENU_START_TRANSITION = Object.freeze({
     ).href,
     noAudio: false,
     volume: 1,
+    visibleFrame: Object.freeze({
+      x: 80,
+      y: 112,
+      width: 1280,
+      height: 736,
+    }),
   }),
   flyOut: Object.freeze({
     duration: 620,
@@ -29,7 +35,9 @@ export const MENU_START_TRANSITION = Object.freeze({
     fadeDuration: 260,
     fadeEase: "Sine.easeIn",
     hint: "LEERTASTE",
-    actionHint: "VIDEO AUSBLENDEN",
+    actionHint: "DRÜCKEN · ZUM SKIPPEN",
+    touchHint: "SKIP",
+    touchActionHint: "",
     actionGap: 8,
     hintOffsetY: 12,
     hintFontFamily: "Arial",

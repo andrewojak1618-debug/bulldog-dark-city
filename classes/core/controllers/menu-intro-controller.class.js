@@ -1,4 +1,8 @@
 import { IntroSkipHint } from "../../ui/intro-skip-hint.class.js";
+import { InputDeviceDetector } from
+  "../../input/input-device-detector.class.js";
+import { globalMuteSystem } from
+  "../../systems/global-mute-system.class.js";
 import { MENU_START_TRANSITION } from "../../../js/config/menu-transition-settings.js";
 
 /**
@@ -38,6 +42,8 @@ export class MenuIntroController {
       if (isFinished) return;
       isFinished = true;
       this.disableSkip();
+      this.unregisterVideoMute?.();
+      this.unregisterVideoMute = null;
       onComplete();
     };
   }
@@ -52,8 +58,9 @@ export class MenuIntroController {
       .video(width / 2, height / 2, MENU_START_TRANSITION.video.key)
       .setDepth(MENU_START_TRANSITION.depths.video)
       .setAlpha(0)
-      .setMute(false)
+      .setMute(globalMuteSystem.isMuted())
       .setVolume(MENU_START_TRANSITION.video.volume);
+    this.unregisterVideoMute = globalMuteSystem.registerVideo(this.video);
     this.isVideoSized = false;
   }
 
@@ -99,10 +106,16 @@ export class MenuIntroController {
    */
   enableSkip() {
     const keyboard = this.scene.input.keyboard;
-    if (!keyboard || this.isSkipping) return;
+    if (this.isSkipping) return;
     this.createSkipHint();
-    this.skipHandler = (event) => this.handleSkip(event);
-    keyboard.on("keydown-SPACE", this.skipHandler);
+    if (keyboard) {
+      this.skipHandler = (event) => this.handleSkip(event);
+      keyboard.on("keydown-SPACE", this.skipHandler);
+    }
+    if (this.isTouchDevice()) {
+      this.touchSkipHandler = () => this.handleTouchSkip();
+      this.scene.input.on("pointerdown", this.touchSkipHandler);
+    }
   }
 
   /**
@@ -112,11 +125,16 @@ export class MenuIntroController {
   createSkipHint() {
     const { width, height } = this.scene.scale;
     const { skip, depths, videoReveal } = MENU_START_TRANSITION;
+    const hintStyle = this.isTouchDevice() ? {
+      ...skip,
+      hint: skip.touchHint,
+      actionHint: skip.touchActionHint,
+    } : skip;
     this.skipHint = new IntroSkipHint(
       this.scene,
       width / 2,
       height - skip.hintOffsetY,
-      skip,
+      hintStyle,
     )
       .setDepth(depths.skipHint)
       .setAlpha(0);
@@ -137,6 +155,23 @@ export class MenuIntroController {
     if (event.repeat || this.isSkipping) return;
     event.preventDefault();
     this.skip();
+  }
+
+  /**
+   * Überspringt das Video bei einer neuen Berührung genau einmal.
+   * @returns {void}
+   */
+  handleTouchSkip() {
+    if (this.isSkipping) return;
+    this.skip();
+  }
+
+  /**
+   * Erkennt Geräte, deren primäre oder zusätzliche Eingabe Touch ist.
+   * @returns {boolean} Ob der mobile Skip-Hinweis verwendet werden soll.
+   */
+  isTouchDevice() {
+    return InputDeviceDetector.isTouchLayout();
   }
 
   /**
@@ -167,6 +202,7 @@ export class MenuIntroController {
     this.skipTimer?.remove(false);
     this.skipTimer = null;
     this.unbindSkipKey();
+    this.unbindTouchSkip();
     if (this.skipHint) {
       this.scene.tweens.killTweensOf(this.skipHint);
       this.skipHint.destroy();
@@ -187,15 +223,51 @@ export class MenuIntroController {
   }
 
   /**
-   * Skaliert den ersten echten Videoframe auf die Canvasgröße.
+   * Entfernt den mobilen Klick-Handler beim Abschluss des Vorspanns.
+   * @returns {void}
+   */
+  unbindTouchSkip() {
+    if (this.touchSkipHandler) {
+      this.scene.input.off("pointerdown", this.touchSkipHandler);
+    }
+    this.touchSkipHandler = null;
+  }
+
+  /**
+   * Skaliert den sichtbaren Videoinhalt verzerrungsfrei über das Canvas.
+   * Eingebrannte schwarze Ränder liegen dadurch außerhalb der Ansicht.
    * @returns {void}
    */
   sizeAndRevealVideo() {
     if (this.isVideoSized) return;
     const { width, height } = this.scene.scale;
     this.isVideoSized = true;
-    this.video.setDisplaySize(width, height);
+    this.coverCanvasWithVisibleVideoFrame(width, height);
     this.revealVideo();
+  }
+
+  /**
+   * Berechnet eine Cover-Skalierung anhand des tatsächlich sichtbaren Frames.
+   * @param {number} canvasWidth - Logische Breite des Canvas.
+   * @param {number} canvasHeight - Logische Höhe des Canvas.
+   * @returns {void}
+   */
+  coverCanvasWithVisibleVideoFrame(canvasWidth, canvasHeight) {
+    const { visibleFrame } = MENU_START_TRANSITION.video;
+    const sourceWidth = this.video.video?.videoWidth || 1440;
+    const sourceHeight = this.video.video?.videoHeight || 960;
+    const scale = Math.max(
+      canvasWidth / visibleFrame.width,
+      canvasHeight / visibleFrame.height,
+    );
+    const visibleCenterX = visibleFrame.x + visibleFrame.width / 2;
+    const visibleCenterY = visibleFrame.y + visibleFrame.height / 2;
+    const offsetX = (visibleCenterX - sourceWidth / 2) * scale;
+    const offsetY = (visibleCenterY - sourceHeight / 2) * scale;
+
+    this.video
+      .setPosition(canvasWidth / 2 - offsetX, canvasHeight / 2 - offsetY)
+      .setDisplaySize(sourceWidth * scale, sourceHeight * scale);
   }
 
   /**

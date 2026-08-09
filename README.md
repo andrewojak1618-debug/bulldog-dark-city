@@ -161,7 +161,7 @@ Bereits im spielbaren Prototyp umgesetzt:
 - Hundefänger, mutierte Katzen, Drohnen und eine Roboterkatze
 - Nahkampf, Lebenssystem, Trefferreaktionen und Gegnerbelohnungen
 - Intro- und Game-over-Videosequenzen
-- Musik und situationsabhängige Soundeffekte
+- Musik, situationsabhängige Soundeffekte und globales Mute-System
 - Übergänge zwischen mehreren Levels
 
 Noch in Entwicklung oder geplant:
@@ -188,7 +188,8 @@ Das Projekt wird mit modernen Webtechnologien entwickelt.
 - **HTML und CSS:** semantische Seitenhülle und responsive Canvas-Einbettung
 - **Szenenübergreifender Spielzustand:** Leben und Sammelobjekte werden beim
   Levelwechsel übernommen
-- **LocalStorage:** für dauerhafte Einstellungen und Spielstände geplant
+- **LocalStorage:** speichert den globalen Mute-Zustand dauerhaft; weitere
+  Spielstände sind geplant
 - **Vite:** lokaler Entwicklungsserver und Produktions-Build
 - **Node-Test-Runner:** automatisierte Tests für zentrale Spiellogik
 
