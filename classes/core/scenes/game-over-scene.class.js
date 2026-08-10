@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { globalMuteSystem } from
   "../../systems/global-mute-system.class.js";
+import { setMuteButtonVisibility } from
+  "../controllers/mute-button-controller.class.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { GAME_OVER } from "../../../js/config/game-over-settings.js";
 
@@ -29,6 +31,7 @@ export class GameOverScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    setMuteButtonVisibility(false);
     const { width, height } = this.scale;
     const { video } = GAME_OVER;
     this.video = this.add

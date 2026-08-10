@@ -3,6 +3,8 @@ import { InputDeviceDetector } from
   "../../input/input-device-detector.class.js";
 import { globalMuteSystem } from
   "../../systems/global-mute-system.class.js";
+import { setMuteButtonVisibility } from
+  "./mute-button-controller.class.js";
 import { MENU_START_TRANSITION } from "../../../js/config/menu-transition-settings.js";
 
 /**
@@ -24,11 +26,16 @@ export class MenuIntroController {
    */
   play(onComplete) {
     this.finishIntro = this.createFinishHandler(onComplete);
-    this.createVideo();
+    this.prepare();
     this.bindVideoEvents();
     this.animateMenuExit();
     this.scheduleSkip();
     this.startVideo();
+  }
+
+  /** Erstellt das Video frühzeitig, damit der Browser es puffern kann. */
+  prepare() {
+    if (!this.video) this.createVideo();
   }
 
   /**
@@ -275,6 +282,7 @@ export class MenuIntroController {
    * @returns {void}
    */
   animateMenuExit() {
+    setMuteButtonVisibility(false);
     const { leftObjects, rightObjects } = this.getExitGroups();
     const interfaceObjects = [
       ...leftObjects,

@@ -19,8 +19,8 @@
 
 .mute-toggle {
   position: absolute;
-  top: 20px;
-  right: 14px;
+  top: 70px;
+  right: 22px;
   z-index: 900;
   display: grid;
   place-items: center;
@@ -35,6 +35,15 @@
   box-shadow: 0 0 5px rgb(231 45 175 / 32%);
   cursor: pointer;
   touch-action: manipulation;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.mute-toggle--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
 }
 
 .mute-toggle:hover,

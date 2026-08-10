@@ -25,6 +25,8 @@ import { LevelTwoCaptureSystem } from
   "../../systems/level-two-capture-system.class.js";
 import { LevelTwoGameplaySystem } from
   "../../systems/level-two-gameplay-system.class.js";
+import { LevelTwoPreloadSystem } from
+  "../../systems/level-two-preload-system.class.js";
 import { LevelExitSystem } from "../../systems/level-exit-system.class.js";
 import { BackgroundMusicSystem } from
   "../../systems/background-music-system.class.js";
@@ -66,18 +68,9 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   preload() {
-    BulldogAnimationSystem.load(this);
-    LevelTwoEnvironmentSystem.load(this);
-    LevelTwoDroneSystem.load(this);
-    LevelTwoRocketSystem.load(this);
-    LevelTwoObstacleSystem.load(this);
-    LevelHudSystem.load(this);
-    LevelItemSystem.load(this);
-    MutantCatSystem.load(this);
-    MutantCatRewardSystem.load(this);
-    DogCatcherSystem.load(this);
-    LevelExitSystem.load(this);
-    BackgroundMusicSystem.load(this, LEVEL_MUSIC.levelTwo);
+    if (!LevelTwoPreloadSystem.isReady(this)) {
+      LevelTwoPreloadSystem.queue(this);
+    }
   }
 
   /**

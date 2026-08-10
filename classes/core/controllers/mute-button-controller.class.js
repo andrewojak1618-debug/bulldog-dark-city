@@ -1,3 +1,14 @@
+let activeMuteButtonController = null;
+
+/**
+ * Blendet den globalen Mute-Button bei Szenen- und Videowechseln ein oder aus.
+ * @param {boolean} isVisible - Gewünschte Sichtbarkeit des Buttons.
+ * @returns {void}
+ */
+export function setMuteButtonVisibility(isVisible) {
+  activeMuteButtonController?.setVisible(isVisible);
+}
+
 /** Steuert den globalen, barrierearmen Mute-Button außerhalb des Canvas. */
 export class MuteButtonController {
   /**
@@ -15,6 +26,7 @@ export class MuteButtonController {
   ) {
     this.muteSystem = muteSystem;
     this.button = button;
+    activeMuteButtonController = this;
     this.handleClick = () => this.muteSystem.toggle();
     this.button?.addEventListener("click", this.handleClick);
     this.unsubscribe = this.muteSystem.onChange((muted) =>
@@ -36,5 +48,19 @@ export class MuteButtonController {
     this.button.setAttribute("aria-label", actionLabel);
     this.button.setAttribute("aria-pressed", String(muted));
     this.button.title = actionLabel;
+  }
+
+  /**
+   * Schaltet Sichtbarkeit und Bedienbarkeit gemeinsam um.
+   * @param {boolean} isVisible - Ob der Button angezeigt werden soll.
+   * @returns {void}
+   */
+  setVisible(isVisible) {
+    if (!this.button) return;
+    const isHidden = !isVisible;
+    this.button.classList.toggle("mute-toggle--hidden", isHidden);
+    this.button.disabled = isHidden;
+    this.button.setAttribute("aria-hidden", String(isHidden));
+    if (isHidden) this.button.blur();
   }
 }

@@ -1,6 +1,9 @@
 import { MenuDialog } from "../../ui/menu-dialog.class.js";
+import { OptionsDialog } from "../../ui/options-dialog.class.js";
 import { globalMuteSystem } from
   "../../systems/global-mute-system.class.js";
+import { LevelOnePreloadSystem } from
+  "../../systems/level-one-preload-system.class.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 
 /**
@@ -13,7 +16,7 @@ export class MenuNavigationController {
    * @param {import(
    * "../../input/menu-input-controller.class.js"
    * ).MenuInputController} menuInput - Zentrale Eingabesteuerung.
-   * @param {Function|null} [onDialogClosed=null] - Aktion nach dem Schließen eines Dialogs.
+   * @param {(() => void)|null} [onDialogClosed=null] - Aktion nach dem Schließen eines Dialogs.
    */
   constructor(scene, menuInput, onDialogClosed = null) {
     this.scene = scene;
@@ -46,26 +49,30 @@ export class MenuNavigationController {
     this.isTransitioning = true;
     this.menuInput.setEnabled(false);
 
-    this.scene.playStartSequence(() =>
-      this.scene.scene.start(SCENES.levelOne),
-    );
+    this.scene.playStartSequence(() => {
+      LevelOnePreloadSystem.enterWhenReady(
+        this.scene,
+        this.scene.levelOneAssetsReady,
+        () => this.scene.scene.start(SCENES.levelOne),
+      );
+    });
   }
 
-  /**
-   * Öffnet einen vorbereiteten Optionsdialog.
-   * @returns {void}
-   */
+  /** Öffnet Spielerklärung, Tastenbelegung und Toneinstellung. */
   openOptionsDialog() {
-    const isMuted = globalMuteSystem.isMuted();
-    this.openDialog({
-      title: "OPTIONEN",
-      message: isMuted
-        ? "Der globale Ton ist AUS. Diese Einstellung bleibt nach einem Neustart gespeichert."
-        : "Der globale Ton ist AN. Diese Einstellung bleibt nach einem Neustart gespeichert.",
-      confirmLabel: isMuted ? "TON AN" : "TON AUS",
-      cancelLabel: "ZURÜCK",
-      onConfirm: () => globalMuteSystem.toggle(),
+    if (this.activeDialog || this.isTransitioning) return;
+    this.menuInput.setEnabled(false);
+    this.activeDialog = new OptionsDialog(this.scene, {
+      muteSystem: globalMuteSystem,
+      onClose: () => this.restoreMenu(),
     });
+  }
+
+  /** Reaktiviert die Menüsteuerung nach einem geschlossenen Dialog. */
+  restoreMenu() {
+    this.activeDialog = null;
+    this.menuInput.setEnabled(true);
+    this.onDialogClosed?.();
   }
 
   /**
@@ -124,23 +131,22 @@ export class MenuNavigationController {
   openDialog(options) {
     if (this.activeDialog || this.isTransitioning) return;
     this.menuInput.setEnabled(false);
-    const restoreMenu = () => {
-      this.activeDialog = null;
-      this.menuInput.setEnabled(true);
-      this.onDialogClosed?.();
-    };
-    const originalConfirm = options.onConfirm;
-    const originalCancel = options.onCancel;
     this.activeDialog = new MenuDialog(this.scene, {
       ...options,
-      onConfirm: () => {
-        restoreMenu();
-        originalConfirm?.();
-      },
-      onCancel: () => {
-        restoreMenu();
-        originalCancel?.();
-      },
+      onConfirm: this.createDialogHandler(options.onConfirm),
+      onCancel: this.createDialogHandler(options.onCancel),
     });
+  }
+
+  /**
+   * Reaktiviert zuerst das Menü und führt danach die Dialogaktion aus.
+   * @param {(() => void)|undefined} callback - Optionale Folgeaktion.
+   * @returns {() => void} Einheitlicher Dialog-Handler.
+   */
+  createDialogHandler(callback) {
+    return () => {
+      this.restoreMenu();
+      callback?.();
+    };
   }
 }

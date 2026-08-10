@@ -6,6 +6,10 @@ import { MenuInputHint } from "../../ui/menu-input-hint.class.js";
 import { MenuInputController } from "../../input/menu-input-controller.class.js";
 import { MenuNavigationController } from "../controllers/menu-navigation-controller.class.js";
 import { MenuIntroController } from "../controllers/menu-intro-controller.class.js";
+import { setMuteButtonVisibility } from
+  "../controllers/mute-button-controller.class.js";
+import { LevelOnePreloadSystem } from
+  "../../systems/level-one-preload-system.class.js";
 import { getAssetPath } from "../../../js/config/asset-paths.js";
 import { MENU_BUTTONS } from "../../../js/config/menu-buttons.js";
 import { QUICK_ACTIONS } from "../../../js/config/quick-actions.js";
@@ -71,6 +75,7 @@ export class MenuScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    setMuteButtonVisibility(true);
     this.createBackground();
     this.createLogo();
     this.createVersionInfo();
@@ -80,6 +85,8 @@ export class MenuScene extends Phaser.Scene {
     this.createQuickActions();
     this.createSocialMedia();
     this.introController = new MenuIntroController(this);
+    this.introController.prepare();
+    this.levelOneAssetsReady = LevelOnePreloadSystem.preload(this);
   }
 
   /**

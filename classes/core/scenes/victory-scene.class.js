@@ -4,6 +4,8 @@ import { InputDeviceDetector } from
   "../../input/input-device-detector.class.js";
 import { globalMuteSystem } from
   "../../systems/global-mute-system.class.js";
+import { setMuteButtonVisibility } from
+  "../controllers/mute-button-controller.class.js";
 import { ENDING } from "../../../js/config/ending-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 
@@ -28,6 +30,7 @@ export class VictoryScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    setMuteButtonVisibility(false);
     const { width, height } = this.scale;
     const { video, depths } = ENDING;
     this.cameras.main.setBackgroundColor("#000000");

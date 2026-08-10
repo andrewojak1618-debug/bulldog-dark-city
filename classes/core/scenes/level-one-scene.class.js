@@ -15,6 +15,12 @@ import { BackgroundMusicSystem } from
 import { LevelEnvironmentSystem } from "../../systems/level-environment-system.class.js";
 import { LevelOnePlatformSystem } from
   "../../systems/level-one-platform-system.class.js";
+import { LevelOnePreloadSystem } from
+  "../../systems/level-one-preload-system.class.js";
+import { LevelTwoPreloadSystem } from
+  "../../systems/level-two-preload-system.class.js";
+import { setMuteButtonVisibility } from
+  "../controllers/mute-button-controller.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
 import {
   BULLDOG_EVENTS,
@@ -48,14 +54,9 @@ export class LevelOneScene extends Phaser.Scene {
    * @returns {void}
    */
   preload() {
-    BulldogAnimationSystem.load(this);
-    DogCatcherSystem.load(this);
-    LevelHudSystem.load(this);
-    LevelItemSystem.load(this);
-    LevelExitSystem.load(this);
-    BackgroundMusicSystem.load(this, LEVEL_MUSIC.opening);
-    LevelEnvironmentSystem.load(this);
-    LevelOnePlatformSystem.load(this);
+    if (!LevelOnePreloadSystem.isReady(this)) {
+      LevelOnePreloadSystem.queue(this);
+    }
   }
 
   /**
@@ -63,6 +64,7 @@ export class LevelOneScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    setMuteButtonVisibility(true);
     this.configureWorld();
     LevelEnvironmentSystem.create(this);
     this.platforms = LevelOnePlatformSystem.create(this);
@@ -89,6 +91,7 @@ export class LevelOneScene extends Phaser.Scene {
     );
     this.createMovementInfoPopup();
     this.bindSceneControls();
+    this.levelTwoAssetsReady = LevelTwoPreloadSystem.preloadAfterEntry(this);
     this.cameras.main.fadeIn(TEST_LEVEL.sceneFadeInMs, 0, 0, 0);
   }
 
@@ -208,6 +211,20 @@ export class LevelOneScene extends Phaser.Scene {
     this.isLevelCompleting = true;
     const playerState = this.createPlayerStateSnapshot();
     this.backgroundMusic.stop();
+    LevelTwoPreloadSystem.enterWhenReady(
+      this,
+      this.levelTwoAssetsReady,
+      () => this.startLevelTwo(playerState),
+    );
+  }
+
+  /**
+   * Startet das vollständig vorgeladene zweite Level.
+   * @param {{health: number, collectibles: Record<string, number>}}
+   * playerState - Zu übernehmender Spielerzustand.
+   * @returns {void}
+   */
+  startLevelTwo(playerState) {
     this.scene.start(SCENES.levelTwo, {
       playerState,
       enterFromPreviousLevel: true,

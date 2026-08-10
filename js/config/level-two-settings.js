@@ -4,6 +4,7 @@ import { getAssetPath } from "./asset-paths.js";
  * Zentrale Darstellungseinstellungen des zweiten Levels.
  */
 export const LEVEL_TWO = Object.freeze({
+  preloadDelayMs: 1_200,
   world: Object.freeze({
     width: 2400,
     height: 600,
