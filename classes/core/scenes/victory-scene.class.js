@@ -8,6 +8,8 @@ import { setMuteButtonVisibility } from
   "../controllers/mute-button-controller.class.js";
 import { ENDING } from "../../../js/config/ending-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
+import { ENDSCREEN_RESULT } from
+  "../../../js/config/game-endscreen-settings.js";
 
 /** Spielt nach dem besiegten Endgegner die abschließende Videosequenz ab. */
 export class VictoryScene extends Phaser.Scene {
@@ -36,6 +38,7 @@ export class VictoryScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor("#000000");
     this.isFinished = false;
     this.isSkipping = false;
+    this.isFallbackVisible = false;
     this.isVideoSized = false;
     this.video = this.add.video(width / 2, height / 2, video.key)
       .setDepth(depths.video)
@@ -157,14 +160,17 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Beendet die Endsequenz genau einmal und kehrt zum Hauptmenü zurück.
+   * Beendet die Endsequenz genau einmal und öffnet den gemeinsamen Endscreen.
    * @returns {void}
    */
   finish() {
     if (this.isFinished) return;
     this.isFinished = true;
     this.cleanup();
-    this.scene.start(SCENES.menu);
+    this.sound.stopAll();
+    this.scene.start(SCENES.endscreen, {
+      result: ENDSCREEN_RESULT.victory,
+    });
   }
 
   /**
@@ -172,12 +178,11 @@ export class VictoryScene extends Phaser.Scene {
    * @returns {void}
    */
   showFallback() {
-    if (this.isFinished) return;
+    if (this.isFinished || this.isFallbackVisible) return;
     const { width, height } = this.scale;
     const { fallback } = ENDING;
-    this.disableSkip();
-    this.video?.destroy();
-    this.video = null;
+    this.isFallbackVisible = true;
+    this.cleanup();
     this.add.text(width / 2, height / 2, fallback.text, {
       fontFamily: fallback.fontFamily,
       fontSize: `${fallback.fontSize}px`,

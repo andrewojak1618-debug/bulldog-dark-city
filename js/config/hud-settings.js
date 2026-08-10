@@ -5,6 +5,15 @@ import { getAssetPath } from "./asset-paths.js";
  */
 export const HUD = Object.freeze({
   depth: 200,
+  levelMenuHint: Object.freeze({
+    x: 360,
+    y: 24,
+    textTemplate: "LEVEL {level} · ESC · ZURÜCK ZUM MENÜ",
+    color: "#d7d2dc",
+    fontFamily: "Arial",
+    fontSize: "14px",
+    depth: 100,
+  }),
   health: Object.freeze({
     maximum: 100,
     x: 14,

@@ -46,6 +46,12 @@
   transform: translateY(-4px);
 }
 
+.mute-toggle--game {
+  top: calc(10.4167% - 27px);
+  right: 1.9444%;
+  left: auto;
+}
+
 .mute-toggle:hover,
 .mute-toggle:focus-visible,
 .mute-toggle[aria-pressed="true"] {

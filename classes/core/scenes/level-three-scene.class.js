@@ -20,6 +20,9 @@ import { LevelItemSystem } from "../../systems/level-item-system.class.js";
 import { HealthSystem } from "../../systems/health-system.class.js";
 import { BossPhaseHealthBar } from
   "../../ui/boss-phase-health-bar.class.js";
+import { LevelMenuHint } from "../../ui/level-menu-hint.class.js";
+import { setMuteButtonGameMode } from
+  "../controllers/mute-button-controller.class.js";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_EVENTS,
@@ -71,6 +74,7 @@ export class LevelThreeScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    setMuteButtonGameMode(true);
     this.configureWorld();
     LevelThreeEnvironmentSystem.create(this);
     this.createGroundCollision();
@@ -100,7 +104,7 @@ export class LevelThreeScene extends Phaser.Scene {
       this.throwBoneSystem.inventory,
     );
     this.configureCamera();
-    this.createMenuHint();
+    this.menuHint = new LevelMenuHint(this, 3);
     this.bindSceneControls();
     this.bindVictoryTransition();
   }
@@ -306,19 +310,6 @@ export class LevelThreeScene extends Phaser.Scene {
     this.player.setVelocityX(0);
     this.isEnteringLevel = false;
     return true;
-  }
-
-  /**
-   * Zeigt den vorläufigen Level-3-Testhinweis kamerafest an.
-   * @returns {Phaser.GameObjects.Text} Erstellter Menühinweis.
-   */
-  createMenuHint() {
-    const hint = LEVEL_THREE.menuHint;
-    return this.add.text(hint.x, hint.y, hint.text, {
-      color: hint.color,
-      fontFamily: hint.fontFamily,
-      fontSize: hint.fontSize,
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(hint.depth);
   }
 
   /**

@@ -31,15 +31,6 @@ export const LEVEL_TWO = Object.freeze({
     attackFrameDurationMs: 700,
     depth: 12,
   }),
-  menuHint: Object.freeze({
-    x: 360,
-    y: 24,
-    text: "ESC · ZURÜCK ZUM MENÜ",
-    color: "#d7d2dc",
-    fontFamily: "Arial",
-    fontSize: "14px",
-    depth: 100,
-  }),
   background: Object.freeze({
     key: "dark-city-level-two-background-green-main-01",
     path: getAssetPath(

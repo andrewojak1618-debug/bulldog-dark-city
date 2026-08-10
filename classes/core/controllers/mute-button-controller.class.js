@@ -9,6 +9,15 @@ export function setMuteButtonVisibility(isVisible) {
   activeMuteButtonController?.setVisible(isVisible);
 }
 
+/**
+ * Wechselt zwischen der Menü- und Spielposition des globalen Mute-Buttons.
+ * @param {boolean} isGameMode - Ob die Position oberhalb des HUDs aktiv ist.
+ * @returns {void}
+ */
+export function setMuteButtonGameMode(isGameMode) {
+  activeMuteButtonController?.setGameMode(isGameMode);
+}
+
 /** Steuert den globalen, barrierearmen Mute-Button außerhalb des Canvas. */
 export class MuteButtonController {
   /**
@@ -62,5 +71,14 @@ export class MuteButtonController {
     this.button.disabled = isHidden;
     this.button.setAttribute("aria-hidden", String(isHidden));
     if (isHidden) this.button.blur();
+  }
+
+  /**
+   * Positioniert den Button passend zum Menü oder zum Level-HUD.
+   * @param {boolean} isGameMode - Ob die Spielposition verwendet wird.
+   * @returns {void}
+   */
+  setGameMode(isGameMode) {
+    this.button?.classList.toggle("mute-toggle--game", isGameMode);
   }
 }

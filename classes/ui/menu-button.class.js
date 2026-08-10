@@ -18,6 +18,7 @@ import { getTornButtonPoints } from "../../js/utils/menu-button-shape.js";
  * @property {{x: number, y: number, width: number,
  * height: number}|null} [iconCrop=null] - Sichtbarer Bildausschnitt.
  * @property {number} [iconOffsetY=0] - Vertikale optische Korrektur des Symbols.
+ * @property {boolean} [centerLabel=false] - Zentriert Text ohne Symbol.
  * @property {Function|null} [onActivate=null] - Aktion bei erfolgreicher Aktivierung.
  * @property {Function|null} [onFocus=null] - Aktion bei Maus- oder Touchfokus.
  * @property {boolean} [selected=false] - Anfänglicher Auswahlzustand.
@@ -38,6 +39,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
     this.buttonWidth = options.width;
     this.buttonHeight = options.height;
     this.iconOffsetY = options.iconOffsetY ?? 0;
+    this.centerLabel = options.centerLabel ?? false;
     this.onActivate = options.onActivate ?? null;
     this.onFocus = options.onFocus ?? null;
     this.setInitialState(options);
@@ -150,6 +152,12 @@ export class MenuButton extends Phaser.GameObjects.Container {
    * @returns {void}
    */
   layoutContent() {
+    if (this.centerLabel && !this.icon) {
+      this.label.setOrigin(0.5);
+      this.label.setX(0);
+      return;
+    }
+
     const left = -this.buttonWidth / 2 + MENU_BUTTON_CONTENT.horizontalPadding;
     this.label.setX(this.getLabelPosition(left));
 

@@ -6,7 +6,7 @@ import { MenuInputHint } from "../../ui/menu-input-hint.class.js";
 import { MenuInputController } from "../../input/menu-input-controller.class.js";
 import { MenuNavigationController } from "../controllers/menu-navigation-controller.class.js";
 import { MenuIntroController } from "../controllers/menu-intro-controller.class.js";
-import { setMuteButtonVisibility } from
+import { setMuteButtonGameMode, setMuteButtonVisibility } from
   "../controllers/mute-button-controller.class.js";
 import { LevelOnePreloadSystem } from
   "../../systems/level-one-preload-system.class.js";
@@ -75,6 +75,7 @@ export class MenuScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    setMuteButtonGameMode(false);
     setMuteButtonVisibility(true);
     this.createBackground();
     this.createLogo();

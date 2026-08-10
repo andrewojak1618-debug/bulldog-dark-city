@@ -5,6 +5,8 @@ import { setMuteButtonVisibility } from
   "../controllers/mute-button-controller.class.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { GAME_OVER } from "../../../js/config/game-over-settings.js";
+import { ENDSCREEN_RESULT } from
+  "../../../js/config/game-endscreen-settings.js";
 
 /**
  * Spielt nach der K.-o.-Animation die Game-over-Sequenz ab.
@@ -40,22 +42,41 @@ export class GameOverScene extends Phaser.Scene {
       .setMute(globalMuteSystem.isMuted())
       .setVolume(video.volume);
     this.unregisterVideoMute = globalMuteSystem.registerVideo(this.video);
+    this.isFinished = false;
+    this.isFallbackVisible = false;
     this.isVideoSized = false;
     this.video.once("created", () => this.sizeAndRevealVideo());
     this.video.once("playing", () => this.sizeAndRevealVideo());
-    this.video.once("complete", () => this.returnToMenu());
+    this.video.once("complete", () => this.finish());
     this.video.once("error", () => this.showFallback());
     this.events.once("shutdown", () => this.cleanup());
-    this.video.play(false);
+    this.startVideo();
   }
 
   /**
-   * Kehrt nach dem letzten Videoframe zum Hauptmenü zurück.
+   * Startet die Wiedergabe und nutzt bei einem Fehler den Ersatzabschluss.
    * @returns {void}
    */
-  returnToMenu() {
+  startVideo() {
+    try {
+      this.video.play(false);
+    } catch {
+      this.showFallback();
+    }
+  }
+
+  /**
+   * Beendet die Sequenz genau einmal und öffnet den gemeinsamen Endscreen.
+   * @returns {void}
+   */
+  finish() {
+    if (this.isFinished) return;
+    this.isFinished = true;
     this.cleanup();
-    this.scene.start(SCENES.menu);
+    this.sound.stopAll();
+    this.scene.start(SCENES.endscreen, {
+      result: ENDSCREEN_RESULT.gameOver,
+    });
   }
 
   /**
@@ -63,7 +84,7 @@ export class GameOverScene extends Phaser.Scene {
    * @returns {void}
    */
   sizeAndRevealVideo() {
-    if (this.isVideoSized) return;
+    if (this.isVideoSized || !this.video) return;
     const { width, height } = this.scale;
     this.isVideoSized = true;
     this.video.setDisplaySize(width, height).setAlpha(1);
@@ -74,8 +95,10 @@ export class GameOverScene extends Phaser.Scene {
    * @returns {void}
    */
   showFallback() {
+    if (this.isFinished || this.isFallbackVisible) return;
     const { width, height } = this.scale;
     const { fallback } = GAME_OVER;
+    this.isFallbackVisible = true;
     this.cleanup();
     this.cameras.main.setBackgroundColor("#050309");
     this.add
@@ -85,6 +108,10 @@ export class GameOverScene extends Phaser.Scene {
         color: fallback.color,
       })
       .setOrigin(0.5);
+    this.fallbackTimer = this.time.delayedCall(
+      fallback.returnDelayMs,
+      () => this.finish(),
+    );
   }
 
   /**
@@ -92,6 +119,8 @@ export class GameOverScene extends Phaser.Scene {
    * @returns {void}
    */
   cleanup() {
+    this.fallbackTimer?.remove(false);
+    this.fallbackTimer = null;
     this.unregisterVideoMute?.();
     this.unregisterVideoMute = null;
     if (this.video) {

@@ -7,6 +7,8 @@ import { LevelThreeScene } from
   "../../classes/core/scenes/level-three-scene.class.js";
 import { GameOverScene } from "../../classes/core/scenes/game-over-scene.class.js";
 import { VictoryScene } from "../../classes/core/scenes/victory-scene.class.js";
+import { GameEndscreenScene } from
+  "../../classes/core/scenes/game-endscreen-scene.class.js";
 import { GAME_DIMENSIONS } from "./game-settings.js";
 
 export const GAME_CONFIG = {
@@ -35,5 +37,6 @@ export const GAME_CONFIG = {
     LevelThreeScene,
     GameOverScene,
     VictoryScene,
+    GameEndscreenScene,
   ],
 };

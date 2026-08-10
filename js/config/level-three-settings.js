@@ -158,13 +158,4 @@ export const LEVEL_THREE = Object.freeze({
     groundSnapInsetY: 1,
     groundingVelocityY: 1,
   }),
-  menuHint: Object.freeze({
-    x: 112,
-    y: 24,
-    text: "LEVEL 3 · ESC · ZURÜCK ZUM MENÜ",
-    color: "#d7d2dc",
-    fontFamily: "Arial",
-    fontSize: "14px",
-    depth: 100,
-  }),
 });

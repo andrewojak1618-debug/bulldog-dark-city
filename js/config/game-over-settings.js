@@ -16,5 +16,6 @@ export const GAME_OVER = Object.freeze({
     fontFamily: "Permanent Marker",
     fontSize: 44,
     color: "#ff1493",
+    returnDelayMs: 1_800,
   }),
 });

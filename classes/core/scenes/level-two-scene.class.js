@@ -27,9 +27,12 @@ import { LevelTwoGameplaySystem } from
   "../../systems/level-two-gameplay-system.class.js";
 import { LevelTwoPreloadSystem } from
   "../../systems/level-two-preload-system.class.js";
+import { setMuteButtonGameMode } from
+  "../controllers/mute-button-controller.class.js";
 import { LevelExitSystem } from "../../systems/level-exit-system.class.js";
 import { BackgroundMusicSystem } from
   "../../systems/background-music-system.class.js";
+import { LevelMenuHint } from "../../ui/level-menu-hint.class.js";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_EVENTS,
@@ -78,10 +81,11 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    setMuteButtonGameMode(true);
     this.createWorldContent();
     this.createGameplayActors();
     this.createGameplayServices();
-    this.createMenuHint();
+    this.menuHint = new LevelMenuHint(this, 2);
     this.bindSceneControls();
   }
 
@@ -310,19 +314,6 @@ export class LevelTwoScene extends Phaser.Scene {
       PLAYER_CAMERA.deadzoneWidth,
       PLAYER_CAMERA.deadzoneHeight,
     );
-  }
-
-  /**
-   * Zeigt den vorläufigen Hinweis zum Verlassen der Testszene.
-   * @returns {Phaser.GameObjects.Text} Erstellter Menühinweis.
-   */
-  createMenuHint() {
-    const hint = LEVEL_TWO.menuHint;
-    return this.add.text(hint.x, hint.y, hint.text, {
-      color: hint.color,
-      fontFamily: hint.fontFamily,
-      fontSize: hint.fontSize,
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(hint.depth);
   }
 
   /**

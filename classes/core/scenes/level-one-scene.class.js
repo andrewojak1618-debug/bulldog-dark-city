@@ -19,7 +19,8 @@ import { LevelOnePreloadSystem } from
   "../../systems/level-one-preload-system.class.js";
 import { LevelTwoPreloadSystem } from
   "../../systems/level-two-preload-system.class.js";
-import { setMuteButtonVisibility } from
+import { LevelMenuHint } from "../../ui/level-menu-hint.class.js";
+import { setMuteButtonGameMode, setMuteButtonVisibility } from
   "../controllers/mute-button-controller.class.js";
 import { TEST_LEVEL } from "../../../js/config/test-level-settings.js";
 import {
@@ -64,6 +65,7 @@ export class LevelOneScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    setMuteButtonGameMode(true);
     setMuteButtonVisibility(true);
     this.configureWorld();
     LevelEnvironmentSystem.create(this);
@@ -83,6 +85,7 @@ export class LevelOneScene extends Phaser.Scene {
     this.healthSystem = hud.health;
     this.collectibleSystem = hud.collectibles;
     this.mutationSystem = hud.mutation;
+    this.menuHint = new LevelMenuHint(this, 1);
     LevelItemSystem.create(
       this,
       this.player,
