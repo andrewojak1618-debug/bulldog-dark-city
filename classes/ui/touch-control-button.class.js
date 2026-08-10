@@ -16,6 +16,7 @@ export class TouchControlButton extends Phaser.GameObjects.Container {
     this.onStateChange = onStateChange;
     this.isPressed = false;
     this.isEnabled = true;
+    this.isControlVisible = true;
     this.background = scene.add.graphics();
     this.label = this.createLabel(scene);
     this.add([this.background, this.label]);
@@ -85,7 +86,24 @@ export class TouchControlButton extends Phaser.GameObjects.Container {
   setControlEnabled(enabled) {
     if (!enabled) this.release();
     this.isEnabled = enabled;
+    if (this.input) {
+      this.input.enabled = enabled && this.isControlVisible;
+    }
     this.draw();
+  }
+
+  /**
+   * Blendet den Button ein oder aus und sperrt unsichtbare Trefferflächen.
+   * @param {boolean} visible - Ob der Touchbutton verwendet werden darf.
+   * @returns {void}
+   */
+  setControlVisible(visible) {
+    if (!visible) this.release();
+    this.isControlVisible = visible;
+    this.setVisible(visible);
+    if (this.input) {
+      this.input.enabled = visible && this.isEnabled;
+    }
   }
 
   /**

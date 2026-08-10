@@ -1,6 +1,6 @@
 /** Erkennt zentral, ob die Oberfläche für Touch oder Desktop aufgebaut wird. */
 export class InputDeviceDetector {
-  /** Ab dieser Breite wird unabhängig von Touch das Desktoplayout genutzt. */
+  /** Ab dieser Breite wird verbindlich das Desktoplayout verwendet. */
   static desktopMinWidth = 1024;
 
   /**
@@ -8,11 +8,11 @@ export class InputDeviceDetector {
    * @returns {boolean} Ob die mobile Touchoberfläche verwendet werden soll.
    */
   static isTouchLayout() {
-    if (window.innerWidth >= this.desktopMinWidth) return false;
     const hasPrimaryTouch = window.matchMedia(
       "(pointer: coarse) and (hover: none)",
     ).matches;
     if (hasPrimaryTouch) return true;
+    if (window.innerWidth >= this.desktopMinWidth) return false;
     return this.isLocalTouchTest();
   }
 

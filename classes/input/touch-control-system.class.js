@@ -10,15 +10,14 @@ import { InputDeviceDetector } from
 /** Erstellt und verwaltet die mobile Steuerung einer Gameplay-Szene. */
 export class TouchControlSystem {
   /**
-   * Erstellt Touchbuttons nur auf Touchgeräten oder im lokalen Debugmodus.
+   * Erstellt eine responsive Steuerung, die sich dem Gerätetyp anpasst.
    * @param {Phaser.Scene} scene - Aktive Gameplay-Szene.
    * @param {import("./input-system.class.js").InputSystem} input - Eingaben.
    * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Spielfigur.
    * @param {{showThrowControls?: boolean}} [options={}] - Leveloptionen.
-   * @returns {TouchControlSystem|null} Steuerung oder null auf Desktop.
+   * @returns {TouchControlSystem} Responsive Steuerung der Gameplay-Szene.
    */
   static create(scene, input, player, options = {}) {
-    if (!this.isSupported()) return null;
     return new TouchControlSystem(scene, input, player, options);
   }
 
@@ -41,7 +40,14 @@ export class TouchControlSystem {
     this.scene = scene;
     this.input = input;
     this.player = player;
+    this.isDisabled = false;
+    this.isTouchLayoutVisible = false;
+    this.throwAvailability = new Map();
     this.releaseControls = () => this.releaseAll();
+    this.handleViewportChange = () => {
+      this.releaseAll();
+      this.updateLayoutVisibility();
+    };
     this.preventContextMenu = (event) => event.preventDefault();
     const controls = this.getVisibleControls(options.showThrowControls);
     this.buttons = controls.map((settings) =>
@@ -49,6 +55,7 @@ export class TouchControlSystem {
         input.setTouchAction(action, isPressed)),
     );
     this.hideEmptyThrowControls();
+    this.updateLayoutVisibility();
     this.bindLifecycle();
   }
 
@@ -70,8 +77,9 @@ export class TouchControlSystem {
   hideEmptyThrowControls() {
     this.buttons.filter((button) => button.settings.throwControl)
       .forEach((button) => {
+        this.throwAvailability.set(button.settings.action, false);
         button.setControlEnabled(false);
-        button.setVisible(false);
+        button.setControlVisible(false);
       });
   }
 
@@ -102,8 +110,27 @@ export class TouchControlSystem {
     );
     if (!button) return;
     const isAvailable = count > 0;
+    this.throwAvailability.set(action, isAvailable);
     button.setControlEnabled(isAvailable);
-    button.setVisible(isAvailable);
+    button.setControlVisible(
+      this.isTouchLayoutVisible && !this.isDisabled && isAvailable,
+    );
+  }
+
+  /**
+   * Synchronisiert alle Buttons mit Mobil-, Tablet- oder Desktoplayout.
+   * @returns {void}
+   */
+  updateLayoutVisibility() {
+    this.isTouchLayoutVisible = TouchControlSystem.isSupported();
+    this.buttons.forEach((button) => {
+      const isThrowControl = Boolean(button.settings.throwControl);
+      const isAvailable = !isThrowControl ||
+        this.throwAvailability.get(button.settings.action) === true;
+      button.setControlVisible(
+        this.isTouchLayoutVisible && !this.isDisabled && isAvailable,
+      );
+    });
   }
 
   /**
@@ -113,7 +140,12 @@ export class TouchControlSystem {
   bindLifecycle() {
     this.player.once(BULLDOG_EVENTS.knockedOut, () => this.disable());
     window.addEventListener("blur", this.releaseControls);
-    window.addEventListener("orientationchange", this.releaseControls);
+    window.addEventListener("resize", this.handleViewportChange);
+    window.addEventListener("orientationchange", this.handleViewportChange);
+    window.visualViewport?.addEventListener(
+      "resize",
+      this.handleViewportChange,
+    );
     document.addEventListener("visibilitychange", this.releaseControls);
     this.scene.game.canvas.addEventListener(
       "contextmenu",
@@ -136,8 +168,9 @@ export class TouchControlSystem {
    * @returns {void}
    */
   disable() {
+    this.isDisabled = true;
     this.buttons.forEach((button) => button.setControlEnabled(false));
-    this.buttons.forEach((button) => button.setVisible(false));
+    this.buttons.forEach((button) => button.setControlVisible(false));
     this.input.clearTouchState();
   }
 
@@ -150,7 +183,15 @@ export class TouchControlSystem {
     this.throwInventoryUnsubscribe?.();
     this.throwInventoryUnsubscribe = null;
     window.removeEventListener("blur", this.releaseControls);
-    window.removeEventListener("orientationchange", this.releaseControls);
+    window.removeEventListener("resize", this.handleViewportChange);
+    window.removeEventListener(
+      "orientationchange",
+      this.handleViewportChange,
+    );
+    window.visualViewport?.removeEventListener(
+      "resize",
+      this.handleViewportChange,
+    );
     document.removeEventListener("visibilitychange", this.releaseControls);
     this.scene.game.canvas.removeEventListener(
       "contextmenu",

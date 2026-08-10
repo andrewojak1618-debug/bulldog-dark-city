@@ -61,8 +61,53 @@ test("1024 Pixel breite Laptopansicht ignoriert den Touch-Testschalter", () => {
   }
 });
 
-test("1024 Pixel bleiben auch bei emuliertem Touch im Desktoplayout", () => {
+test("iPad Mini erhält bei 1024 Pixeln die Touchsteuerung", () => {
   withWindowStub({
     "(pointer: coarse) and (hover: none)": true,
-  }, () => assert.equal(InputDeviceDetector.isTouchLayout(), false), 1024);
+  }, () => assert.equal(InputDeviceDetector.isTouchLayout(), true), 1024);
+});
+
+test("lokaler Touch-Test bleibt bei 1024 Pixeln im Desktoplayout", () => {
+  const previousWindow = globalThis.window;
+  const previousDebugCheck = InputDeviceDetector.isLocalTouchTest;
+  globalThis.window = {
+    innerWidth: 1024,
+    matchMedia: (query) => ({
+      matches: query === "(orientation: landscape)",
+    }),
+  };
+  InputDeviceDetector.isLocalTouchTest = () => true;
+  try {
+    assert.equal(InputDeviceDetector.isTouchLayout(), false);
+  } finally {
+    InputDeviceDetector.isLocalTouchTest = previousDebugCheck;
+    globalThis.window = previousWindow;
+  }
+});
+
+test("Touchgerät unterhalb von 1024 Pixeln erhält Steuerungsbuttons", () => {
+  withWindowStub({
+    "(pointer: coarse) and (hover: none)": true,
+  }, () => assert.equal(InputDeviceDetector.isTouchLayout(), true), 1023);
+});
+
+test("große Desktopanzeige bleibt ohne primären Touch im Desktoplayout", () => {
+  withWindowStub({
+    "(pointer: coarse) and (hover: none)": false,
+  }, () => assert.equal(InputDeviceDetector.isTouchLayout(), false), 2560);
+});
+
+[
+  ["iPad Air", 1180],
+  ["iPad Pro", 1366],
+  ["Surface Pro 7", 1368],
+  ["Asus Zenbook", 1280],
+  ["Nest Hub", 1024],
+  ["Nest Hub Max", 1280],
+].forEach(([device, width]) => {
+  test(`${device} erhält bei primärem Touch die Mobilansicht`, () => {
+    withWindowStub({
+      "(pointer: coarse) and (hover: none)": true,
+    }, () => assert.equal(InputDeviceDetector.isTouchLayout(), true), width);
+  });
 });
