@@ -330,7 +330,7 @@ export class LevelThreeScene extends Phaser.Scene {
    */
   update(time, delta) {
     if (this.isVictoryStarting) return;
-    RobotCatSystem.update(this.robotCat, delta);
+    RobotCatSystem.update(this.robotCat, delta, this.player);
     if (this.updateLevelEntry()) return;
     this.mutationSystem?.update(this.inputSystem);
     this.player?.updateMovement(this.inputSystem, time);

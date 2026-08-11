@@ -66,6 +66,7 @@ export class RobotCatSystem {
       movementState: ROBOT_CAT_STATES.walking,
       stateElapsed: 0,
       activeObstacleX: null,
+      lastObstacleId: null,
       lastObstacleX: null,
     };
     robotCat.setDataEnabled();
@@ -110,9 +111,10 @@ export class RobotCatSystem {
    * Leitet die Aktualisierung an den aktiven Bewegungszustand weiter.
    * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
    * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
+   * @param {Phaser.Physics.Arcade.Sprite|null} [player=null] - Bulldogge.
    * @returns {void}
    */
-  static update(robotCat, delta) {
+  static update(robotCat, delta, player = null) {
     if (
       !robotCat?.active ||
       robotCat.getData("isHitReacting") ||
@@ -122,21 +124,26 @@ export class RobotCatSystem {
     if (state === ROBOT_CAT_STATES.takingOff) return this.updateTakeoff(robotCat, delta);
     if (state === ROBOT_CAT_STATES.flying) return this.updateFlight(robotCat, delta);
     if (state === ROBOT_CAT_STATES.landing) return this.updateLanding(robotCat, delta);
-    this.updateWalking(robotCat, delta);
+    this.updateWalking(robotCat, delta, player);
   }
 
   /**
    * Bewegt die Roboterkatze am Boden und startet vor Boxen den Überflug.
    * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
    * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
+   * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
    * @returns {void}
    */
-  static updateWalking(robotCat, delta) {
+  static updateWalking(robotCat, delta, player) {
     const movement = this.getGroundMovement(robotCat, delta);
     this.applyGroundMovement(robotCat, movement);
     this.resetPassedObstacle(robotCat);
-    const obstacleX = this.findObstacleAhead(robotCat, movement.direction);
-    if (obstacleX !== null) return this.beginTakeoff(robotCat, obstacleX);
+    const obstacle = this.findObstacleAhead(
+      robotCat,
+      movement.direction,
+      player,
+    );
+    if (obstacle) return this.beginTakeoff(robotCat, obstacle);
     this.syncCollision(robotCat);
   }
 
@@ -166,30 +173,73 @@ export class RobotCatSystem {
   }
 
   /**
-   * Findet eine noch nicht überflogene Box unmittelbar vor der Figur.
+   * Findet das nächste noch nicht überflogene Hindernis vor der Figur.
    * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
    * @param {number} direction - Aktuelle Bewegungsrichtung (-1 oder 1).
-   * @returns {number|null} X-Position der Box oder null.
+   * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
+   * @returns {{id: string, x: number}|null} Hindernis oder null.
    */
-  static findObstacleAhead(robotCat, direction) {
-    const lastObstacleX = robotCat.getData("lastObstacleX");
-    return ROBOT_CAT.flightObstaclesX.find((obstacleX) => {
-      if (obstacleX === lastObstacleX) return false;
-      const distance = (obstacleX - robotCat.x) * direction;
-      return distance >= 0 && distance <= ROBOT_CAT.obstacleTriggerDistance;
-    }) ?? null;
+  static findObstacleAhead(robotCat, direction, player = null) {
+    const lastObstacleId = robotCat.getData("lastObstacleId");
+    const candidates = this.getFlightObstacles(robotCat, player)
+      .filter(({ id }) => id !== lastObstacleId)
+      .map((obstacle) => ({
+        ...obstacle,
+        distance: (obstacle.x - robotCat.x) * direction,
+      }))
+      .filter(({ distance }) =>
+        distance >= 0 && distance <= ROBOT_CAT.obstacleTriggerDistance
+      )
+      .sort((first, second) => first.distance - second.distance);
+    const obstacle = candidates[0];
+    return obstacle ? { id: obstacle.id, x: obstacle.x } : null;
+  }
+
+  /**
+   * Verbindet statische Boxen mit der Bulldogge als dynamischem Hindernis.
+   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
+   * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
+   * @returns {{id: string, x: number}[]} Aktuell relevante Hindernisse.
+   */
+  static getFlightObstacles(robotCat, player) {
+    const obstacles = ROBOT_CAT.flightObstaclesX.map((x, index) => ({
+      id: `box-${index}`,
+      x,
+    }));
+    if (this.isPlayerGroundObstacle(robotCat, player)) {
+      obstacles.push({ id: ROBOT_CAT.playerObstacleId, x: player.x });
+    }
+    return obstacles;
+  }
+
+  /**
+   * Berücksichtigt die Bulldogge nur aktiv und auf der gemeinsamen Laufebene.
+   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
+   * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
+   * @returns {boolean} Ob die Roboterkatze die Bulldogge überfliegen soll.
+   */
+  static isPlayerGroundObstacle(robotCat, player) {
+    if (
+      !player?.active ||
+      !player.body?.enable ||
+      player.isKnockedOut
+    ) return false;
+    const groundY = robotCat.getData("groundY");
+    return Math.abs(player.body.bottom - groundY) <=
+      ROBOT_CAT.playerObstacleGroundTolerance;
   }
 
   /**
    * Startet die Abhebephase und deaktiviert die bodennahe Blockierfläche.
    * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} obstacleX - X-Position des zu überfliegenden Hindernisses.
+   * @param {{id: string, x: number}} obstacle - Aktives Hindernis.
    * @returns {void}
    */
-  static beginTakeoff(robotCat, obstacleX) {
+  static beginTakeoff(robotCat, obstacle) {
     this.setMovementState(robotCat, ROBOT_CAT_STATES.takingOff);
-    robotCat.setData("activeObstacleX", obstacleX);
-    robotCat.setData("lastObstacleX", obstacleX);
+    robotCat.setData("activeObstacleX", obstacle.x);
+    robotCat.setData("lastObstacleId", obstacle.id);
+    robotCat.setData("lastObstacleX", obstacle.x);
     robotCat.play(ROBOT_CAT_FLIGHT_TEXTURE.takeoffAnimationKey, true)
       .setDisplaySize(ROBOT_CAT.flightDisplaySize, ROBOT_CAT.flightDisplaySize);
     this.setCollisionEnabled(robotCat, false);
@@ -348,6 +398,7 @@ export class RobotCatSystem {
     if (obstacleX === null) return;
     const distance = Math.abs(robotCat.x - obstacleX);
     if (distance > ROBOT_CAT.obstacleResetDistance) {
+      robotCat.setData("lastObstacleId", null);
       robotCat.setData("lastObstacleX", null);
     }
   }

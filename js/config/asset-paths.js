@@ -17,4 +17,4 @@ export const ASSET_PATHS = Object.freeze({
  * @returns {string} Vollständiger öffentlicher Assetpfad.
  */
 export const getAssetPath = (group, fileName) =>
-  `${import.meta.env.BASE_URL}${ASSET_PATHS[group]}/${fileName}`;
+  `${import.meta.env?.BASE_URL ?? "/"}${ASSET_PATHS[group]}/${fileName}`;
