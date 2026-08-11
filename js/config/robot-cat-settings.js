@@ -71,6 +71,7 @@ export const ROBOT_CAT = Object.freeze({
   obstacleClearDistance: 125,
   obstacleResetDistance: 260,
   playerObstacleId: "bulldog",
+  playerObstacleTriggerDistance: 126,
   playerObstacleGroundTolerance: 18,
   flightObstaclesX: Object.freeze([500, 1_650]),
   groundOffsetY: 1,

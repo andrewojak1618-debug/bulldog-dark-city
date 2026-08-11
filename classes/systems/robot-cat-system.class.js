@@ -187,8 +187,8 @@ export class RobotCatSystem {
         ...obstacle,
         distance: (obstacle.x - robotCat.x) * direction,
       }))
-      .filter(({ distance }) =>
-        distance >= 0 && distance <= ROBOT_CAT.obstacleTriggerDistance
+      .filter(({ distance, triggerDistance }) =>
+        distance >= 0 && distance <= triggerDistance
       )
       .sort((first, second) => first.distance - second.distance);
     const obstacle = candidates[0];
@@ -199,15 +199,21 @@ export class RobotCatSystem {
    * Verbindet statische Boxen mit der Bulldogge als dynamischem Hindernis.
    * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
    * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
-   * @returns {{id: string, x: number}[]} Aktuell relevante Hindernisse.
+   * @returns {{id: string, x: number, triggerDistance: number}[]}
+   * Aktuell relevante Hindernisse.
    */
   static getFlightObstacles(robotCat, player) {
     const obstacles = ROBOT_CAT.flightObstaclesX.map((x, index) => ({
       id: `box-${index}`,
       x,
+      triggerDistance: ROBOT_CAT.obstacleTriggerDistance,
     }));
     if (this.isPlayerGroundObstacle(robotCat, player)) {
-      obstacles.push({ id: ROBOT_CAT.playerObstacleId, x: player.x });
+      obstacles.push({
+        id: ROBOT_CAT.playerObstacleId,
+        x: player.x,
+        triggerDistance: ROBOT_CAT.playerObstacleTriggerDistance,
+      });
     }
     return obstacles;
   }

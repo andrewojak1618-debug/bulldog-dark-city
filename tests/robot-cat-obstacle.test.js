@@ -41,6 +41,16 @@ test("Roboterkatze erkennt die Bulldogge vor sich als Hindernis", () => {
   );
 });
 
+test("Bulldogge wird zwanzig Prozent früher als eine Box erkannt", () => {
+  const robotCat = createRobotCat({ x: 1_000 });
+  const player = createPlayer({ x: 875 });
+
+  assert.deepEqual(
+    RobotCatSystem.findObstacleAhead(robotCat, -1, player),
+    { id: ROBOT_CAT.playerObstacleId, x: player.x },
+  );
+});
+
 test("Roboterkatze ignoriert eine Bulldogge oberhalb der Laufebene", () => {
   const robotCat = createRobotCat();
   const airbornePlayer = createPlayer({ bottom: 300 });
