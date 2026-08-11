@@ -3,6 +3,7 @@ import { THROW_BONES } from "../../js/config/throw-bone-settings.js";
 import { RobotCatCombatSystem } from "./robot-cat-combat-system.class.js";
 import { ThrowBoneInventory } from "./throw-bone-inventory.class.js";
 import { ThrowBoneHud } from "../ui/throw-bone-hud.class.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /** Lädt, sammelt und wirft die beiden Knochenarten in Level drei. */
 export class ThrowBoneSystem {
@@ -13,10 +14,7 @@ export class ThrowBoneSystem {
    */
   static load(scene) {
     Object.values(THROW_BONES.types).forEach((type) => {
-      scene.load.spritesheet(type.key, type.path, {
-        frameWidth: type.frameWidth,
-        frameHeight: type.frameHeight,
-      });
+      AssetLoaderSystem.loadSpritesheet(scene, type);
     });
   }
 

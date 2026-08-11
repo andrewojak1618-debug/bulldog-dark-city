@@ -5,6 +5,8 @@ import { globalMuteSystem } from
   "../../systems/global-mute-system.class.js";
 import { setMuteButtonVisibility } from
   "./mute-button-controller.class.js";
+import { setMenuSocialLinkVisibility } from
+  "./menu-social-link-controller.js";
 import { MENU_START_TRANSITION } from "../../../js/config/menu-transition-settings.js";
 
 /**
@@ -119,7 +121,7 @@ export class MenuIntroController {
       this.skipHandler = (event) => this.handleSkip(event);
       keyboard.on("keydown-SPACE", this.skipHandler);
     }
-    if (this.isTouchDevice()) {
+    if (InputDeviceDetector.isTouchLayout()) {
       this.touchSkipHandler = () => this.handleTouchSkip();
       this.scene.input.on("pointerdown", this.touchSkipHandler);
     }
@@ -132,7 +134,7 @@ export class MenuIntroController {
   createSkipHint() {
     const { width, height } = this.scene.scale;
     const { skip, depths, videoReveal } = MENU_START_TRANSITION;
-    const hintStyle = this.isTouchDevice() ? {
+    const hintStyle = InputDeviceDetector.isTouchLayout() ? {
       ...skip,
       hint: skip.touchHint,
       actionHint: skip.touchActionHint,
@@ -171,14 +173,6 @@ export class MenuIntroController {
   handleTouchSkip() {
     if (this.isSkipping) return;
     this.skip();
-  }
-
-  /**
-   * Erkennt Geräte, deren primäre oder zusätzliche Eingabe Touch ist.
-   * @returns {boolean} Ob der mobile Skip-Hinweis verwendet werden soll.
-   */
-  isTouchDevice() {
-    return InputDeviceDetector.isTouchLayout();
   }
 
   /**
@@ -283,6 +277,7 @@ export class MenuIntroController {
    */
   animateMenuExit() {
     setMuteButtonVisibility(false);
+    setMenuSocialLinkVisibility(false);
     const { leftObjects, rightObjects } = this.getExitGroups();
     const interfaceObjects = [
       ...leftObjects,
@@ -309,8 +304,6 @@ export class MenuIntroController {
       ],
       rightObjects: [
         ...this.scene.quickActionButtons,
-        this.scene.socialMediaHeading,
-        ...this.scene.socialMediaButtons,
       ],
     };
   }

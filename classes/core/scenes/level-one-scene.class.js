@@ -7,6 +7,8 @@ import { BulldogAnimationSystem } from "../../systems/bulldog-animation-system.c
 import { DogCatcherAnimationSystem } from
   "../../systems/dog-catcher-animation-system.class.js";
 import { DogCatcherSystem } from "../../systems/dog-catcher-system.class.js";
+import { EnemyHealthBarSystem } from
+  "../../systems/enemy-health-bar-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
 import { LevelItemSystem } from "../../systems/level-item-system.class.js";
 import { LevelExitSystem } from "../../systems/level-exit-system.class.js";
@@ -28,7 +30,6 @@ import {
   BULLDOG_TEXTURES,
 } from "../../../js/config/bulldog-animation-settings.js";
 import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
-import { LEVEL_EXIT } from "../../../js/config/level-exit-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { PLAYER_CAMERA } from
   "../../../js/config/player-camera-settings.js";
@@ -67,19 +68,46 @@ export class LevelOneScene extends Phaser.Scene {
   create() {
     setMuteButtonGameMode(true);
     setMuteButtonVisibility(true);
+    this.createLevelWorld();
+    this.createLevelGameplay();
+    this.createLevelInterface();
+    this.prepareLevelTransition();
+    LevelOnePreloadSystem.completeEntry(this);
+  }
+
+  /**
+   * Erstellt Weltgrenzen, Umgebung, Plattformen und Animationen.
+   * @returns {void}
+   */
+  createLevelWorld() {
     this.configureWorld();
     LevelEnvironmentSystem.create(this);
     this.platforms = LevelOnePlatformSystem.create(this);
     BulldogAnimationSystem.register(this);
     DogCatcherAnimationSystem.register(this);
+  }
+
+  /**
+   * Erstellt Spieler, Gegner, Musik und freischaltbaren Ausgang.
+   * @returns {void}
+   */
+  createLevelGameplay() {
     this.createPlayer();
     this.createBackgroundMusic();
     this.dogCatchers = DogCatcherSystem.create(this, this.platforms);
+    EnemyHealthBarSystem.attachDogCatchers(this, this.dogCatchers);
     this.levelExit = LevelExitSystem.create(this);
     DogCatcherSystem.onceDefeated(
       this.dogCatchers,
       () => this.levelExit.unlock(),
     );
+  }
+
+  /**
+   * Erstellt Kamera, HUD, Sammelobjekte und Bedienhinweise.
+   * @returns {void}
+   */
+  createLevelInterface() {
     this.configureCamera();
     const hud = LevelHudSystem.create(this, {}, this.player);
     this.healthSystem = hud.health;
@@ -94,6 +122,13 @@ export class LevelOneScene extends Phaser.Scene {
     );
     this.createMovementInfoPopup();
     this.bindSceneControls();
+  }
+
+  /**
+   * Lädt Level zwei vor und blendet den ersten Leveldurchlauf ein.
+   * @returns {void}
+   */
+  prepareLevelTransition() {
     this.levelTwoAssetsReady = LevelTwoPreloadSystem.preloadAfterEntry(this);
     this.cameras.main.fadeIn(TEST_LEVEL.sceneFadeInMs, 0, 0, 0);
   }

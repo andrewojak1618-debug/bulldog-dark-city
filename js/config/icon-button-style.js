@@ -5,6 +5,14 @@ export const ICON_BUTTON_STYLE = Object.freeze({
   borderRadius: 6,
   strokeWidth: 1,
   disabledAlpha: 0.45,
+  unavailable: Object.freeze({
+    fontFamily: "Arial",
+    fontSize: 8,
+    color: "#ff2cb8",
+    backgroundColor: "rgba(5, 6, 10, 0.88)",
+    paddingX: 2,
+    paddingY: 1,
+  }),
   normal: Object.freeze({
     fillColor: 0x08060d,
     fillAlpha: 0.78,

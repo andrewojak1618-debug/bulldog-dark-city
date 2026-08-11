@@ -1,4 +1,5 @@
 import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
  * Lädt und erzeugt die Hindernisse des zweiten Levels.
@@ -21,10 +22,7 @@ export class LevelTwoObstacleSystem {
    * @returns {void}
    */
   static loadSpritesheet(scene, settings) {
-    scene.load.spritesheet(settings.key, settings.path, {
-      frameWidth: settings.frameWidth,
-      frameHeight: settings.frameHeight,
-    });
+    AssetLoaderSystem.loadSpritesheet(scene, settings);
   }
 
   /**

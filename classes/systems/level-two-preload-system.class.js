@@ -43,7 +43,7 @@ export class LevelTwoPreloadSystem {
   /**
    * Startet das Hintergrundladen nach der ruhigen Level-Einstiegsphase.
    * @param {Phaser.Scene} scene - Aktives Level 1.
-   * @returns {Promise<void>} Abschluss des Hintergrundladens.
+   * @returns {Promise<boolean>} Erfolgsstatus des Hintergrundladens.
    */
   static preloadAfterEntry(scene) {
     return new Promise((resolve) => {
@@ -56,7 +56,7 @@ export class LevelTwoPreloadSystem {
   /**
    * Startet das Hintergrundladen genau einmal pro Spielsitzung.
    * @param {Phaser.Scene} scene - Aktive Szene.
-   * @returns {Promise<void>} Abschluss des Hintergrundladens.
+   * @returns {Promise<boolean>} Erfolgsstatus des Hintergrundladens.
    */
   static preload(scene) {
     return LevelPreloadSystem.preload(scene, {
@@ -69,7 +69,7 @@ export class LevelTwoPreloadSystem {
   /**
    * Wartet bei Bedarf sichtbar auf das Ziellevel und wechselt dann weiter.
    * @param {Phaser.Scene} scene - Aktives Level 1.
-   * @param {Promise<void>} readyPromise - Laufender Ladevorgang.
+   * @param {Promise<boolean>} readyPromise - Laufender Ladevorgang.
    * @param {() => void} onReady - Wechsel in Level 2.
    * @returns {void}
    */
@@ -86,5 +86,14 @@ export class LevelTwoPreloadSystem {
    */
   static isReady(scene) {
     return LevelPreloadSystem.isReady(scene, READY_KEY);
+  }
+
+  /**
+   * Entfernt die Ladeanzeige erst nach dem ersten sichtbaren Level-2-Frame.
+   * @param {Phaser.Scene} scene - Vollstaendig aufgebaute Level-2-Szene.
+   * @returns {void}
+   */
+  static completeEntry(scene) {
+    LevelPreloadSystem.hideLoadingOverlayAfterRender(scene);
   }
 }

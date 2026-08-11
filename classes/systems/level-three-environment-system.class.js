@@ -1,4 +1,5 @@
 import { LEVEL_THREE } from "../../js/config/level-three-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /** Lädt und erstellt die gestaffelten Umgebungsebenen des dritten Levels. */
 export class LevelThreeEnvironmentSystem {
@@ -9,22 +10,9 @@ export class LevelThreeEnvironmentSystem {
    */
   static load(scene) {
     const background = LEVEL_THREE.background;
-    scene.load.image(background.key, background.path);
+    AssetLoaderSystem.loadImage(scene, background);
     this.getParallaxLayers().forEach((layer) => {
-      this.loadParallaxLayer(scene, layer);
-    });
-  }
-
-  /**
-   * Lädt eine konfigurierte Parallax-Ebene als Spritesheet.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {object} layer - Konfiguration der Umgebungsebene.
-   * @returns {void}
-   */
-  static loadParallaxLayer(scene, layer) {
-    scene.load.spritesheet(layer.key, layer.path, {
-      frameWidth: layer.frameWidth,
-      frameHeight: layer.frameHeight,
+      AssetLoaderSystem.loadSpritesheet(scene, layer);
     });
   }
 

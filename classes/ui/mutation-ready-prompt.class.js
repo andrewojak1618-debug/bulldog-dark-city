@@ -23,9 +23,13 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
     this.bindCollectibles(collectibles);
   }
 
-  /** Erstellt Tastenkappe und erklärende Beschriftung. */
+  /**
+   * Erstellt Tastenkappe und erklärende Beschriftung.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @returns {Phaser.GameObjects.GameObject[]} Elemente des Hinweises.
+   */
   createContent(scene) {
-    if (this.isTouchMode()) {
+    if (InputDeviceDetector.isTouchLayout()) {
       return [
         scene.add.text(
           0,
@@ -44,14 +48,10 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erkennt Handy, Tablet und den lokalen Touch-Testmodus.
-   * @returns {boolean} Ob die mobile Mutationsanweisung sichtbar sein soll.
+   * Zeichnet eine kompakte Tastenkappe mit leichtem Schatten.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @returns {Phaser.GameObjects.Graphics} Erzeugte Tastenkappe.
    */
-  isTouchMode() {
-    return InputDeviceDetector.isTouchLayout();
-  }
-
-  /** Zeichnet eine kompakte Tastenkappe mit leichtem Schatten. */
   createKeyCap(scene) {
     const { keyWidth, keyHeight } = this.settings;
     return scene.add.graphics()
@@ -63,7 +63,11 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
       .strokeRoundedRect(0, 0, keyWidth, keyHeight, 4);
   }
 
-  /** Reagiert auf den Serumstand und entfernt den Listener beim Zerstören. */
+  /**
+   * Reagiert auf den Serumstand und entfernt den Listener beim Zerstören.
+   * @param {import("../systems/collectible-system.class.js").CollectibleSystem} collectibles - Sammelstände.
+   * @returns {void}
+   */
   bindCollectibles(collectibles) {
     const update = (key, count) => {
       if (key === COLLECTIBLE_KEYS.serum) this.setReady(count);
@@ -76,7 +80,11 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
     });
   }
 
-  /** Schaltet die Anzeige abhängig vom vollständigen Serumstand. */
+  /**
+   * Schaltet die Anzeige abhängig vom vollständigen Serumstand.
+   * @param {number} count - Aktuell gesammelte Serum-Items.
+   * @returns {void}
+   */
   setReady(count) {
     const isReady = count >= HUD.serum.fill.maximum;
     this.isReady = isReady;

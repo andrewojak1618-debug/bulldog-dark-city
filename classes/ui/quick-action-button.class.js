@@ -16,6 +16,8 @@ import { drawIconButtonBackground } from "../../js/utils/icon-button-background.
  * [iconDisplaySize=null] - Optionale feste Anzeigegröße.
  * @property {number} [iconOffsetY=0] - Vertikale optische Korrektur.
  * @property {Function|null} [onActivate=null] - Aktion beim Anklicken.
+ * @property {boolean} [disabled=false] - Sperrt eine unfertige Aktion.
+ * @property {string|null} [unavailableLabel=null] - Sichtbarer Sperrhinweis.
  */
 
 /**
@@ -32,14 +34,40 @@ export class QuickActionButton extends Phaser.GameObjects.Container {
     this.buttonWidth = options.width;
     this.buttonHeight = options.height;
     this.onActivate = options.onActivate ?? null;
+    this.isDisabled = options.disabled ?? false;
     this.isPointerOver = false;
     this.background = scene.add.graphics();
     this.icon = this.createIcon(scene, options);
+    this.unavailableLabel = this.createUnavailableLabel(
+      scene,
+      options.unavailableLabel,
+    );
     this.add([this.background, this.icon]);
+    if (this.unavailableLabel) this.add(this.unavailableLabel);
     this.setSize(options.width, options.height);
     scene.add.existing(this);
     this.configureInteraction();
     this.renderState();
+  }
+
+  /**
+   * Erstellt eine eindeutige Kennzeichnung für gesperrte Schnellzugriffe.
+   * @param {Phaser.Scene} scene - Zugehörige Phaser-Szene.
+   * @param {string|null|undefined} label - Sichtbarer Sperrhinweis.
+   * @returns {Phaser.GameObjects.Text|null} Hinweis oder `null`.
+   */
+  createUnavailableLabel(scene, label) {
+    if (!this.isDisabled || !label) return null;
+    const style = ICON_BUTTON_STYLE.unavailable;
+    return scene.add
+      .text(0, 0, label, {
+        fontFamily: style.fontFamily,
+        fontSize: `${style.fontSize}px`,
+        color: style.color,
+        backgroundColor: style.backgroundColor,
+        padding: { x: style.paddingX, y: style.paddingY },
+      })
+      .setOrigin(0.5);
   }
 
   /**
@@ -58,24 +86,30 @@ export class QuickActionButton extends Phaser.GameObjects.Container {
       iconOffsetY = 0,
     },
   ) {
-    const maxDimension = Math.max(
-      iconCrop.width,
-      iconCrop.height,
+    const displaySize = this.getIconDisplaySize(
+      iconCrop,
+      iconSize,
+      iconDisplaySize,
     );
-    const scale = iconSize / maxDimension;
-    const displayWidth =
-      iconDisplaySize?.width ?? iconCrop.width * scale;
-    const displayHeight =
-      iconDisplaySize?.height ?? iconCrop.height * scale;
     return scene.add
       .image(0, iconOffsetY, iconKey)
-      .setCrop(
-        iconCrop.x,
-        iconCrop.y,
-        iconCrop.width,
-        iconCrop.height,
-      )
-      .setDisplaySize(displayWidth, displayHeight);
+      .setCrop(iconCrop.x, iconCrop.y, iconCrop.width, iconCrop.height)
+      .setDisplaySize(displaySize.width, displaySize.height);
+  }
+
+  /**
+   * Berechnet feste oder proportional skalierte Symbolmaße.
+   * @param {{width: number, height: number}} crop - Bildausschnitt.
+   * @param {number} maximumSize - Maximale Symbolgröße.
+   * @param {{width: number, height: number}|null|undefined} fixedSize - Feste Maße.
+   * @returns {{width: number, height: number}} Sichtbare Symbolmaße.
+   */
+  getIconDisplaySize(crop, maximumSize, fixedSize) {
+    const scale = maximumSize / Math.max(crop.width, crop.height);
+    return {
+      width: fixedSize?.width ?? crop.width * scale,
+      height: fixedSize?.height ?? crop.height * scale,
+    };
   }
 
   /**
@@ -83,6 +117,7 @@ export class QuickActionButton extends Phaser.GameObjects.Container {
    * @returns {void}
    */
   configureInteraction() {
+    if (this.isDisabled) return;
     this.setInteractive({ useHandCursor: true });
     this.on("pointerover", () => {
       this.isPointerOver = true;
@@ -100,7 +135,7 @@ export class QuickActionButton extends Phaser.GameObjects.Container {
    * @returns {void}
    */
   renderState() {
-    const style = this.isPointerOver
+    const style = !this.isDisabled && this.isPointerOver
       ? ICON_BUTTON_STYLE.hover
       : ICON_BUTTON_STYLE.normal;
     drawIconButtonBackground(
@@ -110,6 +145,11 @@ export class QuickActionButton extends Phaser.GameObjects.Container {
       style,
       ICON_BUTTON_STYLE,
     );
+    const contentAlpha = this.isDisabled
+      ? ICON_BUTTON_STYLE.disabledAlpha
+      : 1;
+    this.background.setAlpha(contentAlpha);
+    this.icon.setAlpha(contentAlpha);
     this.setScale(style.scale);
   }
 }

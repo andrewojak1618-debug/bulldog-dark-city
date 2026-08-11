@@ -1,0 +1,127 @@
+.legal-page {
+  display: block;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: auto;
+  padding: 24px;
+  color: #eee8f1;
+  font: 16px/1.6 Arial, sans-serif;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(93 20 92 / 30%), transparent 42%),
+    #10131a;
+}
+
+.legal-header,
+.legal-content,
+.legal-page-footer {
+  width: min(100%, 760px);
+  margin-inline: auto;
+}
+
+.legal-header {
+  margin-bottom: 20px;
+}
+
+.legal-content {
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid rgb(241 43 169 / 42%);
+  border-radius: 12px;
+  background: rgb(7 8 13 / 88%);
+  box-shadow: 0 0 28px rgb(194 34 157 / 16%);
+}
+
+.legal-content h1,
+.legal-content h2 {
+  margin-top: 0;
+  color: #ffffff;
+  font-family: "Permanent Marker", cursive;
+  line-height: 1.25;
+}
+
+.legal-content h1 {
+  margin-bottom: 12px;
+  color: #ff3aad;
+  font-size: clamp(32px, 7vw, 48px);
+}
+
+.legal-content h2 {
+  margin-bottom: 8px;
+  font-size: clamp(22px, 4.5vw, 28px);
+}
+
+.legal-content section {
+  padding-top: 24px;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  margin-top: 24px;
+}
+
+.legal-content p,
+.legal-content address {
+  margin: 0;
+}
+
+.legal-content p + p {
+  margin-top: 12px;
+}
+
+.legal-content address {
+  font-style: normal;
+}
+
+.legal-introduction {
+  color: #c8bdce;
+}
+
+.legal-content a,
+.legal-back-link {
+  border-radius: 4px;
+  color: #70ffae;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.legal-content a:hover,
+.legal-back-link:hover {
+  color: #ff4dba;
+}
+
+.legal-content a:focus-visible,
+.legal-back-link:focus-visible {
+  outline: 2px solid #70ffae;
+  outline-offset: 4px;
+  color: #ffffff;
+  background: rgb(112 255 174 / 12%);
+  box-shadow: 0 0 8px rgb(112 255 174 / 40%);
+}
+
+.legal-back-link {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 8px;
+  font-weight: 700;
+}
+
+.legal-content code {
+  padding: 2px 5px;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 0.95em;
+  overflow-wrap: anywhere;
+  background: rgb(255 58 173 / 16%);
+}
+
+.legal-page-footer {
+  padding-block: 20px 8px;
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .legal-page {
+    padding: 16px;
+  }
+
+  .legal-content {
+    padding: 24px 18px;
+  }
+}

@@ -1,3 +1,5 @@
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
+
 /**
  * Lädt, startet und beendet die Hintergrundmusik einer Spielszene.
  */
@@ -19,7 +21,7 @@ export class BackgroundMusicSystem {
    * @returns {void}
    */
   static load(scene, track) {
-    scene.load.audio(track.key, track.path);
+    AssetLoaderSystem.loadAudio(scene, track);
   }
 
   /**

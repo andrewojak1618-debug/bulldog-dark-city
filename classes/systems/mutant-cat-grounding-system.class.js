@@ -2,7 +2,12 @@
 export class MutantCatGroundingSystem {
   static groundBottoms = new WeakMap();
 
-  /** Registriert oder korrigiert den festen Bodenkontakt einer Katze. */
+  /**
+   * Registriert oder korrigiert den festen Bodenkontakt einer Katze.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat
+   * Zu stabilisierende Katze.
+   * @returns {void}
+   */
   static update(cat) {
     if (!cat?.body?.enable || cat.isDead) return;
     if (!this.groundBottoms.has(cat)) {
@@ -12,7 +17,12 @@ export class MutantCatGroundingSystem {
     this.restoreGroundContact(cat);
   }
 
-  /** Speichert die erste durch Arcade Physics bestätigte Bodenposition. */
+  /**
+   * Speichert die erste durch Arcade Physics bestätigte Bodenposition.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat
+   * Zu registrierende Katze.
+   * @returns {void}
+   */
   static registerGroundContact(cat) {
     if (!this.isGrounded(cat)) return;
     this.groundBottoms.set(cat, cat.body.bottom);
@@ -20,7 +30,12 @@ export class MutantCatGroundingSystem {
     cat.setVelocityY(0);
   }
 
-  /** Setzt eine abgewichene Physics-Unterkante auf die Laufebene zurück. */
+  /**
+   * Setzt eine abgewichene Physics-Unterkante auf die Laufebene zurück.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat
+   * Zu korrigierende Katze.
+   * @returns {void}
+   */
   static restoreGroundContact(cat) {
     const groundBottom = this.groundBottoms.get(cat);
     const correction = groundBottom - cat.body.bottom;
@@ -30,8 +45,28 @@ export class MutantCatGroundingSystem {
     cat.body.updateFromGameObject();
   }
 
-  /** Prüft den von Arcade Physics gemeldeten Bodenkontakt. */
+  /**
+   * Prüft den von Arcade Physics gemeldeten Bodenkontakt.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat
+   * Zu prüfende Katze.
+   * @returns {boolean} Ob die Katze den Boden berührt.
+   */
   static isGrounded(cat) {
     return cat.body.blocked.down || cat.body.touching.down;
+  }
+
+  /**
+   * Ändert die Darstellung, ohne die Physics-Bodenkante zu verschieben.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - Katze.
+   * @param {number} width - Gewünschte Darstellungsbreite.
+   * @param {number} height - Gewünschte Darstellungshöhe.
+   * @returns {void}
+   */
+  static resizeKeepingBodyBottom(cat, width, height) {
+    const bodyBottom = cat.body.bottom;
+    cat.setDisplaySize(width, height);
+    cat.body.updateFromGameObject();
+    cat.y += bodyBottom - cat.body.bottom;
+    cat.body.updateFromGameObject();
   }
 }

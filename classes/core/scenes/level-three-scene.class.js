@@ -1,8 +1,7 @@
 import Phaser from "phaser";
 import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
-import { TouchControlSystem } from
-  "../../input/touch-control-system.class.js";
+import { TouchControlSystem } from "../../input/touch-control-system.class.js";
 import { BulldogAnimationSystem } from
   "../../systems/bulldog-animation-system.class.js";
 import { LevelThreeEnvironmentSystem } from
@@ -10,16 +9,16 @@ import { LevelThreeEnvironmentSystem } from
 import { LevelThreeObstacleSystem } from
   "../../systems/level-three-obstacle-system.class.js";
 import { RobotCatSystem } from "../../systems/robot-cat-system.class.js";
-import { RobotCatCombatSystem } from
-  "../../systems/robot-cat-combat-system.class.js";
+import { RobotCatCombatSystem } from "../../systems/robot-cat-combat-system.class.js";
+import { RobotCatAttackSystem } from "../../systems/robot-cat-attack-system.class.js";
 import { ThrowBoneSystem } from "../../systems/throw-bone-system.class.js";
-import { BackgroundMusicSystem } from
-  "../../systems/background-music-system.class.js";
-import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
+import { BackgroundMusicSystem } from "../../systems/background-music-system.class.js";
+import { LevelSceneSystem } from "../../systems/level-scene-system.class.js";
+import { LevelThreePreloadSystem } from
+  "../../systems/level-three-preload-system.class.js";
 import { LevelItemSystem } from "../../systems/level-item-system.class.js";
 import { HealthSystem } from "../../systems/health-system.class.js";
-import { BossPhaseHealthBar } from
-  "../../ui/boss-phase-health-bar.class.js";
+import { BossPhaseHealthBar } from "../../ui/boss-phase-health-bar.class.js";
 import { LevelMenuHint } from "../../ui/level-menu-hint.class.js";
 import { setMuteButtonGameMode } from
   "../controllers/mute-button-controller.class.js";
@@ -34,8 +33,6 @@ import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
 import { ROBOT_CAT_COMBAT, ROBOT_CAT_DEAD_TEXTURE } from
   "../../../js/config/robot-cat-settings.js";
 import { ENDING } from "../../../js/config/ending-settings.js";
-import { PLAYER_CAMERA } from
-  "../../../js/config/player-camera-settings.js";
 
 /** Stellt das technische Grundgerüst des dritten Levels bereit. */
 export class LevelThreeScene extends Phaser.Scene {
@@ -50,8 +47,7 @@ export class LevelThreeScene extends Phaser.Scene {
    * @returns {void}
    */
   init(data = {}) {
-    this.initialPlayerState = data.playerState ?? {};
-    this.isEnteringLevel = Boolean(data.enterFromPreviousLevel);
+    LevelSceneSystem.initialize(this, data);
   }
 
   /**
@@ -59,14 +55,9 @@ export class LevelThreeScene extends Phaser.Scene {
    * @returns {void}
    */
   preload() {
-    BulldogAnimationSystem.load(this);
-    LevelThreeEnvironmentSystem.load(this);
-    LevelThreeObstacleSystem.load(this);
-    RobotCatSystem.load(this);
-    ThrowBoneSystem.load(this);
-    LevelHudSystem.load(this);
-    LevelItemSystem.load(this);
-    BackgroundMusicSystem.load(this, LEVEL_MUSIC.levelThree);
+    if (!LevelThreePreloadSystem.isReady(this)) {
+      LevelThreePreloadSystem.queue(this);
+    }
   }
 
   /**
@@ -75,6 +66,18 @@ export class LevelThreeScene extends Phaser.Scene {
    */
   create() {
     setMuteButtonGameMode(true);
+    this.createLevelWorld();
+    this.createBossGameplay();
+    this.createLevelInterface();
+    this.bindVictoryTransition();
+    LevelThreePreloadSystem.completeEntry(this);
+  }
+
+  /**
+   * Erstellt Welt, Umgebung, Boden und Hindernisse des Arena-Levels.
+   * @returns {void}
+   */
+  createLevelWorld() {
     this.configureWorld();
     LevelThreeEnvironmentSystem.create(this);
     this.createGroundCollision();
@@ -83,6 +86,13 @@ export class LevelThreeScene extends Phaser.Scene {
       this.platforms,
       this.getGroundSurfaceY(),
     );
+  }
+
+  /**
+   * Erstellt Boss, Spieler, HUD und sämtliche Kampfsysteme.
+   * @returns {void}
+   */
+  createBossGameplay() {
     this.robotCat = RobotCatSystem.create(
       this,
       this.getGroundSurfaceY(),
@@ -91,7 +101,21 @@ export class LevelThreeScene extends Phaser.Scene {
     BulldogAnimationSystem.register(this);
     this.createPlayer();
     this.createBackgroundMusic();
-    this.createHud();
+    LevelSceneSystem.createHud(this);
+    this.robotCatAttackSystem = RobotCatAttackSystem.create(
+      this,
+      this.robotCat,
+      this.player,
+      this.healthSystem,
+    );
+    this.createThrowBoneSystem();
+  }
+
+  /**
+   * Erstellt Wurfknochen-System und verbindet die Touchanzeige.
+   * @returns {void}
+   */
+  createThrowBoneSystem() {
     this.createItems();
     this.throwBoneSystem = ThrowBoneSystem.create(
       this,
@@ -103,10 +127,16 @@ export class LevelThreeScene extends Phaser.Scene {
     this.touchControls?.bindThrowInventory(
       this.throwBoneSystem.inventory,
     );
-    this.configureCamera();
+  }
+
+  /**
+   * Erstellt Kamera, Szenenhinweis und globale Bedienung.
+   * @returns {void}
+   */
+  createLevelInterface() {
+    LevelSceneSystem.configureCamera(this);
     this.menuHint = new LevelMenuHint(this, 3);
-    this.bindSceneControls();
-    this.bindVictoryTransition();
+    LevelSceneSystem.bindMenuShortcut(this);
   }
 
   /**
@@ -155,6 +185,16 @@ export class LevelThreeScene extends Phaser.Scene {
       spawn.startY,
       BULLDOG_TEXTURES.stand.key,
     );
+    this.createPlayerControls();
+    this.bindPlayerPhysics();
+    this.alignPlayerWithGround();
+  }
+
+  /**
+   * Erstellt Tastatur-, Maus- und optionale Touchsteuerung.
+   * @returns {void}
+   */
+  createPlayerControls() {
     this.inputSystem = new InputSystem(this);
     this.touchControls = TouchControlSystem.create(
       this,
@@ -162,6 +202,13 @@ export class LevelThreeScene extends Phaser.Scene {
       this.player,
       { showThrowControls: true },
     );
+  }
+
+  /**
+   * Verbindet Spieler, Boden, Bossblockade und K.-o.-Übergang.
+   * @returns {void}
+   */
+  bindPlayerPhysics() {
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(
       this.player,
@@ -173,7 +220,9 @@ export class LevelThreeScene extends Phaser.Scene {
         this.getGroundSurfaceY(),
       ),
     );
-    this.alignPlayerWithGround();
+    this.player.onceKnockOutComplete(() => {
+      this.scene.start(SCENES.gameOver);
+    });
   }
 
   /**
@@ -232,21 +281,6 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt HUD und Mutation mit den übernommenen Spielerwerten.
-   * @returns {void}
-   */
-  createHud() {
-    const hud = LevelHudSystem.create(
-      this,
-      this.initialPlayerState,
-      this.player,
-    );
-    this.healthSystem = hud.health;
-    this.collectibleSystem = hud.collectibles;
-    this.mutationSystem = hud.mutation;
-  }
-
-  /**
    * Erstellt das Bossleben und die dreiphasige Anzeige oben im Canvas.
    * @returns {void}
    */
@@ -281,23 +315,6 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Aktiviert dieselbe weiche Kameraführung und Deadzone wie zuvor.
-   * @returns {void}
-   */
-  configureCamera() {
-    this.cameras.main.startFollow(
-      this.player,
-      true,
-      PLAYER_CAMERA.lerpX,
-      PLAYER_CAMERA.lerpY,
-    );
-    this.cameras.main.setDeadzone(
-      PLAYER_CAMERA.deadzoneWidth,
-      PLAYER_CAMERA.deadzoneHeight,
-    );
-  }
-
-  /**
    * Lässt die Bulldogge automatisch vom linken Rand ins Level laufen.
    * @returns {boolean} Ob die normale Steuerung in diesem Frame pausiert.
    */
@@ -313,16 +330,6 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Bindet die Rückkehr zum Hauptmenü an Escape.
-   * @returns {void}
-   */
-  bindSceneControls() {
-    this.input.keyboard?.once("keydown-ESC", () => {
-      this.scene.start(SCENES.menu);
-    });
-  }
-
-  /**
    * Aktualisiert Einlauf, Gegnerpatrouille, Mutation und Spielerbewegung.
    * @param {number} time - Vergangene Spielzeit in Millisekunden.
    * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
@@ -330,6 +337,7 @@ export class LevelThreeScene extends Phaser.Scene {
    */
   update(time, delta) {
     if (this.isVictoryStarting) return;
+    this.robotCatAttackSystem?.update(time, delta);
     RobotCatSystem.update(this.robotCat, delta, this.player);
     if (this.updateLevelEntry()) return;
     this.mutationSystem?.update(this.inputSystem);

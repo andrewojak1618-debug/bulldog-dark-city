@@ -67,10 +67,16 @@ export const LEVEL_ITEMS = Object.freeze({
         "objects/extra_life/pickup_splash/horizontal/spritesheet.png",
       ),
       soundKey: "item-extra-life-pickup-sound",
-      soundPath: getAssetPath(
-        "audio",
-        "sfx/items/health-heartbeat-pickup.ogg",
-      ),
+      soundPaths: Object.freeze([
+        getAssetPath(
+          "audio",
+          "sfx/items/health-heartbeat-pickup.mp3",
+        ),
+        getAssetPath(
+          "audio",
+          "sfx/items/health-heartbeat-pickup.ogg",
+        ),
+      ]),
       soundVolume: 0.9,
       frameWidth: 128,
       frameHeight: 64,

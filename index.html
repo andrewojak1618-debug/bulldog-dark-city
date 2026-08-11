@@ -17,7 +17,33 @@
         aria-pressed="false"
         title="Alle Töne stummschalten"
       >🔊</button>
+      <a
+        id="github-profile-link"
+        class="github-profile-link github-profile-link--hidden"
+        href="https://github.com/andrewojak1618-debug"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub-Profil von Andre Wojak öffnen"
+        aria-hidden="true"
+        tabindex="-1"
+        title="GitHub-Profil öffnen"
+      >
+        <img
+          src="/img/ui/menu/social/github.png"
+          alt=""
+          aria-hidden="true"
+        />
+      </a>
     </main>
+    <section
+      id="level-loading-overlay"
+      class="level-loading-overlay"
+      aria-live="polite"
+      aria-hidden="true"
+    >
+      <span class="level-loading-overlay__spinner" aria-hidden="true"></span>
+      <p data-loading-message>LEVEL WIRD GELADEN ...</p>
+    </section>
     <section
       id="orientation-notice"
       class="orientation-notice"
@@ -28,6 +54,9 @@
       <h1>Bitte Gerät drehen</h1>
       <p>Bulldog: Dark City wird im Querformat gespielt.</p>
     </section>
+    <footer class="site-footer" aria-label="Rechtliche Navigation">
+      <a class="legal-navigation-link" href="./impressum.html">Impressum</a>
+    </footer>
     <script type="module" src="/script.js"></script>
   </body>
 </html>

@@ -2,6 +2,7 @@ import { LEVEL_EXIT } from "../../js/config/level-exit-settings.js";
 import {
   BULLDOG_ANIMATION_KEYS,
 } from "../../js/config/bulldog-animation-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
  * Steuert Sichtbarkeit und Laufübergang am rechten Ende von Level eins.
@@ -13,8 +14,13 @@ export class LevelExitSystem {
    * @returns {void}
    */
   static load(scene) {
-    scene.load.image(LEVEL_EXIT.postTextureKey, LEVEL_EXIT.postPath);
-    scene.load.spritesheet(LEVEL_EXIT.textureKey, LEVEL_EXIT.path, {
+    AssetLoaderSystem.loadImage(scene, {
+      key: LEVEL_EXIT.postTextureKey,
+      path: LEVEL_EXIT.postPath,
+    });
+    AssetLoaderSystem.loadSpritesheet(scene, {
+      key: LEVEL_EXIT.textureKey,
+      path: LEVEL_EXIT.path,
       frameWidth: LEVEL_EXIT.frameWidth,
       frameHeight: LEVEL_EXIT.frameHeight,
     });

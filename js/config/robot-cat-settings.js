@@ -56,7 +56,36 @@ export const ROBOT_CAT_DEAD_TEXTURE = Object.freeze({
   frameRate: 5,
 });
 
-/** Zentrale Darstellungswerte der vorerst passiven Roboterkatze. */
+/** Bodengebundene Angriffssequenz der Roboterkatze. */
+export const ROBOT_CAT_ATTACK_TEXTURE = Object.freeze({
+  key: "robot-cat-attack-side",
+  animationKey: "robot-cat-attack",
+  path: getAssetPath(
+    "sprites",
+    "enemies/robot_cat/attack/side/spritesheet.png",
+  ),
+  frameWidth: 512,
+  frameHeight: 512,
+  frameCount: 4,
+  frameRate: 6,
+  launchFrame: 2,
+});
+
+/** Animierter Klaueneffekt, der beim Bossangriff abgefeuert wird. */
+export const ROBOT_CAT_CLAWS_TEXTURE = Object.freeze({
+  key: "robot-cat-claws-attack-side",
+  animationKey: "robot-cat-claws-attack",
+  path: getAssetPath(
+    "sprites",
+    "effects/robot_cat_claws/attack/side/spritesheet.png",
+  ),
+  frameWidth: 512,
+  frameHeight: 512,
+  frameCount: 3,
+  frameRate: 8,
+});
+
+/** Zentrale Darstellungs- und Bewegungswerte der Roboterkatze. */
 export const ROBOT_CAT = Object.freeze({
   spawnX: 2_100,
   patrolMinX: 150,
@@ -67,6 +96,7 @@ export const ROBOT_CAT = Object.freeze({
   flightDisplaySize: 360,
   flightFrameRate: 6,
   takeoffDuration: 670,
+  thrustFadeBeforeGroundMs: 160,
   obstacleTriggerDistance: 105,
   obstacleClearDistance: 125,
   obstacleResetDistance: 260,
@@ -79,8 +109,27 @@ export const ROBOT_CAT = Object.freeze({
   displayHeight: 288,
   collisionWidth: 115,
   collisionHeight: 256,
+  groundCollisionTolerance: 12,
   walkFrameRate: 5,
   depth: 1,
+});
+
+/** Reichweite, Schaden und Projektilbewegung des Roboterkatzen-Angriffs. */
+export const ROBOT_CAT_ATTACK = Object.freeze({
+  triggerRangeX: 400,
+  triggerRangeY: 180,
+  initialDelayMs: 900,
+  cooldownMs: 2_600,
+  damage: 10,
+  projectileDistance: 400,
+  projectileSpeed: 320,
+  projectileDisplaySize: 128,
+  projectileHitboxInset: 26,
+  launchOffsetX: 72,
+  launchOffsetY: 150,
+  dissolveScale: 0.75,
+  dissolveDurationMs: 160,
+  depth: 3,
 });
 
 /** Trefferwerte der Roboterkatze und Reichweite der Bulldoggen-Attacken. */

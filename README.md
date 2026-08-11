@@ -52,61 +52,53 @@ Die Bulldogge besitzt zwei verschiedene Zustände.
 ### Normaler Modus
 
 - Fortbewegung auf vier Pfoten
-- Rennen
-- Springen
-- Beißen
-- Kratzen
-- Gegner anspringen
-- schneller und beweglicher
+- Laufen, Springen, Fallen und Landen
+- Bissangriff am Boden und in der Luft
+- Ruhe- und Atemanimation
+- Treffer- und K.-o.-Animation
 
 ### Mutierter Modus
 
-Durch radioaktive Spezialnahrung verwandelt sich die Bulldogge für kurze Zeit.
+Zwei eingesammelte Serum-Items füllen die Serumleiste voll. Die Mutation wird
+auf dem Desktop mit `J + F` und in der Touch-Steuerung mit `M` ausgelöst.
 
-Beispiele:
+Während der zeitlich begrenzten Mutation läuft die Bulldogge auf zwei Beinen
+und erhält:
 
-- Gamma-Knochen
-- Mutantenfutter
-- experimentelle Leckerlis
+- eine eigene Lauf-, Sprung-, Lande- und Rückverwandlungsanimation
+- abwechselnde linke und rechte Prankenangriffe
+- Prankenangriffe auch während eines Sprungs
+- Schutz vor den Angriffen normaler Gegner
+- eine eigene Mutationsanzeige anstelle des normalen HUDs
 
-Während der Mutation läuft die Bulldogge auf zwei Beinen. Sie wird extrem
-muskulös und erhält neue Fähigkeiten:
-
-- Supersprung
-- Doppelsprung
-- Super-Schüttelbiss
-- Knochen-Pumpgun
-- gewaltiger Prankenhieb
-- höherer Schaden
-
-Nach wenigen Sekunden endet die Mutation automatisch.
+Nach Ablauf der Mutationsenergie verwandelt sie sich automatisch zurück.
 
 ## ⚔️ Gegner
 
-Geplant sind unter anderem:
+Im Vertical Slice umgesetzt:
 
 - Hundefänger
-- Elite-Hundefänger
 - Sicherheitsdrohnen
 - mutierte Katzen
-- Roboter-Katzen
+- Roboterkatze als Endgegner
+
+Für die weitere Entwicklung geplant:
+
+- Elite-Hundefänger
 - Roboter-Ratten
 - vergiftete Futterautomaten
 - weitere mutierte Kreaturen
 
 ## 👑 Endgegner
 
-Eine scheinbar harmlose Babykatze steuert einen gigantischen Kampfroboter.
+In Level 3 wartet eine große Roboterkatze in der Arena. Ihr Lebensbalken
+besitzt **neun Trefferpunkte**, aufgeteilt in drei farbige Phasen mit jeweils
+drei Treffern: Rot, Orange und Blau.
 
-Der Boss besitzt **7 Leben**, die sich über mehrere Kampfphasen verteilen.
-
-Angriffe:
-
-- Kratzwellen
-- riesiger Fellknäuel
-- mechanische Angriffe
-- Katzen-Drohnen
-- Kombinationen verschiedener Attacken
+Die Roboterkatze patrouilliert durch die Arena, fliegt über Hindernisse und die
+Bulldogge und feuert eine animierte Klauenattacke. Die Bulldogge greift im
+Nahkampf oder mit eingesammelten Wurfknochen an. Nach dem letzten Treffer folgen
+die Todesanimation, das Victoryvideo und der gemeinsame Endscreen.
 
 ## 🌆 Spielwelt
 
@@ -160,17 +152,47 @@ Bereits im spielbaren Prototyp umgesetzt:
 - sammelbare Münzen, Serum und Lebensenergie
 - Hundefänger, mutierte Katzen, Drohnen und eine Roboterkatze
 - Nahkampf, Lebenssystem, Trefferreaktionen und Gegnerbelohnungen
-- Intro- und Game-over-Videosequenzen
+- Intro-, Game-over- und Victory-Videosequenzen mit Skip-Funktion
 - Musik, situationsabhängige Soundeffekte und globales Mute-System
-- Übergänge zwischen mehreren Levels
+- drei verbundene Level mit übernommenem Spielerzustand
+- gemeinsamer Endscreen für Sieg und Niederlage mit Neustart ohne Reload
+- Maus-, Tastatur-, Gamepad- und responsive Touch-Steuerung
+- Optionsdialog mit Spielerklärung sowie erreichbares Impressum
+- Boss-Lebensphasen, Wurfknochen und animierte Klauenprojektile
 
 Noch in Entwicklung oder geplant:
 
-- dynamischer Bosskampf
 - Upgrade-System
 - Checkpoints und dauerhafte Speicherstände
 - zusätzliche Level und Gegnertypen
 - Geheimräume und alternative Enden
+
+### Steuerung
+
+Desktop:
+
+- `A` / `D` oder Pfeiltasten: Laufen
+- `W`, Pfeil hoch oder Leertaste: Springen
+- `J` oder linke Maustaste: Angreifen
+- `J + F`: Mutation bei voller Serumleiste
+- `K` / `L`: eingesammelten Wurfknochen verwenden
+- `ESC`: zurück zum Hauptmenü
+- Leertaste: Intro- und Victoryvideo überspringen
+
+Auf unterstützten Tablets und Smartphones erscheinen im Querformat eigene
+Touchfelder für Bewegung, Sprung, Angriff, Mutation und Wurfknochen. Im
+Hochformat fordert eine Orientierungshilfe zum Drehen des Geräts auf. Laptop-
+und Desktopauflösungen bleiben auch bei vorhandenem Touchscreen in der
+Desktopansicht.
+
+### Extras des Prototyps
+
+- mehrschichtige Parallax-Hintergründe in drei Farbwelten
+- fahrende Züge, Helikopter, bewegliche Plattformen und animierte Hindernisse
+- Einsammel- und Splash-Animationen für Coins, Lebensenergie und Serum
+- Gegnerbelohnungen sowie langsame Füllanimationen der Statusanzeigen
+- gespeicherter globaler Mute-Zustand per LocalStorage
+- sichere externe GitHub-Navigation und semantische rechtliche Navigation
 
 ## 💻 Technik
 
@@ -272,14 +294,15 @@ Aktueller Fortschritt:
 - ✅ Tastatur-, Maus-, Touch- und vorbereitete Gamepad-Bedienung
 - ✅ Level 1 mit Plattformen, Hundefänger, Items und Levelausgang
 - ✅ Level 2 mit Katzen, Drohnen, Raketen, beweglichen Plattformen und Ausgang
-- 🚧 Level 3 mit Arenaumgebung, Hindernissen und Roboterkatze
+- ✅ Level 3 mit Arenaumgebung, Hindernissen und Roboterkatzen-Boss
 - ✅ Bewegung, Sprung, Landung, Angriff und Trefferreaktionen
 - ✅ Mutationssystem mit zeitlicher Rückverwandlung
 - ✅ Lebens-, Münz-, Serum- und Mutationsanzeigen
 - ✅ Sammelobjekte, Belohnungen und Übernahme des Spielerzustands
-- ✅ Intro-, Game-over-, Musik- und Soundintegration
+- ✅ Intro-, Game-over-, Victory-, Musik- und Soundintegration
 - ✅ Produktions-Build und FTP-taugliche Vite-Konfiguration
-- ⏳ Endboss und vollständiger Bosskampf
+- ✅ Endboss, Boss-Lebensphasen und gemeinsamer Endscreen
+- ✅ responsive Touch-Steuerung, globaler Mute-Zustand und Spielerklärung
 - ⏳ Checkpoints, Speicherstände und Upgrade-System
 - ⏳ weitere Level und vollständige Spielkampagne
 
@@ -290,6 +313,12 @@ Voraussetzung ist eine aktuelle Node.js-Version.
 ```bash
 npm install
 npm run dev
+```
+
+Automatisierte Projektprüfung:
+
+```bash
+npm test
 ```
 
 Für einen Produktions-Build:

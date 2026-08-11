@@ -1,9 +1,17 @@
 import { getAssetPath } from "./asset-paths.js";
 
 /**
- * Zentrale Audiodaten und Auslösewerte der normalen Bulldogge.
+ * Zentrale Audiodaten und Auslösewerte der Bulldogge.
  */
 export const BULLDOG_AUDIO = Object.freeze({
+  mutationTransform: Object.freeze({
+    key: "bulldog-mutation-transform-sound",
+    path: getAssetPath(
+      "audio",
+      "sfx/characters/bulldog/mutation-transform.ogg",
+    ),
+    volume: 0.8,
+  }),
   biteAttack: Object.freeze({
     key: "bulldog-normal-bite-sound",
     path: getAssetPath("audio", "sfx/characters/bulldog/bite.ogg"),

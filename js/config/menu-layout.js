@@ -45,16 +45,6 @@ export const MENU_LAYOUT = Object.freeze({
     fontFamily: "Arial",
     fontSize: 10,
   }),
-  socialMedia: Object.freeze({
-    heading: "FOLGE UNS",
-    headingColor: "#ff2cb8",
-    headingFontFamily: "Permanent Marker",
-    headingFontSize: 16,
-    buttonSize: 24,
-    iconSize: 18,
-    buttonGap: 6,
-    headingGap: 10,
-  }),
   inputHint: Object.freeze({
     x: 360,
     y: 453,
@@ -70,7 +60,6 @@ export const MENU_LAYOUT = Object.freeze({
     mainMenu: createArea(30, 172, 176, 230),
     quickActions: createArea(597, 30, 124, 48),
     version: createArea(33, 442, 120, 22),
-    socialMedia: createArea(597, 437, 107, 34),
   }),
 });
 

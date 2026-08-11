@@ -78,7 +78,10 @@ export class MutationSystem {
     );
   }
 
-  /** Startet Rückverwandlung und Rückkehr des normalen HUDs. */
+  /**
+   * Startet Rückverwandlung und Rückkehr des normalen HUDs.
+   * @returns {boolean} `true`, wenn die Rückverwandlung gestartet wurde.
+   */
   deactivate() {
     if (!this.isActive) return false;
     if (!BulldogMutationStateSystem.revert(this.player)) return false;
@@ -144,7 +147,11 @@ export class MutationSystem {
     });
   }
 
-  /** Stellt die fachlich erlaubte Sichtbarkeit eines HUD-Elements wieder her. */
+  /**
+   * Stellt die fachlich erlaubte Sichtbarkeit eines HUD-Elements wieder her.
+   * @param {Phaser.GameObjects.GameObject} item - Wiederherzustellendes HUD-Element.
+   * @returns {void}
+   */
   restoreHudItemVisibility(item) {
     if (typeof item.restoreVisibility === "function") {
       item.restoreVisibility();

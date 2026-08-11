@@ -9,21 +9,13 @@ import {
   MUTANT_CAT_DEAD_ANIMATION_KEY,
   MUTANT_CAT_DEAD_TEXTURE,
   MUTANT_CAT_EVENTS,
+  MUTANT_CAT_STATES,
 } from "../../../js/config/mutant-cat-settings.js";
-import { MutantCatAudioSystem } from
-  "../../systems/mutant-cat-audio-system.class.js";
-const CAT_STATES = Object.freeze({
-  patrol: "patrol",
-  attentive: "attentive",
-  chase: "chase",
-  attack: "attack",
-  hit: "hit",
-  dead: "dead",
-});
+import { MutantCatAudioSystem } from "../../systems/mutant-cat-audio-system.class.js";
+import { MutantCatDetectionSystem } from
+  "../../systems/mutant-cat-detection-system.class.js";
 
-/**
- * Patrouilliert als mutierte Katze innerhalb eines konfigurierten Abschnitts.
- */
+/** Patrouilliert als mutierte Katze innerhalb eines konfigurierten Abschnitts. */
 export class MutantCat extends Enemy {
   /**
    * Erstellt die Katze mit einer bodennahen Arcade-Physics-Hitbox.
@@ -43,7 +35,10 @@ export class MutantCat extends Enemy {
     this.play(MUTANT_CAT_ANIMATION_KEY);
   }
 
-  /** Konfiguriert Darstellung, Hitbox und Weltbegrenzung. */
+  /**
+   * Konfiguriert Darstellung, Hitbox und Weltbegrenzung.
+   * @returns {void}
+   */
   configurePhysics() {
     this.setDisplaySize(MUTANT_CAT.displayWidth, MUTANT_CAT.displayHeight);
     this.body
@@ -52,12 +47,17 @@ export class MutantCat extends Enemy {
     this.setCollideWorldBounds(true);
   }
 
-  /** Initialisiert Patrouillen-, Treffer- und Aktionszustände. */
+  /**
+   * Initialisiert Patrouillen-, Treffer- und Aktionszustände.
+   * @param {{minX: number, maxX: number, initialDirection: -1|1}} patrol -
+   * Individuelle Patrouillengrenzen und Startrichtung.
+   * @returns {void}
+   */
   initializeState(patrol) {
     this.patrolMinX = patrol.minX;
     this.patrolMaxX = patrol.maxX;
     this.patrolDirection = patrol.initialDirection;
-    this.state = CAT_STATES.patrol;
+    this.state = MUTANT_CAT_STATES.patrol;
     this.nextAttackAt = 0;
     this.attackHitConsumed = false;
     this.isAttackDisplayScaled = false;
@@ -76,7 +76,7 @@ export class MutantCat extends Enemy {
   updateBehavior(player, time) {
     if (this.isDead) return;
     if (!this.canContinueBehavior(time)) return;
-    if (this.shouldDisengage(player)) {
+    if (MutantCatDetectionSystem.shouldDisengage(this, player)) {
       this.resumePatrol();
       this.updatePatrol();
       return;
@@ -90,10 +90,10 @@ export class MutantCat extends Enemy {
    * @returns {boolean} `true`, wenn ein neuer Verhaltensschritt erlaubt ist.
    */
   canContinueBehavior(time) {
-    if (this.state === CAT_STATES.attack) return false;
-    if (this.state !== CAT_STATES.hit) return true;
+    if (this.state === MUTANT_CAT_STATES.attack) return false;
+    if (this.state !== MUTANT_CAT_STATES.hit) return true;
     if (time < this.hitReactionEndsAt) return false;
-    this.state = CAT_STATES.chase;
+    this.state = MUTANT_CAT_STATES.chase;
     return true;
   }
 
@@ -104,52 +104,22 @@ export class MutantCat extends Enemy {
    * @returns {void}
    */
   updateEngagedBehavior(player, time) {
-    if (this.state === CAT_STATES.patrol) {
+    if (this.state === MUTANT_CAT_STATES.patrol) {
       this.showAttentiveReaction(player);
       return;
     }
     this.facePlayer(player);
-    if (this.state === CAT_STATES.attentive) return;
+    if (this.state === MUTANT_CAT_STATES.attentive) return;
     if (time < this.nextAttackAt) {
       this.showAttackCooldownFrame();
       return;
     }
-    if (this.getHorizontalDistance(player) <= MUTANT_CAT.attackRange)
-      return this.startAttack();
+    if (MutantCatDetectionSystem.getHorizontalDistance(this, player) <=
+        MUTANT_CAT.attackRange) {
+      this.startAttack();
+      return;
+    }
     this.chasePlayer(player);
-  }
-
-  /**
-   * Prüft horizontale Entfernung und annähernd gleiche Laufhöhe.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {boolean} `true`, sobald die Katze die Bulldogge bemerkt.
-   */
-  canDetect(player) {
-    if (!player?.body || !this.body) return false;
-    return this.getHorizontalDistance(player) <= MUTANT_CAT.detectionRange &&
-      this.isWithinDetectionHeight(player);
-  }
-
-  /**
-   * Prüft, ob sich die Bulldogge maximal auf Höhe einer Nuklearbox befindet.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {boolean} `true`, wenn Sichtung und Angriff vertikal erlaubt sind.
-   */
-  isWithinDetectionHeight(player) {
-    if (!player?.body || !this.body) return false;
-    const heightDifference = Math.abs(player.body.bottom - this.body.bottom);
-    return heightDifference <= MUTANT_CAT.detectionHeightTolerance;
-  }
-
-  /**
-   * Beendet eine Begegnung erst außerhalb des größeren Rückzugsradius.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {boolean} `true`, wenn die Patrouille wieder beginnen soll.
-   */
-  shouldDisengage(player) {
-    if (!this.isWithinDetectionHeight(player)) return true;
-    if (this.state === CAT_STATES.patrol) return !this.canDetect(player);
-    return this.getHorizontalDistance(player) > MUTANT_CAT.disengageRange;
   }
 
   /**
@@ -160,13 +130,15 @@ export class MutantCat extends Enemy {
   showAttentiveReaction(player) {
     this.setVelocityX(0);
     this.facePlayer(player);
-    this.state = CAT_STATES.attentive;
+    this.state = MUTANT_CAT_STATES.attentive;
     MutantCatAudioSystem.playAttentive(this.scene);
     this.play(MUTANT_CAT_ATTENTIVE_ANIMATION_KEY);
     this.once(this.getAnimationCompleteEvent(
       MUTANT_CAT_ATTENTIVE_ANIMATION_KEY,
     ), () => {
-      if (this.state === CAT_STATES.attentive) this.state = CAT_STATES.chase;
+      if (this.state === MUTANT_CAT_STATES.attentive) {
+        this.state = MUTANT_CAT_STATES.chase;
+      }
     });
   }
 
@@ -175,8 +147,8 @@ export class MutantCat extends Enemy {
    * @returns {void}
    */
   resumePatrol() {
-    if (this.state === CAT_STATES.patrol) return;
-    this.state = CAT_STATES.patrol;
+    if (this.state === MUTANT_CAT_STATES.patrol) return;
+    this.state = MUTANT_CAT_STATES.patrol;
     this.play(MUTANT_CAT_ANIMATION_KEY);
   }
 
@@ -187,14 +159,14 @@ export class MutantCat extends Enemy {
    */
   chasePlayer(player) {
     const direction = Math.sign(player.x - this.x);
-    this.state = CAT_STATES.chase;
+    this.state = MUTANT_CAT_STATES.chase;
     this.play(MUTANT_CAT_ANIMATION_KEY, true);
     this.setVelocityX(direction * MUTANT_CAT.chaseSpeed);
   }
 
   /** Startet eine einzelne Angriffssequenz in Nahkampfreichweite. */
   startAttack() {
-    this.state = CAT_STATES.attack;
+    this.state = MUTANT_CAT_STATES.attack;
     this.attackHitConsumed = false;
     this.setVelocityX(0);
     this.applyAttackDisplaySize();
@@ -207,7 +179,7 @@ export class MutantCat extends Enemy {
   /** Beendet den Angriff und startet dessen Abklingzeit. */
   finishAttack() {
     this.restoreDefaultDisplaySize();
-    this.state = CAT_STATES.chase;
+    this.state = MUTANT_CAT_STATES.chase;
     this.nextAttackAt = this.scene.time.now + MUTANT_CAT.attackCooldownMs;
     this.showAttackCooldownFrame();
   }
@@ -224,7 +196,8 @@ export class MutantCat extends Enemy {
    */
   applyAttackDisplaySize() {
     if (this.isAttackDisplayScaled) return;
-    this.resizeKeepingBodyBottom(
+    MutantCatGroundingSystem.resizeKeepingBodyBottom(
+      this,
       MUTANT_CAT.displayWidth * MUTANT_CAT.attackDisplayScale,
       MUTANT_CAT.displayHeight * MUTANT_CAT.attackDisplayScale,
     );
@@ -237,20 +210,12 @@ export class MutantCat extends Enemy {
    */
   restoreDefaultDisplaySize() {
     if (!this.isAttackDisplayScaled) return;
-    this.resizeKeepingBodyBottom(
+    MutantCatGroundingSystem.resizeKeepingBodyBottom(
+      this,
       MUTANT_CAT.displayWidth,
       MUTANT_CAT.displayHeight,
     );
     this.isAttackDisplayScaled = false;
-  }
-
-  /** Ändert die Darstellung ohne die Physics-Bodenkante zu verschieben. */
-  resizeKeepingBodyBottom(width, height) {
-    const bodyBottom = this.body.bottom;
-    this.setDisplaySize(width, height);
-    this.body.updateFromGameObject();
-    this.y += bodyBottom - this.body.bottom;
-    this.body.updateFromGameObject();
   }
 
   /**
@@ -258,11 +223,11 @@ export class MutantCat extends Enemy {
    * @returns {void}
    */
   settleAfterKnockOut() {
-    const wasAttacking = this.state === CAT_STATES.attack;
+    const wasAttacking = this.state === MUTANT_CAT_STATES.attack;
 
     this.anims.stop();
     if (wasAttacking) this.restoreDefaultDisplaySize();
-    this.state = CAT_STATES.attentive;
+    this.state = MUTANT_CAT_STATES.attentive;
     this.setVelocity(0, 0);
     this.setTexture(MUTANT_CAT_ATTENTIVE_TEXTURE.key, 3);
   }
@@ -273,7 +238,7 @@ export class MutantCat extends Enemy {
    * @returns {boolean} `true`, sobald die Katze besiegt wurde.
    */
   takeBiteHit(time) {
-    if (this.isDead || this.state === CAT_STATES.hit) return false;
+    if (this.isDead || this.state === MUTANT_CAT_STATES.hit) return false;
     this.prepareBiteHit(time);
     if (this.receivedBiteHits >= MUTANT_CAT.biteHitsToDefeat) {
       this.startDeath(time);
@@ -289,7 +254,7 @@ export class MutantCat extends Enemy {
    * @returns {void}
    */
   prepareBiteHit(time) {
-    const wasAttacking = this.state === CAT_STATES.attack;
+    const wasAttacking = this.state === MUTANT_CAT_STATES.attack;
     if (this.firstBiteHitAt === null) this.firstBiteHitAt = time;
     this.receivedBiteHits += 1;
     this.setVelocityX(0);
@@ -306,7 +271,7 @@ export class MutantCat extends Enemy {
    * @returns {void}
    */
   showBiteHitReaction(time) {
-    this.state = CAT_STATES.hit;
+    this.state = MUTANT_CAT_STATES.hit;
     this.hitReactionEndsAt = time + MUTANT_CAT.hitReactionMs;
     this.setTexture(MUTANT_CAT_DEAD_TEXTURE.key, 0);
   }
@@ -317,7 +282,7 @@ export class MutantCat extends Enemy {
    * @returns {void}
    */
   startDeath(time) {
-    this.state = CAT_STATES.dead;
+    this.state = MUTANT_CAT_STATES.dead;
     this.isDead = true;
     this.attackHitConsumed = true;
     this.setVelocity(0, 0);
@@ -350,10 +315,11 @@ export class MutantCat extends Enemy {
   consumeAttackHit(player) {
     const isImpactFrame = Number(this.frame.name) ===
       MUTANT_CAT.attackImpactFrame;
-    if (this.state !== CAT_STATES.attack ||
+    if (this.state !== MUTANT_CAT_STATES.attack ||
         this.attackHitConsumed || !isImpactFrame) return false;
-    if (!this.isWithinDetectionHeight(player)) return false;
-    if (this.getHorizontalDistance(player) > MUTANT_CAT.attackHitRange) {
+    if (!MutantCatDetectionSystem.isWithinHeight(this, player)) return false;
+    if (MutantCatDetectionSystem.getHorizontalDistance(this, player) >
+        MUTANT_CAT.attackHitRange) {
       return false;
     }
     this.attackHitConsumed = true;
@@ -367,15 +333,6 @@ export class MutantCat extends Enemy {
    */
   facePlayer(player) {
     this.setFlipX(player.x < this.x);
-  }
-
-  /**
-   * Liefert die horizontale Entfernung zur Bulldogge.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {number} Absoluter horizontaler Abstand.
-   */
-  getHorizontalDistance(player) {
-    return player ? Math.abs(player.x - this.x) : Number.POSITIVE_INFINITY;
   }
 
   /**

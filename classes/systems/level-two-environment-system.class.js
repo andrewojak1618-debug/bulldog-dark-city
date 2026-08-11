@@ -1,4 +1,5 @@
 import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
  * Lädt und erzeugt alle rein visuellen Umgebungsebenen von Level zwei.
@@ -10,10 +11,10 @@ export class LevelTwoEnvironmentSystem {
    * @returns {void}
    */
   static load(scene) {
-    scene.load.image(LEVEL_TWO.background.key, LEVEL_TWO.background.path);
+    AssetLoaderSystem.loadImage(scene, LEVEL_TWO.background);
     this.loadHelicopter(scene);
     this.getParallaxLayers().forEach((layer) => {
-      this.loadParallaxLayer(scene, layer);
+      AssetLoaderSystem.loadSpritesheet(scene, layer);
     });
   }
 
@@ -24,20 +25,7 @@ export class LevelTwoEnvironmentSystem {
    */
   static loadHelicopter(scene) {
     LEVEL_TWO.helicopter.frames.forEach((frame) => {
-      scene.load.image(frame.key, frame.path);
-    });
-  }
-
-  /**
-   * Lädt eine konfigurierte Parallax-Ebene als Spritesheet.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} layer - Konfiguration der Ebene.
-   * @returns {void}
-   */
-  static loadParallaxLayer(scene, layer) {
-    scene.load.spritesheet(layer.key, layer.path, {
-      frameWidth: layer.frameWidth,
-      frameHeight: layer.frameHeight,
+      AssetLoaderSystem.loadImage(scene, frame);
     });
   }
 

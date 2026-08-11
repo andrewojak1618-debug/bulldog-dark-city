@@ -59,13 +59,7 @@ export class DogCatcher extends Enemy {
    */
   updateBehavior(player, time) {
     if (!player?.active || !this.body || this.isDead) return;
-
-    if (this.state === DOG_CATCHER_STATES.hit) {
-      if (time < this.hitReactionEndsAt) return;
-      this.state = DOG_CATCHER_STATES.chase;
-      this.nextAttackAt = Math.min(this.nextAttackAt, time);
-    }
-
+    if (!this.recoverFromHit(time)) return;
     if (player.isKnockedOut) {
       this.showReadyPose();
       return;
@@ -81,17 +75,36 @@ export class DogCatcher extends Enemy {
       this.updatePatrol();
       return;
     }
+    this.updateDetectedBehavior(distanceX, time);
+  }
 
+  /**
+   * Beendet eine Trefferreaktion erst nach Ablauf ihrer Sperrzeit.
+   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
+   * @returns {boolean} `true`, sobald normales Verhalten wieder erlaubt ist.
+   */
+  recoverFromHit(time) {
+    if (this.state !== DOG_CATCHER_STATES.hit) return true;
+    if (time < this.hitReactionEndsAt) return false;
+    this.state = DOG_CATCHER_STATES.chase;
+    this.nextAttackAt = Math.min(this.nextAttackAt, time);
+    return true;
+  }
+
+  /**
+   * Wählt für einen erkannten Spieler Alarm, Angriff oder Verfolgung.
+   * @param {number} distanceX - Horizontaler Abstand zur Bulldogge.
+   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
+   * @returns {void}
+   */
+  updateDetectedBehavior(distanceX, time) {
     this.faceDirection(Math.sign(distanceX) || this.patrolDirection);
-
     if (!this.hasDetectedPlayer) {
       this.startAlert();
       return;
     }
-
     const isWithinAttackRange =
       Math.abs(distanceX) <= DOG_CATCHER.attackRange;
-
     if (isWithinAttackRange) {
       if (time >= this.nextAttackAt) this.startAttack(time);
       else this.showReadyPose();

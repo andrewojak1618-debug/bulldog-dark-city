@@ -1,4 +1,5 @@
 import { TEST_LEVEL } from "../../js/config/test-level-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
  * Lädt und erzeugt sämtliche Boden- und Plattformflächen von Level eins.
@@ -12,22 +13,8 @@ export class LevelOnePlatformSystem {
   static load(scene) {
     const ground = TEST_LEVEL.assets.groundPlatform;
     const floating = TEST_LEVEL.assets.floatingPlatform;
-    this.loadSpritesheet(scene, ground);
-    this.loadSpritesheet(scene, floating);
-  }
-
-  /**
-   * Lädt ein zentral konfiguriertes Spritesheet.
-   * @param {Phaser.Scene} scene - Aktive Level-1-Szene.
-   * @param {{key: string, path: string, frameWidth: number,
-   * frameHeight: number}} asset - Plattform-Asset.
-   * @returns {void}
-   */
-  static loadSpritesheet(scene, asset) {
-    scene.load.spritesheet(asset.key, asset.path, {
-      frameWidth: asset.frameWidth,
-      frameHeight: asset.frameHeight,
-    });
+    AssetLoaderSystem.loadSpritesheet(scene, ground);
+    AssetLoaderSystem.loadSpritesheet(scene, floating);
   }
 
   /**

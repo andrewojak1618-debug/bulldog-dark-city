@@ -13,12 +13,13 @@ import { LevelTwoRocketSystem } from
   "../../systems/level-two-rocket-system.class.js";
 import { LevelTwoObstacleSystem } from
   "../../systems/level-two-obstacle-system.class.js";
-import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
+import { EnemyHealthBarSystem } from
+  "../../systems/enemy-health-bar-system.class.js";
+import { LevelSceneSystem } from "../../systems/level-scene-system.class.js";
 import { LevelItemSystem } from "../../systems/level-item-system.class.js";
 import { MutantCatSystem } from "../../systems/mutant-cat-system.class.js";
 import { MutantCatRewardSystem } from
   "../../systems/mutant-cat-reward-system.class.js";
-import { DogCatcherSystem } from "../../systems/dog-catcher-system.class.js";
 import { DogCatcherAnimationSystem } from
   "../../systems/dog-catcher-animation-system.class.js";
 import { LevelTwoCaptureSystem } from
@@ -27,6 +28,8 @@ import { LevelTwoGameplaySystem } from
   "../../systems/level-two-gameplay-system.class.js";
 import { LevelTwoPreloadSystem } from
   "../../systems/level-two-preload-system.class.js";
+import { LevelThreePreloadSystem } from
+  "../../systems/level-three-preload-system.class.js";
 import { setMuteButtonGameMode } from
   "../controllers/mute-button-controller.class.js";
 import { LevelExitSystem } from "../../systems/level-exit-system.class.js";
@@ -42,8 +45,6 @@ import {
 import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { LEVEL_TWO } from "../../../js/config/level-two-settings.js";
-import { PLAYER_CAMERA } from
-  "../../../js/config/player-camera-settings.js";
 
 /**
  * Koordiniert Aufbau, Steuerung und Kamera des zweiten Levels.
@@ -62,8 +63,8 @@ export class LevelTwoScene extends Phaser.Scene {
    * @returns {void}
    */
   init(data = {}) {
-    this.initialPlayerState = data.playerState ?? {};
-    this.isEnteringLevel = Boolean(data.enterFromPreviousLevel);
+    LevelSceneSystem.initialize(this, data);
+    this.isLevelCompleting = false;
   }
 
   /**
@@ -86,7 +87,15 @@ export class LevelTwoScene extends Phaser.Scene {
     this.createGameplayActors();
     this.createGameplayServices();
     this.menuHint = new LevelMenuHint(this, 2);
-    this.bindSceneControls();
+    LevelSceneSystem.bindMenuShortcut(this);
+    this.prepareLevelTransition();
+    LevelTwoPreloadSystem.completeEntry(this);
+  }
+
+  /** Bereitet Level drei im Hintergrund auf den späteren Wechsel vor. */
+  prepareLevelTransition() {
+    this.levelThreeAssetsReady =
+      LevelThreePreloadSystem.preloadAfterEntry(this);
   }
 
   /** Erstellt Umgebung, Ausgang und kollidierbare Levelobjekte. */
@@ -94,6 +103,7 @@ export class LevelTwoScene extends Phaser.Scene {
     this.configureWorld();
     LevelTwoEnvironmentSystem.create(this);
     this.drones = LevelTwoDroneSystem.create(this);
+    EnemyHealthBarSystem.attachDrones(this, this.drones);
     this.levelExit = LevelExitSystem.create(this);
     this.createGroundCollision();
     this.createObstacles();
@@ -102,6 +112,7 @@ export class LevelTwoScene extends Phaser.Scene {
   /** Erstellt Gegner, Spielfigur und zugehörige Animationen. */
   createGameplayActors() {
     this.mutantCats = MutantCatSystem.create(this, this.platforms);
+    EnemyHealthBarSystem.attachMutantCats(this, this.mutantCats);
     BulldogAnimationSystem.register(this);
     DogCatcherAnimationSystem.register(this);
     this.createPlayer();
@@ -111,8 +122,8 @@ export class LevelTwoScene extends Phaser.Scene {
   createGameplayServices() {
     this.createBackgroundMusic();
     this.captureSystem = new LevelTwoCaptureSystem(this);
-    this.configureCamera();
-    this.createHud();
+    LevelSceneSystem.configureCamera(this);
+    LevelSceneSystem.createHud(this);
     this.createItems();
     this.createCombatServices();
   }
@@ -207,22 +218,6 @@ export class LevelTwoScene extends Phaser.Scene {
     return true;
   }
 
-  /**
-   * Erstellt die gemeinsame Lebens-, Münz- und Serumanzeige für Level zwei.
-   * @returns {void}
-   */
-  createHud() {
-    const hud = LevelHudSystem.create(
-      this,
-      this.initialPlayerState,
-      this.player,
-    );
-
-    this.healthSystem = hud.health;
-    this.collectibleSystem = hud.collectibles;
-    this.mutationSystem = hud.mutation;
-  }
-
   /** Erstellt die zentral konfigurierten Sammelobjekte von Level zwei. */
   createItems() {
     this.levelItems = LevelItemSystem.create(
@@ -299,40 +294,38 @@ export class LevelTwoScene extends Phaser.Scene {
       .setBackgroundColor(backgroundColor);
   }
 
-  /**
-   * Folgt der Bulldogge mit derselben Dynamik und Deadzone wie Level eins.
-   * @returns {void}
-   */
-  configureCamera() {
-    this.cameras.main.startFollow(
-      this.player,
-      true,
-      PLAYER_CAMERA.lerpX,
-      PLAYER_CAMERA.lerpY,
-    );
-    this.cameras.main.setDeadzone(
-      PLAYER_CAMERA.deadzoneWidth,
-      PLAYER_CAMERA.deadzoneHeight,
-    );
-  }
-
-  /**
-   * Bindet die vorläufige Rückkehr zum Hauptmenü an Escape.
-   * @returns {void}
-   */
-  bindSceneControls() {
-    this.input.keyboard?.once("keydown-ESC", () => {
-      this.scene.start(SCENES.menu);
-    });
-  }
-
   /** Sichert den Levelstand und startet den vorbereiteten dritten Abschnitt. */
   completeLevel() {
-    const playerState = {
+    if (this.isLevelCompleting) return;
+    this.isLevelCompleting = true;
+    const playerState = this.createPlayerStateSnapshot();
+    this.backgroundMusic.stop();
+    LevelThreePreloadSystem.enterWhenReady(
+      this,
+      this.levelThreeAssetsReady,
+      () => this.startLevelThree(playerState),
+    );
+  }
+
+  /**
+   * Erstellt den levelübergreifenden Zustand der Bulldogge.
+   * @returns {{health: number, collectibles: Record<string, number>}}
+   * Gespeicherter Lebens- und Sammelstand.
+   */
+  createPlayerStateSnapshot() {
+    return {
       health: this.healthSystem.getCurrent(),
       collectibles: this.collectibleSystem.getSnapshot(),
     };
-    this.backgroundMusic.stop();
+  }
+
+  /**
+   * Startet Level drei mit dem zuvor gesicherten Spielstand.
+   * @param {{health: number, collectibles: Record<string, number>}}
+   * playerState - Gesicherter Spielstand.
+   * @returns {void}
+   */
+  startLevelThree(playerState) {
     this.scene.start(SCENES.levelThree, {
       playerState,
       enterFromPreviousLevel: true,
@@ -342,6 +335,7 @@ export class LevelTwoScene extends Phaser.Scene {
   /**
    * Aktualisiert die levelübergreifende Bewegung und Animation der Bulldogge.
    * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
+   * @param {number} delta - Vergangene Zeit seit dem letzten Frame in ms.
    * @returns {void}
    */
   update(time, delta) {

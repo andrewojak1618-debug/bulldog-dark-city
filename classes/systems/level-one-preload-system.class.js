@@ -33,7 +33,7 @@ export class LevelOnePreloadSystem {
   /**
    * Startet das Hintergrundladen genau einmal pro Spielsitzung.
    * @param {Phaser.Scene} scene - Aktive Menüszene.
-   * @returns {Promise<void>} Abschluss des Hintergrundladens.
+   * @returns {Promise<boolean>} Erfolgsstatus des Hintergrundladens.
    */
   static preload(scene) {
     return LevelPreloadSystem.preload(scene, {
@@ -46,7 +46,7 @@ export class LevelOnePreloadSystem {
   /**
    * Wartet bei einem frühen Video-Skip sichtbar auf die restlichen Dateien.
    * @param {Phaser.Scene} scene - Aktive Menüszene.
-   * @param {Promise<void>} readyPromise - Laufender Ladevorgang.
+   * @param {Promise<boolean>} readyPromise - Laufender Ladevorgang.
    * @param {() => void} onReady - Wechsel in Level 1.
    * @returns {void}
    */
@@ -63,5 +63,14 @@ export class LevelOnePreloadSystem {
    */
   static isReady(scene) {
     return LevelPreloadSystem.isReady(scene, READY_KEY);
+  }
+
+  /**
+   * Entfernt die Ladeanzeige nach dem ersten sichtbaren Level-1-Frame.
+   * @param {Phaser.Scene} scene - Vollstaendig aufgebaute Level-1-Szene.
+   * @returns {void}
+   */
+  static completeEntry(scene) {
+    LevelPreloadSystem.hideLoadingOverlayAfterRender(scene);
   }
 }

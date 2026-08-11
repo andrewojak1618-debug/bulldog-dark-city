@@ -39,7 +39,11 @@ export class MutationBar extends Phaser.GameObjects.Container {
     });
   }
 
-  /** Zeichnet den aktuellen grünen Energiefüllstand. */
+  /**
+   * Zeichnet den aktuellen grünen Energiefüllstand.
+   * @param {number} value - Normalisierter Energiewert zwischen null und eins.
+   * @returns {void}
+   */
   drawEnergy(value) {
     const settings = HUD.mutation;
     const ratio = Phaser.Math.Clamp(value, 0, 1);
@@ -50,7 +54,11 @@ export class MutationBar extends Phaser.GameObjects.Container {
     this.drawEnergyCore(width);
   }
 
-  /** Zeichnet den weichen Außenbereich der Mutationsenergie. */
+  /**
+   * Zeichnet den weichen Außenbereich der Mutationsenergie.
+   * @param {number} width - Aktuelle Breite der Energiefüllung.
+   * @returns {void}
+   */
   drawEnergyGlow(width) {
     const settings = HUD.mutation;
     this.energyGraphics.fillStyle(settings.fillGlowColor, 0.3);
@@ -63,7 +71,11 @@ export class MutationBar extends Phaser.GameObjects.Container {
     );
   }
 
-  /** Zeichnet den kräftigen Kern der Mutationsenergie. */
+  /**
+   * Zeichnet den kräftigen Kern der Mutationsenergie.
+   * @param {number} width - Aktuelle Breite der Energiefüllung.
+   * @returns {void}
+   */
   drawEnergyCore(width) {
     const settings = HUD.mutation;
     this.energyGraphics.fillStyle(settings.fillColor, settings.fillAlpha);
@@ -83,7 +95,12 @@ export class MutationBar extends Phaser.GameObjects.Container {
     this.drawEnergy(1);
   }
 
-  /** Leert die Energie gleichmäßig und meldet den Abschluss. */
+  /**
+   * Leert die Energie gleichmäßig und meldet den Abschluss.
+   * @param {number} duration - Dauer der Entleerung in Millisekunden.
+   * @param {() => void} onComplete - Aktion nach vollständiger Entleerung.
+   * @returns {Phaser.Tweens.Tween} Laufender Entleerungstween.
+   */
   drain(duration, onComplete) {
     this.energyTween?.stop();
     this.energyTween = this.scene.tweens.add({
@@ -97,7 +114,10 @@ export class MutationBar extends Phaser.GameObjects.Container {
     return this.energyTween;
   }
 
-  /** Blendet den Mutationsrahmen nach links aus dem Canvas aus. */
+  /**
+   * Blendet den Mutationsrahmen nach links aus dem Canvas aus.
+   * @returns {Phaser.Tweens.Tween} Laufender Ausblendtween.
+   */
   hide() {
     const settings = HUD.mutation;
     return this.scene.tweens.add({

@@ -13,6 +13,7 @@ import { GAME_DIMENSIONS } from "./game-settings.js";
 
 export const GAME_CONFIG = {
   type: Phaser.AUTO,
+  banner: false,
   parent: "game",
   width: GAME_DIMENSIONS.width,
   height: GAME_DIMENSIONS.height,

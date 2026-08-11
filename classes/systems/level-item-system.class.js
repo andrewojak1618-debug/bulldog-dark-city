@@ -1,4 +1,5 @@
 import { LEVEL_ITEMS } from "../../js/config/level-item-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
  * Lädt und erzeugt die animierten Sammelobjekte des Testlevels.
@@ -25,8 +26,12 @@ export class LevelItemSystem {
       });
     });
     Object.values(LEVEL_ITEMS.pickupEffects).forEach((effect) => {
-      if (!effect.soundPath || scene.cache.audio.exists(effect.soundKey)) return;
-      scene.load.audio(effect.soundKey, effect.soundPath);
+      const soundPath = effect.soundPaths ?? effect.soundPath;
+      if (!soundPath) return;
+      AssetLoaderSystem.loadAudio(scene, {
+        key: effect.soundKey,
+        path: soundPath,
+      });
     });
   }
 
@@ -224,13 +229,16 @@ export class LevelItemSystem {
    * Spielt den optionalen Itemklang genau beim Start des Aufnahmeeffekts ab.
    * @param {Phaser.Scene} scene - Zugehörige Spielszene.
    * @param {{soundKey?: string, soundVolume?: number}} effect - Effektwerte.
-   * @returns {void}
+   * @returns {boolean} Ob der Sound abgespielt werden konnte.
    */
   static playPickupSound(scene, effect) {
-    if (!effect.soundKey) return;
+    if (!effect.soundKey || !scene.cache.audio.exists(effect.soundKey)) {
+      return false;
+    }
     scene.sound.play(effect.soundKey, {
       volume: effect.soundVolume ?? 1,
     });
+    return true;
   }
 
   /**

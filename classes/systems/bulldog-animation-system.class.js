@@ -4,6 +4,7 @@ import {
 } from
   "../../js/config/bulldog-animation-settings.js";
 import { BulldogAudioSystem } from "./bulldog-audio-system.class.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
  * Registriert die Bewegungsanimationen der normalen Bulldogge.
@@ -16,10 +17,7 @@ export class BulldogAnimationSystem {
    */
   static load(scene) {
     Object.values(BULLDOG_TEXTURES).forEach((texture) => {
-      scene.load.spritesheet(texture.key, texture.path, {
-        frameWidth: texture.frameWidth,
-        frameHeight: texture.frameHeight,
-      });
+      AssetLoaderSystem.loadSpritesheet(scene, texture);
     });
 
     BulldogAudioSystem.load(scene);
@@ -36,7 +34,12 @@ export class BulldogAnimationSystem {
     );
   }
 
-  /** Registriert eine einzelne Animation, sofern sie noch nicht existiert. */
+  /**
+   * Registriert eine einzelne Animation, sofern sie noch nicht existiert.
+   * @param {Phaser.Scene} scene - Szene mit globalem Animationsmanager.
+   * @param {object} animation - Zentrale Animationskonfiguration.
+   * @returns {void}
+   */
   static registerAnimation(scene, animation) {
     if (scene.anims.exists(animation.key)) return;
     scene.anims.create({
@@ -47,7 +50,12 @@ export class BulldogAnimationSystem {
     });
   }
 
-  /** Erzeugt die Framefolge mit optionaler Dauer und Rückwärtsrichtung. */
+  /**
+   * Erzeugt die Framefolge mit optionaler Dauer und Rückwärtsrichtung.
+   * @param {Phaser.Scene} scene - Szene mit globalem Animationsmanager.
+   * @param {object} animation - Zentrale Animationskonfiguration.
+   * @returns {Phaser.Types.Animations.AnimationFrame[]} Fertige Framefolge.
+   */
   static createFrames(scene, animation) {
     const frames = scene.anims.generateFrameNumbers(animation.textureKey, {
       start: animation.startFrame,

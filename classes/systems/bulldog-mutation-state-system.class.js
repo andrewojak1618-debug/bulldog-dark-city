@@ -1,4 +1,3 @@
-import Phaser from "phaser";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_ANIMATION_TIMING,
@@ -7,6 +6,8 @@ import {
 } from "../../js/config/bulldog-animation-settings.js";
 import { BULLDOG_GAMEPLAY } from
   "../../js/config/bulldog-gameplay-settings.js";
+
+const ANIMATION_COMPLETE_PREFIX = "animationcomplete-";
 
 /** Steuert den Lebenszyklus der mutierten Bulldoggenform. */
 export class BulldogMutationStateSystem {
@@ -45,7 +46,11 @@ export class BulldogMutationStateSystem {
     return !player.isMutating && !player.isMutated && !player.isKnockedOut;
   }
 
-  /** Prüft die Immunität der Mutation gegen gewöhnliche Schadensquellen. */
+  /**
+   * Prüft die Immunität der Mutation gegen gewöhnliche Schadensquellen.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
+   * @returns {boolean} `true`, wenn normaler Schaden erlaubt ist.
+   */
   static canReceiveNormalDamage(player) {
     return !player.isMutating && !player.isMutated;
   }
@@ -96,7 +101,7 @@ export class BulldogMutationStateSystem {
    * @returns {string} Vollständiger Phaser-Ereignisname.
    */
   static getCompleteEventName() {
-    return Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
+    return ANIMATION_COMPLETE_PREFIX +
       BULLDOG_ANIMATION_KEYS.mutationTransform;
   }
 
@@ -114,7 +119,11 @@ export class BulldogMutationStateSystem {
     player.emit(BULLDOG_EVENTS.mutationCompleted);
   }
 
-  /** Startet die rückwärts abgespielte Rückverwandlung. */
+  /**
+   * Startet die rückwärts abgespielte Rückverwandlung.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
+   * @returns {boolean} `true`, wenn die Rückverwandlung gestartet wurde.
+   */
   static revert(player) {
     if (!player.isMutated || player.isMutating || player.isKnockedOut) {
       return false;
@@ -127,7 +136,11 @@ export class BulldogMutationStateSystem {
     return true;
   }
 
-  /** Registriert Animationsende und Rückfallebene der Rückverwandlung. */
+  /**
+   * Registriert Animationsende und Rückfallebene der Rückverwandlung.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
+   * @returns {void}
+   */
   static registerReversionCompletion(player) {
     const eventName = this.getRevertCompleteEventName();
     player.once(eventName, () => this.finishReversion(player));
@@ -137,13 +150,20 @@ export class BulldogMutationStateSystem {
     );
   }
 
-  /** Liefert den vollständigen Ereignisnamen der Rückverwandlung. */
+  /**
+   * Liefert den vollständigen Ereignisnamen der Rückverwandlung.
+   * @returns {string} Vollständiger Phaser-Ereignisname.
+   */
   static getRevertCompleteEventName() {
-    return Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
+    return ANIMATION_COMPLETE_PREFIX +
       BULLDOG_ANIMATION_KEYS.mutationRevert;
   }
 
-  /** Stellt nach der Rückverwandlung Form, Hitbox und Standbild wieder her. */
+  /**
+   * Stellt nach der Rückverwandlung Form, Hitbox und Standbild wieder her.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
+   * @returns {void}
+   */
   static finishReversion(player) {
     if (!player.isMutating || !player.isMutated) return;
     this.clearTransition(player, this.getRevertCompleteEventName());
@@ -153,7 +173,11 @@ export class BulldogMutationStateSystem {
     player.emit(BULLDOG_EVENTS.mutationReverted);
   }
 
-  /** Stellt normale Größe und Hitbox bei unverändertem Bodenkontakt her. */
+  /**
+   * Stellt normale Größe und Hitbox bei unverändertem Bodenkontakt her.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
+   * @returns {void}
+   */
   static restoreNormalVisuals(player) {
     const feetY = player.body.bottom;
     player.setTexture(BULLDOG_TEXTURES.stand.key, 0);
@@ -168,7 +192,12 @@ export class BulldogMutationStateSystem {
     player.body.updateFromGameObject();
   }
 
-  /** Entfernt Listener und zeitliche Rückfallebene eines Formwechsels. */
+  /**
+   * Entfernt Listener und zeitliche Rückfallebene eines Formwechsels.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
+   * @param {string} eventName - Zu entfernender Animationsereignisname.
+   * @returns {void}
+   */
   static clearTransition(player, eventName) {
     player.off(eventName);
     player.mutationFallbackEvent?.remove(false);

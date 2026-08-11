@@ -6,6 +6,7 @@ import { HealthSystem } from "./health-system.class.js";
 import { CollectibleSystem } from "./collectible-system.class.js";
 import { MutationSystem } from "./mutation-system.class.js";
 import { COLLECTIBLE_KEYS, HUD } from "../../js/config/hud-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
  * Lädt und erstellt die aktuell sichtbaren Anzeigen des Level-HUDs.
@@ -18,7 +19,10 @@ export class LevelHudSystem {
    */
   static load(scene) {
     [HUD.health, HUD.coin, HUD.serum, HUD.mutation].forEach((asset) => {
-      scene.load.image(asset.textureKey, asset.path);
+      AssetLoaderSystem.loadImage(scene, {
+        key: asset.textureKey,
+        path: asset.path,
+      });
     });
   }
 
@@ -34,26 +38,60 @@ export class LevelHudSystem {
    * Veränderbare Leveldaten für Treffer und Sammelobjekte.
    */
   static create(scene, initialState = {}, player = null) {
-    const health = new HealthSystem(
-      HUD.health.maximum,
-      initialState.health ?? HUD.health.maximum,
+    const health = this.createHealthSystem(initialState);
+    const collectibles = this.createCollectibleSystem(initialState);
+    const mutation = this.createMutationSystem(
+      scene,
+      health,
+      collectibles,
+      player,
     );
-    const collectibles = new CollectibleSystem(
+    return { health, collectibles, mutation };
+  }
+
+  /**
+   * Erstellt die begrenzten Lebensdaten aus dem optionalen Levelzustand.
+   * @param {object} initialState - Zustand des vorherigen Levels.
+   * @returns {HealthSystem} Gemeinsame Lebensdaten.
+   */
+  static createHealthSystem(initialState) {
+    const current = initialState.health ?? HUD.health.maximum;
+    return new HealthSystem(HUD.health.maximum, current);
+  }
+
+  /**
+   * Erstellt die bekannten Sammelstände aus dem optionalen Levelzustand.
+   * @param {object} initialState - Zustand des vorherigen Levels.
+   * @returns {CollectibleSystem} Gemeinsame Sammeldaten.
+   */
+  static createCollectibleSystem(initialState) {
+    return new CollectibleSystem(
       Object.values(COLLECTIBLE_KEYS),
       initialState.collectibles,
     );
+  }
+
+  /**
+   * Verbindet normale HUD-Elemente, Mutationsanzeige und Spielfigur.
+   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * @param {HealthSystem} health - Gemeinsame Lebensdaten.
+   * @param {CollectibleSystem} collectibles - Gemeinsame Sammeldaten.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog|null}
+   * player - Verwandelbare Spielfigur.
+   * @returns {MutationSystem} Steuerung des Mutations-HUDs.
+   */
+  static createMutationSystem(scene, health, collectibles, player) {
     const healthBar = new HealthBar(scene, health);
     const counters = this.createCollectibleCounters(scene, collectibles);
     const mutationBar = new MutationBar(scene);
     const mutationReady = new MutationReadyPrompt(scene, collectibles);
-    const mutation = new MutationSystem(
+    return new MutationSystem(
       scene,
       collectibles,
       [healthBar, ...counters, mutationReady],
       mutationBar,
       player,
     );
-    return { health, collectibles, mutation };
   }
 
   /**

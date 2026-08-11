@@ -1,4 +1,3 @@
-import Phaser from "phaser";
 import { BULLDOG_ATTACK_TEXTURES } from
   "../../js/config/bulldog-animation-settings.js";
 import {
@@ -10,6 +9,10 @@ import {
   ROBOT_CAT_STATES,
   ROBOT_CAT_WALK_TEXTURE,
 } from "../../js/config/robot-cat-settings.js";
+import { RobotCatAudioSystem } from
+  "./robot-cat-audio-system.class.js";
+
+const ANIMATION_COMPLETE_PREFIX = "animationcomplete-";
 
 /** Verarbeitet Bulldoggen-Treffer und den Lebenszustand der Roboterkatze. */
 export class RobotCatCombatSystem {
@@ -90,7 +93,7 @@ export class RobotCatCombatSystem {
    * @returns {void}
    */
   static showHitFeedback(robotCat) {
-    const eventName = Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
+    const eventName = ANIMATION_COMPLETE_PREFIX +
       ROBOT_CAT_HIT_TEXTURE.animationKey;
     if (!robotCat.getData("isHitReacting")) {
       robotCat.setData("isHitReacting", true);
@@ -129,11 +132,12 @@ export class RobotCatCombatSystem {
    * @returns {void}
    */
   static defeat(robotCat) {
-    const hitEventName = Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
+    const hitEventName = ANIMATION_COMPLETE_PREFIX +
       ROBOT_CAT_HIT_TEXTURE.animationKey;
     robotCat.off(hitEventName);
     robotCat.setData("isHitReacting", false);
     robotCat.setData("isDefeated", true);
+    RobotCatAudioSystem.stopThrustFlight(robotCat);
     const collision = robotCat.getData("collision");
     if (collision?.body) collision.body.enable = false;
     robotCat.setActive(true).setVisible(true).setAlpha(1);

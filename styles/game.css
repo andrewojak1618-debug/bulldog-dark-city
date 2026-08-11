@@ -10,11 +10,42 @@
 
 #game {
   position: relative;
-  width: min(100vw, calc(100vh * 1.5), 720px);
-  width: min(100vw, calc(100svh * 1.5), 720px);
+  width: min(100vw, calc((100vh - 48px) * 1.5), 720px);
+  width: min(100vw, calc((100svh - 48px) * 1.5), 720px);
   aspect-ratio: 3 / 2;
   max-height: 480px;
   overflow: hidden;
+}
+
+.site-footer {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  font: 16px/1.25 Arial, sans-serif;
+}
+
+.legal-navigation-link {
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #b8b0bd;
+  text-underline-offset: 3px;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.legal-navigation-link:hover {
+  color: #ff4dba;
+}
+
+.legal-navigation-link:focus-visible {
+  color: #ffffff;
+  outline: 2px solid #70ffae;
+  outline-offset: 2px;
+  background: rgb(112 255 174 / 12%);
+  box-shadow: 0 0 8px rgb(112 255 174 / 40%);
 }
 
 .mute-toggle {
@@ -60,6 +91,77 @@
   box-shadow: 0 0 6px rgb(112 255 174 / 52%);
 }
 
+.github-profile-link {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  z-index: 850;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgb(90 42 115 / 80%);
+  border-radius: 6px;
+  background: rgb(8 6 13 / 78%);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.github-profile-link::before {
+  content: "GITHUB";
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 5px);
+  color: rgb(255 44 184 / 72%);
+  font: 10px/1 "Permanent Marker", cursive;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.github-profile-link img {
+  display: block;
+  width: 28px;
+  height: 28px;
+  opacity: 0.72;
+  object-fit: contain;
+  pointer-events: none;
+  filter: saturate(0.78) brightness(0.78);
+  transition:
+    opacity 180ms ease,
+    filter 180ms ease;
+}
+
+.github-profile-link:hover,
+.github-profile-link:focus-visible {
+  border-color: #ff2cb8;
+  outline: none;
+  background: rgb(38 11 45 / 92%);
+  box-shadow: 0 0 6px rgb(255 44 184 / 42%);
+  transform: scale(1.06);
+}
+
+.github-profile-link:hover::before,
+.github-profile-link:focus-visible::before {
+  color: #ff2cb8;
+}
+
+.github-profile-link:hover img,
+.github-profile-link:focus-visible img {
+  opacity: 1;
+  filter: none;
+}
+
+.github-profile-link--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(6px);
+}
+
 .orientation-notice {
   position: fixed;
   inset: 0;
@@ -74,6 +176,53 @@
   text-align: center;
   background:
     radial-gradient(circle at center, #341347 0%, #10131a 68%);
+}
+
+.level-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #f4edf7;
+  background: #07080d;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 160ms ease;
+}
+
+.level-loading-overlay--visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.level-loading-overlay__spinner {
+  width: 38px;
+  height: 38px;
+  border: 4px solid rgb(242 31 167 / 24%);
+  border-top-color: #f21fa7;
+  border-radius: 50%;
+  animation: level-loading-spin 800ms linear infinite;
+}
+
+.level-loading-overlay p {
+  margin: 0;
+  font: 20px/1.3 "Permanent Marker", cursive;
+  letter-spacing: 0.04em;
+}
+
+.level-loading-overlay--error {
+  color: #ff91dc;
+}
+
+@keyframes level-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .orientation-notice__icon {
@@ -99,6 +248,10 @@
 }
 
 body.is-portrait-locked #game {
+  visibility: hidden;
+}
+
+body.is-portrait-locked .site-footer {
   visibility: hidden;
 }
 

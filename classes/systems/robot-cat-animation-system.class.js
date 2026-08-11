@@ -1,10 +1,13 @@
 import {
   ROBOT_CAT,
+  ROBOT_CAT_ATTACK_TEXTURE,
+  ROBOT_CAT_CLAWS_TEXTURE,
   ROBOT_CAT_DEAD_TEXTURE,
   ROBOT_CAT_FLIGHT_TEXTURE,
   ROBOT_CAT_HIT_TEXTURE,
   ROBOT_CAT_WALK_TEXTURE,
 } from "../../js/config/robot-cat-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /** Lädt und registriert ausschließlich die Animationen der Roboterkatze. */
 export class RobotCatAnimationSystem {
@@ -15,10 +18,7 @@ export class RobotCatAnimationSystem {
    */
   static load(scene) {
     this.getTextures().forEach((texture) => {
-      scene.load.spritesheet(texture.key, texture.path, {
-        frameWidth: texture.frameWidth,
-        frameHeight: texture.frameHeight,
-      });
+      AssetLoaderSystem.loadSpritesheet(scene, texture);
     });
   }
 
@@ -32,6 +32,8 @@ export class RobotCatAnimationSystem {
       ROBOT_CAT_FLIGHT_TEXTURE,
       ROBOT_CAT_HIT_TEXTURE,
       ROBOT_CAT_DEAD_TEXTURE,
+      ROBOT_CAT_ATTACK_TEXTURE,
+      ROBOT_CAT_CLAWS_TEXTURE,
     ];
   }
 
@@ -45,6 +47,8 @@ export class RobotCatAnimationSystem {
     this.registerTakeoff(scene);
     this.registerSequence(scene, ROBOT_CAT_HIT_TEXTURE);
     this.registerSequence(scene, ROBOT_CAT_DEAD_TEXTURE);
+    this.registerSequence(scene, ROBOT_CAT_ATTACK_TEXTURE);
+    this.registerClaws(scene);
   }
 
   /**
@@ -102,6 +106,25 @@ export class RobotCatAnimationSystem {
       }),
       frameRate: texture.frameRate,
       repeat: 0,
+    });
+  }
+
+  /**
+   * Registriert den pulsierenden Klaueneffekt für die gesamte Flugphase.
+   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
+   * @returns {void}
+   */
+  static registerClaws(scene) {
+    const texture = ROBOT_CAT_CLAWS_TEXTURE;
+    if (scene.anims.exists(texture.animationKey)) return;
+    scene.anims.create({
+      key: texture.animationKey,
+      frames: [0, 1, 2, 1].map((frame) => ({
+        key: texture.key,
+        frame,
+      })),
+      frameRate: texture.frameRate,
+      repeat: -1,
     });
   }
 }

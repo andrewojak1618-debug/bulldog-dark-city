@@ -1,4 +1,5 @@
 import { TEST_LEVEL } from "../../js/config/test-level-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
  * Lädt, erstellt und aktualisiert die visuelle Umgebung von Level eins.
@@ -11,34 +12,12 @@ export class LevelEnvironmentSystem {
    */
   static load(scene) {
     const assets = TEST_LEVEL.assets;
-    scene.load.image(
-      assets.cityBackground.key,
-      assets.cityBackground.path,
-    );
-    scene.load.spritesheet(
-      assets.skyscraperParallax.key,
-      assets.skyscraperParallax.path,
-      {
-        frameWidth: assets.skyscraperParallax.frameWidth,
-        frameHeight: assets.skyscraperParallax.frameHeight,
-      },
-    );
-    scene.load.spritesheet(
-      assets.midgroundBuildings.key,
-      assets.midgroundBuildings.path,
-      {
-        frameWidth: assets.midgroundBuildings.frameWidth,
-        frameHeight: assets.midgroundBuildings.frameHeight,
-      },
-    );
-    scene.load.spritesheet(
-      assets.fenceObjects.key,
-      assets.fenceObjects.path,
-      {
-        frameWidth: assets.fenceObjects.frameWidth,
-        frameHeight: assets.fenceObjects.frameHeight,
-      },
-    );
+    scene.load.image(assets.cityBackground.key, assets.cityBackground.path);
+    [
+      assets.skyscraperParallax,
+      assets.midgroundBuildings,
+      assets.fenceObjects,
+    ].forEach((asset) => AssetLoaderSystem.loadSpritesheet(scene, asset));
     [
       assets.cloudParallax,
       assets.foregroundCloudParallax,
@@ -288,42 +267,71 @@ export class LevelEnvironmentSystem {
    * @returns {void}
    */
   static update(scene, delta) {
-    scene.bridgeTrains?.forEach((trainState) => {
-      const { sprite, settings } = trainState;
-      const cameraOffset =
-        scene.cameras.main.scrollX * settings.scrollFactor;
-      const halfWidth = sprite.displayWidth / 2;
+    scene.bridgeTrains?.forEach((trainState) =>
+      this.updateTrain(scene, trainState, delta)
+    );
+  }
 
-      if (trainState.cooldownMs > 0) {
-        trainState.cooldownMs -= delta;
-        if (trainState.cooldownMs <= 0) {
-          this.resetTrainAtEntry(
-            scene,
-            sprite,
-            settings,
-            cameraOffset,
-            halfWidth,
-          );
-        }
-        return;
-      }
+  /**
+   * Aktualisiert genau einen Zug inklusive Pause und Austrittskontrolle.
+   * @param {Phaser.Scene} scene - Aktive Levelszene.
+   * @param {{sprite: Phaser.GameObjects.Image, settings: object, cooldownMs: number}} trainState - Zugzustand.
+   * @param {number} delta - Vergangene Zeit seit dem letzten Frame in ms.
+   * @returns {void}
+   */
+  static updateTrain(scene, trainState, delta) {
+    const { sprite, settings } = trainState;
+    const cameraOffset = scene.cameras.main.scrollX * settings.scrollFactor;
+    const halfWidth = sprite.displayWidth / 2;
+    if (trainState.cooldownMs > 0) {
+      this.updateTrainCooldown(
+        scene, trainState, delta, cameraOffset, halfWidth,
+      );
+      return;
+    }
+    sprite.x += settings.direction * settings.speed * (delta / 1000);
+    if (this.hasTrainExited(scene, sprite, settings, cameraOffset, halfWidth)) {
+      sprite.setVisible(false);
+      trainState.cooldownMs = settings.respawnDelayMs;
+    }
+  }
 
-      sprite.x +=
-        settings.direction * settings.speed * (delta / 1000);
-      const screenLeft = sprite.x - halfWidth - cameraOffset;
-      const screenRight = sprite.x + halfWidth - cameraOffset;
-      const exitedLeft =
-        settings.direction < 0 &&
-        screenRight < -settings.resetPadding;
-      const exitedRight =
-        settings.direction > 0 &&
-        screenLeft > scene.scale.width + settings.resetPadding;
+  /**
+   * Zählt die Wiederholungspause herunter und setzt den Zug danach zurück.
+   * @param {Phaser.Scene} scene - Aktive Levelszene.
+   * @param {object} trainState - Zugzustand.
+   * @param {number} delta - Vergangene Zeit seit dem letzten Frame in ms.
+   * @param {number} cameraOffset - Aktueller Parallax-Versatz.
+   * @param {number} halfWidth - Halbe Darstellungsbreite.
+   * @returns {void}
+   */
+  static updateTrainCooldown(
+    scene, trainState, delta, cameraOffset, halfWidth,
+  ) {
+    trainState.cooldownMs -= delta;
+    if (trainState.cooldownMs > 0) return;
+    this.resetTrainAtEntry(
+      scene, trainState.sprite, trainState.settings, cameraOffset, halfWidth,
+    );
+  }
 
-      if (exitedLeft || exitedRight) {
-        sprite.setVisible(false);
-        trainState.cooldownMs = settings.respawnDelayMs;
-      }
-    });
+  /**
+   * Prüft, ob ein Zug seinen sichtbaren Fahrbereich verlassen hat.
+   * @param {Phaser.Scene} scene - Aktive Levelszene.
+   * @param {Phaser.GameObjects.Image} sprite - Bewegter Zug.
+   * @param {object} settings - Zugkonfiguration.
+   * @param {number} cameraOffset - Aktueller Parallax-Versatz.
+   * @param {number} halfWidth - Halbe Darstellungsbreite.
+   * @returns {boolean} `true` nach dem vollständigen Verlassen des Canvas.
+   */
+  static hasTrainExited(scene, sprite, settings, cameraOffset, halfWidth) {
+    const screenLeft = sprite.x - halfWidth - cameraOffset;
+    const screenRight = sprite.x + halfWidth - cameraOffset;
+    const exitedLeft = settings.direction < 0 &&
+      screenRight < -settings.resetPadding;
+    const exitedRight = settings.direction > 0 &&
+      screenLeft > scene.scale.width + settings.resetPadding;
+    return exitedLeft || exitedRight;
   }
 
   /**

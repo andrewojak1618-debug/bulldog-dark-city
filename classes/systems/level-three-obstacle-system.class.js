@@ -1,4 +1,5 @@
 import { LEVEL_THREE } from "../../js/config/level-three-settings.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /** Lädt und erstellt die kollidierbaren Hindernisse des dritten Levels. */
 export class LevelThreeObstacleSystem {
@@ -9,10 +10,7 @@ export class LevelThreeObstacleSystem {
    */
   static load(scene) {
     this.getCatBoxSettings().forEach((settings) => {
-      scene.load.spritesheet(settings.key, settings.path, {
-        frameWidth: settings.frameWidth,
-        frameHeight: settings.frameHeight,
-      });
+      AssetLoaderSystem.loadSpritesheet(scene, settings);
     });
   }
 

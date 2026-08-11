@@ -13,6 +13,16 @@ const SECOND_PATROL_STEP =
   (SECOND_PATROL_MAX_X - SECOND_PATROL_MIN_X) / 3;
 const DETECTION_HEIGHT_TOLERANCE = BOX.collisionHeight;
 
+/** Eindeutige Verhaltenszustände einer mutierten Katze. */
+export const MUTANT_CAT_STATES = Object.freeze({
+  patrol: "patrol",
+  attentive: "attentive",
+  chase: "chase",
+  attack: "attack",
+  hit: "hit",
+  dead: "dead",
+});
+
 /** Textur und Laufanimation der mutierten Katze. */
 export const MUTANT_CAT_TEXTURE = Object.freeze({
   key: "mutant-cat-walk-side-v2",

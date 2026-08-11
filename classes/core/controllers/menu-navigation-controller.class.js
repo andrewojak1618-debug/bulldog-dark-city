@@ -17,11 +17,19 @@ export class MenuNavigationController {
    * "../../input/menu-input-controller.class.js"
    * ).MenuInputController} menuInput - Zentrale Eingabesteuerung.
    * @param {(() => void)|null} [onDialogClosed=null] - Aktion nach dem Schließen eines Dialogs.
+   * @param {((isOpen: boolean) => void)|null} [onDialogStateChange=null] -
+   * Aktion beim Öffnen und Schließen eines Dialogs.
    */
-  constructor(scene, menuInput, onDialogClosed = null) {
+  constructor(
+    scene,
+    menuInput,
+    onDialogClosed = null,
+    onDialogStateChange = null,
+  ) {
     this.scene = scene;
     this.menuInput = menuInput;
     this.onDialogClosed = onDialogClosed;
+    this.onDialogStateChange = onDialogStateChange;
     this.activeDialog = null;
     this.isTransitioning = false;
   }
@@ -62,6 +70,7 @@ export class MenuNavigationController {
   openOptionsDialog() {
     if (this.activeDialog || this.isTransitioning) return;
     this.menuInput.setEnabled(false);
+    this.onDialogStateChange?.(true);
     this.activeDialog = new OptionsDialog(this.scene, {
       muteSystem: globalMuteSystem,
       onClose: () => this.restoreMenu(),
@@ -72,6 +81,7 @@ export class MenuNavigationController {
   restoreMenu() {
     this.activeDialog = null;
     this.menuInput.setEnabled(true);
+    this.onDialogStateChange?.(false);
     this.onDialogClosed?.();
   }
 
@@ -105,22 +115,15 @@ export class MenuNavigationController {
   }
 
   /**
-   * Zeigt die Funktion eines Schnellzugriffs oder einen Platzhalterhinweis.
-   * @param {{iconKey: string}} action - Konfiguration des Schnellzugriffs.
+   * Führt die eindeutig konfigurierte Aktion eines Schnellzugriffs aus.
+   * @param {{action: string}} action - Konfiguration des Schnellzugriffs.
    * @returns {void}
    */
   activateQuickAction(action) {
-    if (action.iconKey === "menu-options") {
-      this.openOptionsDialog();
-      return;
-    }
-
-    this.openDialog({
-      title: "NOCH NICHT VERFÜGBAR",
-      message:
-        "Dieser Schnellzugriff wird in einer späteren Entwicklungsstufe freigeschaltet.",
-      confirmLabel: "OK",
-    });
+    const actions = {
+      options: () => this.openOptionsDialog(),
+    };
+    actions[action.action]?.();
   }
 
   /**
@@ -131,6 +134,7 @@ export class MenuNavigationController {
   openDialog(options) {
     if (this.activeDialog || this.isTransitioning) return;
     this.menuInput.setEnabled(false);
+    this.onDialogStateChange?.(true);
     this.activeDialog = new MenuDialog(this.scene, {
       ...options,
       onConfirm: this.createDialogHandler(options.onConfirm),

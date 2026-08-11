@@ -37,7 +37,13 @@ export class MutantCatRewardSystem {
     return rewardSystem;
   }
 
-  /** Speichert die gemeinsamen Abhängigkeiten und richtet die Itemgruppe ein. */
+  /**
+   * Speichert die gemeinsamen Abhängigkeiten und richtet die Itemgruppe ein.
+   * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
+   * @param {Phaser.Physics.Arcade.Sprite} player - Sammelnde Bulldogge.
+   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
+   */
   constructor(scene, player, health, collectibles) {
     this.scene = scene;
     this.group = scene.add.group({ runChildUpdate: false });

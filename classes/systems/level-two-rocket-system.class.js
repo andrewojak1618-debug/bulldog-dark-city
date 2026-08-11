@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
 import { BulldogMutationStateSystem } from
   "./bulldog-mutation-state-system.class.js";
+import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
  * Steuert die ausweichbaren Raketen der großen Alarmdrohne.
@@ -14,18 +15,22 @@ export class LevelTwoRocketSystem {
    */
   static load(scene) {
     const settings = LEVEL_TWO.drones.rocket;
-    scene.load.spritesheet(settings.key, settings.path, {
+    AssetLoaderSystem.loadSpritesheet(scene, {
+      key: settings.key,
+      path: settings.path,
       frameWidth: settings.frameWidth,
       frameHeight: settings.frameHeight,
     });
-    scene.load.spritesheet(settings.explosionKey, settings.explosionPath, {
+    AssetLoaderSystem.loadSpritesheet(scene, {
+      key: settings.explosionKey,
+      path: settings.explosionPath,
       frameWidth: settings.frameWidth,
       frameHeight: settings.frameHeight,
     });
-    scene.load.audio(
-      settings.explosionSoundKey,
-      settings.explosionSoundPath,
-    );
+    AssetLoaderSystem.loadAudio(scene, {
+      key: settings.explosionSoundKey,
+      path: settings.explosionSoundPath,
+    });
   }
 
   /**
@@ -145,7 +150,10 @@ export class LevelTwoRocketSystem {
     return false;
   }
 
-  /** Liefert die große, raketentragende Drohne. */
+  /**
+   * Liefert die große, raketentragende Drohne.
+   * @returns {Phaser.GameObjects.Sprite|undefined} Große Drohne oder `undefined`.
+   */
   getBigDrone() {
     return this.drones.find((drone) =>
       drone.getData("drone")?.tracksPlayerWithBeam
@@ -203,7 +211,13 @@ export class LevelTwoRocketSystem {
     this.configureRocketBody(rocket, angle, settings);
   }
 
-  /** Konfiguriert Hitbox und konstante Fluggeschwindigkeit. */
+  /**
+   * Konfiguriert Hitbox und konstante Fluggeschwindigkeit.
+   * @param {Phaser.Physics.Arcade.Sprite} rocket - Neue Rakete.
+   * @param {number} angle - Flugwinkel zum Zielpunkt.
+   * @param {object} settings - Zentrale Raketenkonfiguration.
+   * @returns {void}
+   */
   configureRocketBody(rocket, angle, settings) {
     rocket.body.setCircle(
       settings.bodyRadius,
@@ -233,12 +247,19 @@ export class LevelTwoRocketSystem {
     this.explode(rocket);
   }
 
-  /** Zieht den zentral konfigurierten Raketenschaden ab. */
+  /**
+   * Zieht den zentral konfigurierten Raketenschaden ab.
+   * @returns {number} Verbleibende Lebenspunkte.
+   */
   applyRocketDamage() {
     return this.health.takeDamage(LEVEL_TWO.drones.rocket.damage);
   }
 
-  /** Startet abhängig von den Restleben Treffer- oder K.-o.-Reaktion. */
+  /**
+   * Startet abhängig von den Restleben Treffer- oder K.-o.-Reaktion.
+   * @param {number} remainingHealth - Verbleibende Lebenspunkte.
+   * @returns {void}
+   */
   showPlayerHitReaction(remainingHealth) {
     this.playerKnockedOut = remainingHealth <= 0;
     if (this.playerKnockedOut) {
@@ -282,7 +303,11 @@ export class LevelTwoRocketSystem {
     });
   }
 
-  /** Spielt den Explosionssound mit zentral konfigurierter Lautstärke. */
+  /**
+   * Spielt den Explosionssound mit zentral konfigurierter Lautstärke.
+   * @param {object} settings - Zentrale Raketenkonfiguration.
+   * @returns {void}
+   */
   playExplosionSound(settings) {
     this.scene.sound.play(settings.explosionSoundKey, {
       volume: settings.explosionSoundVolume,

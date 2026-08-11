@@ -27,6 +27,10 @@ export class BulldogAudioSystem {
   constructor(player, scene) {
     this.player = player;
     this.biteSoundPlayed = false;
+    this.mutationSound = this.createSound(
+      scene,
+      BULLDOG_AUDIO.mutationTransform,
+    );
     this.biteSound = this.createSound(scene, BULLDOG_AUDIO.biteAttack);
     this.waitSound = this.createSound(scene, BULLDOG_AUDIO.waitBreathe);
     this.bindLifecycleEvents();
@@ -51,6 +55,11 @@ export class BulldogAudioSystem {
    */
   bindLifecycleEvents() {
     this.player.on(
+      Phaser.Animations.Events.ANIMATION_START,
+      this.handleAnimationStart,
+      this,
+    );
+    this.player.on(
       Phaser.Animations.Events.ANIMATION_UPDATE,
       this.handleAnimationUpdate,
       this,
@@ -65,6 +74,21 @@ export class BulldogAudioSystem {
   prepareBiteAttack() {
     this.biteSoundPlayed = false;
     this.stopWaitBreathing();
+  }
+
+  /**
+   * Startet den Mutationssound synchron mit beiden Transformationen.
+   * @param {Phaser.Animations.Animation} animation - Gestartete Animation.
+   * @returns {void}
+   */
+  handleAnimationStart(animation) {
+    const isTransformation = [
+      BULLDOG_ANIMATION_KEYS.mutationTransform,
+      BULLDOG_ANIMATION_KEYS.mutationRevert,
+    ].includes(animation.key);
+    if (!isTransformation) return;
+    this.mutationSound.stop();
+    this.mutationSound.play();
   }
 
   /**
@@ -106,6 +130,7 @@ export class BulldogAudioSystem {
    */
   stopAll() {
     this.stopWaitBreathing();
+    if (this.mutationSound.isPlaying) this.mutationSound.stop();
     if (this.biteSound.isPlaying) this.biteSound.stop();
   }
 
@@ -115,10 +140,16 @@ export class BulldogAudioSystem {
    */
   destroy() {
     this.player.off(
+      Phaser.Animations.Events.ANIMATION_START,
+      this.handleAnimationStart,
+      this,
+    );
+    this.player.off(
       Phaser.Animations.Events.ANIMATION_UPDATE,
       this.handleAnimationUpdate,
       this,
     );
+    this.mutationSound.destroy();
     this.biteSound.destroy();
     this.waitSound.destroy();
   }

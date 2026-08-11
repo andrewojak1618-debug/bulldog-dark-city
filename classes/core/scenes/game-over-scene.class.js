@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { globalMuteSystem } from
   "../../systems/global-mute-system.class.js";
+import { EndingVideoSystem } from
+  "../../systems/ending-video-system.class.js";
 import { setMuteButtonVisibility } from
   "../controllers/mute-button-controller.class.js";
 import { SCENES } from "../../../js/config/game-settings.js";
@@ -45,24 +47,12 @@ export class GameOverScene extends Phaser.Scene {
     this.isFinished = false;
     this.isFallbackVisible = false;
     this.isVideoSized = false;
-    this.video.once("created", () => this.sizeAndRevealVideo());
-    this.video.once("playing", () => this.sizeAndRevealVideo());
+    this.video.once("created", () => EndingVideoSystem.sizeAndReveal(this));
+    this.video.once("playing", () => EndingVideoSystem.sizeAndReveal(this));
     this.video.once("complete", () => this.finish());
     this.video.once("error", () => this.showFallback());
     this.events.once("shutdown", () => this.cleanup());
-    this.startVideo();
-  }
-
-  /**
-   * Startet die Wiedergabe und nutzt bei einem Fehler den Ersatzabschluss.
-   * @returns {void}
-   */
-  startVideo() {
-    try {
-      this.video.play(false);
-    } catch {
-      this.showFallback();
-    }
+    EndingVideoSystem.start(this);
   }
 
   /**
@@ -77,17 +67,6 @@ export class GameOverScene extends Phaser.Scene {
     this.scene.start(SCENES.endscreen, {
       result: ENDSCREEN_RESULT.gameOver,
     });
-  }
-
-  /**
-   * Skaliert erst den verfügbaren Videoframe exakt auf die Canvasgröße.
-   * @returns {void}
-   */
-  sizeAndRevealVideo() {
-    if (this.isVideoSized || !this.video) return;
-    const { width, height } = this.scale;
-    this.isVideoSized = true;
-    this.video.setDisplaySize(width, height).setAlpha(1);
   }
 
   /**

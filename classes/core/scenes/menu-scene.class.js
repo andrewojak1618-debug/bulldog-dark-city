@@ -1,19 +1,19 @@
 import Phaser from "phaser";
 import { MenuButton } from "../../ui/menu-button.class.js";
 import { QuickActionButton } from "../../ui/quick-action-button.class.js";
-import { SocialMediaButton } from "../../ui/social-media-button.class.js";
 import { MenuInputHint } from "../../ui/menu-input-hint.class.js";
 import { MenuInputController } from "../../input/menu-input-controller.class.js";
 import { MenuNavigationController } from "../controllers/menu-navigation-controller.class.js";
 import { MenuIntroController } from "../controllers/menu-intro-controller.class.js";
-import { setMuteButtonGameMode, setMuteButtonVisibility } from
-  "../controllers/mute-button-controller.class.js";
-import { LevelOnePreloadSystem } from
-  "../../systems/level-one-preload-system.class.js";
+import {
+  setMuteButtonGameMode,
+  setMuteButtonVisibility,
+} from "../controllers/mute-button-controller.class.js";
+import { setMenuSocialLinkVisibility } from "../controllers/menu-social-link-controller.js";
+import { LevelOnePreloadSystem } from "../../systems/level-one-preload-system.class.js";
 import { getAssetPath } from "../../../js/config/asset-paths.js";
 import { MENU_BUTTONS } from "../../../js/config/menu-buttons.js";
 import { QUICK_ACTIONS } from "../../../js/config/quick-actions.js";
-import { SOCIAL_ACTIONS } from "../../../js/config/social-actions.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { MENU_START_TRANSITION } from "../../../js/config/menu-transition-settings.js";
 import { getAreaCenter, MENU_LAYOUT } from "../../../js/config/menu-layout.js";
@@ -50,9 +50,6 @@ export class MenuScene extends Phaser.Scene {
       MENU_START_TRANSITION.video.url,
       MENU_START_TRANSITION.video.noAudio,
     );
-    SOCIAL_ACTIONS.forEach((action) =>
-      this.load.image(action.textureKey, getAssetPath("ui", action.iconFile)),
-    );
     MENU_BUTTONS.forEach((button) => this.loadMenuIcon(button));
     const menuIconKeys = new Set(MENU_BUTTONS.map(({ iconKey }) => iconKey));
     QUICK_ACTIONS.filter(({ iconKey }) => !menuIconKeys.has(iconKey)).forEach(
@@ -76,7 +73,10 @@ export class MenuScene extends Phaser.Scene {
    */
   create() {
     setMuteButtonGameMode(false);
-    setMuteButtonVisibility(true);
+    this.setExternalMenuControlsVisibility(true);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () =>
+      this.setExternalMenuControlsVisibility(false),
+    );
     this.createBackground();
     this.createLogo();
     this.createVersionInfo();
@@ -84,7 +84,6 @@ export class MenuScene extends Phaser.Scene {
     this.createMenuInput();
     this.inputHint = new MenuInputHint(this, MENU_LAYOUT.inputHint);
     this.createQuickActions();
-    this.createSocialMedia();
     this.introController = new MenuIntroController(this);
     this.introController.prepare();
     this.levelOneAssetsReady = LevelOnePreloadSystem.preload(this);
@@ -144,66 +143,6 @@ export class MenuScene extends Phaser.Scene {
       )
       .setOrigin(0, 0.5);
     return this.versionInfo;
-  }
-
-  /**
-   * Erstellt Beschriftung und Social-Media-Buttons unten rechts.
-   * @returns {void}
-   */
-  createSocialMedia() {
-    this.socialMediaHeading = this.createSocialMediaHeading();
-    this.socialMediaButtons = SOCIAL_ACTIONS.map(
-      (action, index) =>
-        new SocialMediaButton(this, {
-          ...this.getSocialMediaPosition(index),
-          size: MENU_LAYOUT.socialMedia.buttonSize,
-          iconSize: MENU_LAYOUT.socialMedia.iconSize,
-          textureKey: action.textureKey,
-          disabled: true,
-        }),
-    );
-  }
-
-  /**
-   * Zeigt die Überschrift oberhalb der Social-Media-Buttons.
-   * @returns {Phaser.GameObjects.Text} Erstellte Überschrift.
-   */
-  createSocialMediaHeading() {
-    const { areas, socialMedia } = MENU_LAYOUT;
-    return this.add
-      .text(
-        areas.socialMedia.x,
-        areas.socialMedia.y - socialMedia.headingGap,
-        socialMedia.heading,
-        {
-          fontFamily: socialMedia.headingFontFamily,
-          fontSize: `${socialMedia.headingFontSize}px`,
-          color: socialMedia.headingColor,
-        },
-      )
-      .setOrigin(0, 1);
-  }
-
-  /**
-   * Berechnet die Mittelpunktposition eines Social-Media-Buttons.
-   * @param {number} index - Position innerhalb der Social-Media-Leiste.
-   * @returns {{x: number, y: number}} Mittelpunktposition.
-   */
-  getSocialMediaPosition(index) {
-    const { socialMedia } = MENU_LAYOUT;
-    const step = socialMedia.buttonSize + socialMedia.buttonGap;
-    const buttonsWidth =
-      SOCIAL_ACTIONS.length * socialMedia.buttonSize +
-      (SOCIAL_ACTIONS.length - 1) * socialMedia.buttonGap;
-    const rowStartX =
-      this.socialMediaHeading.x +
-      this.socialMediaHeading.width / 2 -
-      buttonsWidth / 2;
-
-    return {
-      x: rowStartX + socialMedia.buttonSize / 2 + index * step,
-      y: MENU_LAYOUT.areas.socialMedia.y + socialMedia.buttonSize / 2,
-    };
   }
 
   /**
@@ -267,7 +206,11 @@ export class MenuScene extends Phaser.Scene {
           iconCrop: action.iconCrop,
           iconDisplaySize: action.iconDisplaySize,
           iconOffsetY: action.iconOffsetY,
-          onActivate: () => this.menuNavigation.activateQuickAction(action),
+          disabled: action.disabled,
+          unavailableLabel: action.unavailableLabel,
+          onActivate: action.disabled
+            ? null
+            : () => this.menuNavigation.activateQuickAction(action),
         }),
     );
   }
@@ -343,7 +286,18 @@ export class MenuScene extends Phaser.Scene {
       () => {
         this.isMenuActionLocked = false;
       },
+      (isOpen) => this.setExternalMenuControlsVisibility(!isOpen),
     );
+  }
+
+  /**
+   * Schaltet die außerhalb des Canvas liegenden Menüaktionen gemeinsam um.
+   * @param {boolean} isVisible - Ob Mute und GitHub bedienbar sein sollen.
+   * @returns {void}
+   */
+  setExternalMenuControlsVisibility(isVisible) {
+    setMuteButtonVisibility(isVisible);
+    setMenuSocialLinkVisibility(isVisible);
   }
 
   /**
