@@ -56,14 +56,18 @@ export class MutantCatGroundingSystem {
   }
 
   /**
-   * Ändert die Darstellung, ohne die Physics-Bodenkante zu verschieben.
+   * Ändert Darstellung und Hitbox, ohne die Bodenkante zu verschieben.
    * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - Katze.
    * @param {number} width - Gewünschte Darstellungsbreite.
    * @param {number} height - Gewünschte Darstellungshöhe.
+   * @param {number|null} [bodyOffsetY=null] - Optionaler vertikaler Hitbox-Offset.
    * @returns {void}
    */
-  static resizeKeepingBodyBottom(cat, width, height) {
+  static applyGeometryKeepingBodyBottom(cat, width, height, bodyOffsetY = null) {
     const bodyBottom = cat.body.bottom;
+    if (Number.isFinite(bodyOffsetY)) {
+      cat.body.setOffset(cat.body.offset.x, bodyOffsetY);
+    }
     cat.setDisplaySize(width, height);
     cat.body.updateFromGameObject();
     cat.y += bodyBottom - cat.body.bottom;

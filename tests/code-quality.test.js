@@ -45,6 +45,55 @@ async function readProductionFiles() {
   })));
 }
 
+/**
+ * Sammelt alle lokal verfügbaren benannten ES-Modul-Imports.
+ * @param {string} content - JavaScript-Quelltext.
+ * @returns {Set<string>} Lokal verfügbare Importnamen.
+ */
+function collectNamedImports(content) {
+  const imports = new Set();
+  const pattern = /import\s*\{([^}]*)\}\s*from/gs;
+  for (const match of content.matchAll(pattern)) {
+    match[1].split(",").forEach((entry) => {
+      const localName = entry.trim().split(/\s+as\s+/).at(-1);
+      if (localName) imports.add(localName);
+    });
+  }
+  return imports;
+}
+
+/**
+ * Entfernt Kommentare, damit Dokumentation nicht als Codeverwendung gilt.
+ * @param {string} content - JavaScript-Quelltext.
+ * @returns {string} Quelltext ohne Kommentare.
+ */
+function removeJavaScriptComments(content) {
+  return content.replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/.*$/gm, "");
+}
+
+/**
+ * Findet verwendete System- und Controller-Klassen ohne lokalen Import.
+ * @param {string} content - JavaScript-Quelltext.
+ * @returns {string[]} Namen fehlender Architekturimporte.
+ */
+function findMissingArchitectureImports(content) {
+  const executableContent = removeJavaScriptComments(content);
+  const references = new Set(
+    [...executableContent.matchAll(
+      /\b([A-Z][A-Za-z0-9]*(?:System|Controller))\s*\./g,
+    )]
+      .map((match) => match[1]),
+  );
+  const imports = collectNamedImports(content);
+  return [...references].filter((name) => {
+    const declaration = new RegExp(
+      `\\b(?:class|function|const|let|var)\\s+${name}\\b`,
+    );
+    return !imports.has(name) && !declaration.test(executableContent);
+  });
+}
+
 test("Produktionsdateien bleiben innerhalb der 400-Zeilen-Regel", async () => {
   const files = await readProductionFiles();
   const violations = files.filter(({ content }) =>
@@ -95,4 +144,17 @@ test("Produktionscode enthält keine Merge-Konfliktmarker", async () => {
     violations.map(({ path }) => path.replace(PROJECT_ROOT, "")),
     [],
   );
+});
+
+test("verwendete Systeme und Controller sind lokal importiert", async () => {
+  const files = await readProductionFiles();
+  const violations = files.flatMap(({ path, content }) => {
+    if (extname(path) !== ".js") return [];
+    return findMissingArchitectureImports(content).map((name) => ({
+      file: path.replace(PROJECT_ROOT, ""),
+      name,
+    }));
+  });
+
+  assert.deepEqual(violations, []);
 });

@@ -1,47 +1,31 @@
 import Phaser from "phaser";
 import { Bulldog } from "../../entities/characters/bulldog.class.js";
 import { InputSystem } from "../../input/input-system.class.js";
-import { TouchControlSystem } from
-  "../../input/touch-control-system.class.js";
-import { BulldogAnimationSystem } from
-  "../../systems/bulldog-animation-system.class.js";
-import { LevelTwoEnvironmentSystem } from
-  "../../systems/level-two-environment-system.class.js";
-import { LevelTwoDroneSystem } from
-  "../../systems/level-two-drone-system.class.js";
-import { LevelTwoRocketSystem } from
-  "../../systems/level-two-rocket-system.class.js";
-import { LevelTwoObstacleSystem } from
-  "../../systems/level-two-obstacle-system.class.js";
-import { EnemyHealthBarSystem } from
-  "../../systems/enemy-health-bar-system.class.js";
+import { TouchControlSystem } from "../../input/touch-control-system.class.js";
+import { BulldogAnimationSystem } from "../../systems/bulldog-animation-system.class.js";
+import { LevelTwoEnvironmentSystem } from "../../systems/level-two-environment-system.class.js";
+import { LevelTwoDroneSystem } from "../../systems/level-two-drone-system.class.js";
+import { LevelTwoRocketSystem } from "../../systems/level-two-rocket-system.class.js";
+import { LevelTwoObstacleSystem } from "../../systems/level-two-obstacle-system.class.js";
+import { EnemyHealthBarSystem } from "../../systems/enemy-health-bar-system.class.js";
 import { LevelSceneSystem } from "../../systems/level-scene-system.class.js";
 import { LevelItemSystem } from "../../systems/level-item-system.class.js";
 import { MutantCatSystem } from "../../systems/mutant-cat-system.class.js";
-import { MutantCatRewardSystem } from
-  "../../systems/mutant-cat-reward-system.class.js";
-import { DogCatcherAnimationSystem } from
-  "../../systems/dog-catcher-animation-system.class.js";
-import { LevelTwoCaptureSystem } from
-  "../../systems/level-two-capture-system.class.js";
-import { LevelTwoGameplaySystem } from
-  "../../systems/level-two-gameplay-system.class.js";
-import { LevelTwoPreloadSystem } from
-  "../../systems/level-two-preload-system.class.js";
-import { LevelThreePreloadSystem } from
-  "../../systems/level-three-preload-system.class.js";
-import { setMuteButtonGameMode } from
-  "../controllers/mute-button-controller.class.js";
+import { MutantCatRewardSystem } from "../../systems/mutant-cat-reward-system.class.js";
+import { DogCatcherAnimationSystem } from "../../systems/dog-catcher-animation-system.class.js";
+import { LevelTwoCaptureSystem } from "../../systems/level-two-capture-system.class.js";
+import { LevelTwoGameplaySystem } from "../../systems/level-two-gameplay-system.class.js";
+import { LevelTwoPreloadSystem } from "../../systems/level-two-preload-system.class.js";
+import { LevelThreePreloadSystem } from "../../systems/level-three-preload-system.class.js";
+import { setMuteButtonGameMode } from "../controllers/mute-button-controller.class.js";
 import { LevelExitSystem } from "../../systems/level-exit-system.class.js";
-import { BackgroundMusicSystem } from
-  "../../systems/background-music-system.class.js";
+import { BackgroundMusicSystem } from "../../systems/background-music-system.class.js";
 import { LevelMenuHint } from "../../ui/level-menu-hint.class.js";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_EVENTS,
   BULLDOG_TEXTURES,
-} from
-  "../../../js/config/bulldog-animation-settings.js";
+} from "../../../js/config/bulldog-animation-settings.js";
 import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { LEVEL_TWO } from "../../../js/config/level-two-settings.js";
@@ -261,10 +245,7 @@ export class LevelTwoScene extends Phaser.Scene {
       this.getGroundSurfaceY(),
     );
     this.floatingLightPlatforms =
-      LevelTwoObstacleSystem.createFloatingLightPlatforms(
-        this,
-        this.platforms,
-      );
+      LevelTwoObstacleSystem.createFloatingLightPlatforms(this, this.platforms);
   }
 
   /**
@@ -276,9 +257,9 @@ export class LevelTwoScene extends Phaser.Scene {
     const scale = ground.displayHeight / ground.frameHeight;
     const visualTop = ground.bottomY - ground.displayHeight;
 
-    return visualTop +
-      ground.surfaceOffsetY * scale +
-      ground.playerGroundOffsetY;
+    return (
+      visualTop + ground.surfaceOffsetY * scale + ground.playerGroundOffsetY
+    );
   }
 
   /**

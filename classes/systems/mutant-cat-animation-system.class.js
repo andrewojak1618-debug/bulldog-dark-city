@@ -10,7 +10,28 @@ import {
   MUTANT_CAT_TEXTURE,
 } from "../../js/config/mutant-cat-settings.js";
 
-/** Registriert die Laufanimation der mutierten Katze. */
+const STANDARD_ANIMATIONS = Object.freeze([
+  Object.freeze({
+    key: MUTANT_CAT_ANIMATION_KEY,
+    texture: MUTANT_CAT_TEXTURE,
+    frameRate: MUTANT_CAT.frameRate,
+    repeat: -1,
+  }),
+  Object.freeze({
+    key: MUTANT_CAT_ATTENTIVE_ANIMATION_KEY,
+    texture: MUTANT_CAT_ATTENTIVE_TEXTURE,
+    frameRate: MUTANT_CAT.attentiveFrameRate,
+    repeat: 0,
+  }),
+  Object.freeze({
+    key: MUTANT_CAT_DEAD_ANIMATION_KEY,
+    texture: MUTANT_CAT_DEAD_TEXTURE,
+    frameRate: MUTANT_CAT.deadFrameRate,
+    repeat: 0,
+  }),
+]);
+
+/** Registriert sämtliche Animationen der mutierten Katze. */
 export class MutantCatAnimationSystem {
   /**
    * Erstellt die Animation höchstens einmal im globalen Phaser-Manager.
@@ -18,87 +39,65 @@ export class MutantCatAnimationSystem {
    * @returns {void}
    */
   static register(scene) {
-    this.registerAnimation(
-      scene,
-      MUTANT_CAT_ANIMATION_KEY,
-      MUTANT_CAT_TEXTURE,
-      MUTANT_CAT.frameRate,
-      -1,
-    );
-    this.registerAnimation(
-      scene,
-      MUTANT_CAT_ATTENTIVE_ANIMATION_KEY,
-      MUTANT_CAT_ATTENTIVE_TEXTURE,
-      MUTANT_CAT.attentiveFrameRate,
-      0,
+    STANDARD_ANIMATIONS.forEach((animation) =>
+      this.registerAnimation(scene, animation),
     );
     this.registerAttackAnimation(scene);
-    this.registerAnimation(
-      scene,
-      MUTANT_CAT_DEAD_ANIMATION_KEY,
-      MUTANT_CAT_DEAD_TEXTURE,
-      MUTANT_CAT.deadFrameRate,
-      0,
-    );
   }
 
   /**
    * Registriert eine konfigurierte Katzenanimation genau einmal.
    * @param {Phaser.Scene} scene - Szene mit globalem Animationsmanager.
-   * @param {string} key - Eindeutiger Animationsschlüssel.
-   * @param {object} texture - Quelldaten des Spritesheets.
-   * @param {number} frameRate - Abspielgeschwindigkeit.
-   * @param {number} repeat - Anzahl der Wiederholungen.
+   * @param {{key: string, texture: object, frameRate: number, repeat: number}}
+   * animation - Zentrale Animationskonfiguration.
    * @returns {void}
    */
-  static registerAnimation(scene, key, texture, frameRate, repeat) {
-    if (scene.anims.exists(key)) return;
+  static registerAnimation(scene, animation) {
+    if (scene.anims.exists(animation.key)) return;
     scene.anims.create({
-      key,
-      frames: scene.anims.generateFrameNumbers(texture.key, {
+      key: animation.key,
+      frames: scene.anims.generateFrameNumbers(animation.texture.key, {
         start: 0,
-        end: texture.frameCount - 1,
+        end: animation.texture.frameCount - 1,
       }),
-      frameRate,
-      repeat,
+      frameRate: animation.frameRate,
+      repeat: animation.repeat,
     });
   }
 
   /**
-   * Registriert den Angriff mit einem doppelt so schnellen Abschlussframe.
+   * Registriert den Angriff mit individuell abgestimmten Framezeiten.
    * @param {Phaser.Scene} scene - Szene mit globalem Animationsmanager.
    * @returns {void}
    */
   static registerAttackAnimation(scene) {
     if (scene.anims.exists(MUTANT_CAT_ATTACK_ANIMATION_KEY)) return;
-    const speedMultiplier = MUTANT_CAT.attackLastFrameSpeedMultiplier;
-    const acceleratedFrameRate = MUTANT_CAT.attackFrameRate * speedMultiplier;
-    const frames = this.createAttackFrames(acceleratedFrameRate);
+    const frames = this.createAttackFrames();
     scene.anims.create({
       key: MUTANT_CAT_ATTACK_ANIMATION_KEY,
       frames,
-      frameRate: acceleratedFrameRate,
+      frameRate: MUTANT_CAT.attackFrameRate,
       repeat: 0,
+      skipMissedFrames: false,
     });
   }
 
   /**
-   * Erstellt die Framefolge mit einem kürzeren sichtbaren Abschlussframe.
-   * @param {number} acceleratedFrameRate - Beschleunigte Gesamtbildrate.
+   * Erstellt die Framefolge mit einer verlangsamten zweiten Angriffshälfte.
    * @returns {Phaser.Types.Animations.AnimationFrame[]} Angriffsframes.
    */
-  static createAttackFrames(acceleratedFrameRate) {
+  static createAttackFrames() {
     const standardFrameDurationMs = 1000 / MUTANT_CAT.attackFrameRate;
-    const acceleratedFrameDurationMs = 1000 / acceleratedFrameRate;
-    const additionalStandardHoldMs = standardFrameDurationMs -
-      acceleratedFrameDurationMs;
-    const lastFrame = MUTANT_CAT_ATTACK_TEXTURE.frameCount - 1;
     return Array.from(
       { length: MUTANT_CAT_ATTACK_TEXTURE.frameCount },
       (_, frame) => ({
         key: MUTANT_CAT_ATTACK_TEXTURE.key,
         frame,
-        duration: frame === lastFrame ? 0 : additionalStandardHoldMs,
+        duration:
+          frame >= MUTANT_CAT.attackSlowFromFrame
+            ? standardFrameDurationMs *
+              (MUTANT_CAT.attackSlowDurationMultiplier - 1)
+            : 0,
       }),
     );
   }

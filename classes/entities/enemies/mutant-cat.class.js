@@ -12,8 +12,8 @@ import {
   MUTANT_CAT_STATES,
 } from "../../../js/config/mutant-cat-settings.js";
 import { MutantCatAudioSystem } from "../../systems/mutant-cat-audio-system.class.js";
-import { MutantCatDetectionSystem } from
-  "../../systems/mutant-cat-detection-system.class.js";
+import { MutantCatDetectionSystem } from "../../systems/mutant-cat-detection-system.class.js";
+import { MutantCatGroundingSystem } from "../../systems/mutant-cat-grounding-system.class.js";
 
 /** Patrouilliert als mutierte Katze innerhalb eines konfigurierten Abschnitts. */
 export class MutantCat extends Enemy {
@@ -60,7 +60,7 @@ export class MutantCat extends Enemy {
     this.state = MUTANT_CAT_STATES.patrol;
     this.nextAttackAt = 0;
     this.attackHitConsumed = false;
-    this.isAttackDisplayScaled = false;
+    this.isAttackGeometryApplied = false;
     this.receivedBiteHits = 0;
     this.firstBiteHitAt = null;
     this.hitReactionEndsAt = 0;
@@ -105,21 +105,23 @@ export class MutantCat extends Enemy {
    */
   updateEngagedBehavior(player, time) {
     if (this.state === MUTANT_CAT_STATES.patrol) {
-      this.showAttentiveReaction(player);
-      return;
+      return this.showAttentiveReaction(player);
     }
     this.facePlayer(player);
     if (this.state === MUTANT_CAT_STATES.attentive) return;
-    if (time < this.nextAttackAt) {
-      this.showAttackCooldownFrame();
-      return;
-    }
-    if (MutantCatDetectionSystem.getHorizontalDistance(this, player) <=
-        MUTANT_CAT.attackRange) {
-      this.startAttack();
-      return;
-    }
+    if (time < this.nextAttackAt) return this.showAttackCooldownFrame();
+    if (this.canAttackPlayer(player)) return this.startAttack();
     this.chasePlayer(player);
+  }
+
+  /**
+   * Prüft, ob die Bulldogge die Angriffsreichweite erreicht hat.
+   * @param {Phaser.Physics.Arcade.Sprite} player - Geprüfte Bulldogge.
+   * @returns {boolean} Ob eine Attacke gestartet werden darf.
+   */
+  canAttackPlayer(player) {
+    return MutantCatDetectionSystem.getHorizontalDistance(this, player) <=
+      MUTANT_CAT.attackRange;
   }
 
   /**
@@ -133,13 +135,14 @@ export class MutantCat extends Enemy {
     this.state = MUTANT_CAT_STATES.attentive;
     MutantCatAudioSystem.playAttentive(this.scene);
     this.play(MUTANT_CAT_ATTENTIVE_ANIMATION_KEY);
-    this.once(this.getAnimationCompleteEvent(
-      MUTANT_CAT_ATTENTIVE_ANIMATION_KEY,
-    ), () => {
-      if (this.state === MUTANT_CAT_STATES.attentive) {
-        this.state = MUTANT_CAT_STATES.chase;
-      }
-    });
+    this.once(
+      this.getAnimationCompleteEvent(MUTANT_CAT_ATTENTIVE_ANIMATION_KEY),
+      () => {
+        if (this.state === MUTANT_CAT_STATES.attentive) {
+          this.state = MUTANT_CAT_STATES.chase;
+        }
+      },
+    );
   }
 
   /**
@@ -164,58 +167,75 @@ export class MutantCat extends Enemy {
     this.setVelocityX(direction * MUTANT_CAT.chaseSpeed);
   }
 
-  /** Startet eine einzelne Angriffssequenz in Nahkampfreichweite. */
+  /**
+   * Startet eine einzelne Angriffssequenz in Nahkampfreichweite.
+   * @returns {void}
+   */
   startAttack() {
     this.state = MUTANT_CAT_STATES.attack;
     this.attackHitConsumed = false;
     this.setVelocityX(0);
-    this.applyAttackDisplaySize();
+    this.applyAttackGeometry();
     this.play(MUTANT_CAT_ATTACK_ANIMATION_KEY);
-    this.once(this.getAnimationCompleteEvent(
-      MUTANT_CAT_ATTACK_ANIMATION_KEY,
-    ), () => this.finishAttack());
+    this.once(
+      this.getAnimationCompleteEvent(MUTANT_CAT_ATTACK_ANIMATION_KEY),
+      () => this.finishAttack(),
+    );
   }
 
-  /** Beendet den Angriff und startet dessen Abklingzeit. */
+  /**
+   * Beendet den Angriff und startet dessen Abklingzeit.
+   * @returns {void}
+   */
   finishAttack() {
-    this.restoreDefaultDisplaySize();
+    this.restoreDefaultGeometry();
     this.state = MUTANT_CAT_STATES.chase;
     this.nextAttackAt = this.scene.time.now + MUTANT_CAT.attackCooldownMs;
     this.showAttackCooldownFrame();
   }
 
-  /** Zeigt während der Abklingzeit die letzte Alarmhaltung. */
+  /**
+   * Zeigt während der Abklingzeit die letzte Alarmhaltung.
+   * @returns {void}
+   */
   showAttackCooldownFrame() {
     this.setVelocityX(0);
+    const isCooldownFrameVisible =
+      this.texture.key === MUTANT_CAT_ATTENTIVE_TEXTURE.key &&
+      Number(this.frame.name) === MUTANT_CAT_ATTENTIVE_TEXTURE.frameCount - 1;
+    if (isCooldownFrameVisible) return;
+    this.anims.stop();
     this.setTexture(MUTANT_CAT_ATTENTIVE_TEXTURE.key, 3);
   }
 
   /**
-   * Vergrößert den Angriff bodenfest auf 120 Prozent.
+   * Richtet die Angriffsdarstellung bodenfest an der Standardgröße aus.
    * @returns {void}
    */
-  applyAttackDisplaySize() {
-    if (this.isAttackDisplayScaled) return;
-    MutantCatGroundingSystem.resizeKeepingBodyBottom(
+  applyAttackGeometry() {
+    if (this.isAttackGeometryApplied) return;
+    MutantCatGroundingSystem.applyGeometryKeepingBodyBottom(
       this,
-      MUTANT_CAT.displayWidth * MUTANT_CAT.attackDisplayScale,
-      MUTANT_CAT.displayHeight * MUTANT_CAT.attackDisplayScale,
+      MUTANT_CAT.displayWidth,
+      MUTANT_CAT.displayHeight,
+      MUTANT_CAT.attackBodyOffsetY,
     );
-    this.isAttackDisplayScaled = true;
+    this.isAttackGeometryApplied = true;
   }
 
   /**
    * Stellt nach der Attacke Größe und Bodenposition wieder her.
    * @returns {void}
    */
-  restoreDefaultDisplaySize() {
-    if (!this.isAttackDisplayScaled) return;
-    MutantCatGroundingSystem.resizeKeepingBodyBottom(
+  restoreDefaultGeometry() {
+    if (!this.isAttackGeometryApplied) return;
+    MutantCatGroundingSystem.applyGeometryKeepingBodyBottom(
       this,
       MUTANT_CAT.displayWidth,
       MUTANT_CAT.displayHeight,
+      MUTANT_CAT.bodyOffsetY,
     );
-    this.isAttackDisplayScaled = false;
+    this.isAttackGeometryApplied = false;
   }
 
   /**
@@ -226,7 +246,7 @@ export class MutantCat extends Enemy {
     const wasAttacking = this.state === MUTANT_CAT_STATES.attack;
 
     this.anims.stop();
-    if (wasAttacking) this.restoreDefaultDisplaySize();
+    if (wasAttacking) this.restoreDefaultGeometry();
     this.state = MUTANT_CAT_STATES.attentive;
     this.setVelocity(0, 0);
     this.setTexture(MUTANT_CAT_ATTENTIVE_TEXTURE.key, 3);
@@ -258,11 +278,9 @@ export class MutantCat extends Enemy {
     if (this.firstBiteHitAt === null) this.firstBiteHitAt = time;
     this.receivedBiteHits += 1;
     this.setVelocityX(0);
-    this.off(this.getAnimationCompleteEvent(
-      MUTANT_CAT_ATTACK_ANIMATION_KEY,
-    ));
+    this.off(this.getAnimationCompleteEvent(MUTANT_CAT_ATTACK_ANIMATION_KEY));
     this.anims.stop();
-    if (wasAttacking) this.restoreDefaultDisplaySize();
+    if (wasAttacking) this.restoreDefaultGeometry();
   }
 
   /**
@@ -288,9 +306,10 @@ export class MutantCat extends Enemy {
     this.setVelocity(0, 0);
     this.play(MUTANT_CAT_DEAD_ANIMATION_KEY);
     const elapsedMs = Math.max(0, time - this.firstBiteHitAt);
-    this.once(this.getAnimationCompleteEvent(
-      MUTANT_CAT_DEAD_ANIMATION_KEY,
-    ), () => this.emitDefeatResult(elapsedMs));
+    this.once(
+      this.getAnimationCompleteEvent(MUTANT_CAT_DEAD_ANIMATION_KEY),
+      () => this.emitDefeatResult(elapsedMs),
+    );
     this.body.enable = false;
   }
 
@@ -313,17 +332,23 @@ export class MutantCat extends Enemy {
    * @returns {boolean} `true`, wenn dieser Angriff neu getroffen hat.
    */
   consumeAttackHit(player) {
-    const isImpactFrame = Number(this.frame.name) ===
-      MUTANT_CAT.attackImpactFrame;
-    if (this.state !== MUTANT_CAT_STATES.attack ||
-        this.attackHitConsumed || !isImpactFrame) return false;
-    if (!MutantCatDetectionSystem.isWithinHeight(this, player)) return false;
-    if (MutantCatDetectionSystem.getHorizontalDistance(this, player) >
-        MUTANT_CAT.attackHitRange) {
-      return false;
-    }
+    if (!this.canConsumeAttackHit(player)) return false;
     this.attackHitConsumed = true;
     return true;
+  }
+
+  /**
+   * Prüft Zeitpunkt, Höhe und Reichweite eines Katzentreffers.
+   * @param {Phaser.Physics.Arcade.Sprite} player - Angegriffene Bulldogge.
+   * @returns {boolean} Ob der aktuelle Angriff treffen darf.
+   */
+  canConsumeAttackHit(player) {
+    if (this.state !== MUTANT_CAT_STATES.attack) return false;
+    if (this.attackHitConsumed) return false;
+    if (Number(this.frame.name) !== MUTANT_CAT.attackImpactFrame) return false;
+    if (!MutantCatDetectionSystem.isWithinHeight(this, player)) return false;
+    return MutantCatDetectionSystem.getHorizontalDistance(this, player) <=
+      MUTANT_CAT.attackHitRange;
   }
 
   /**

@@ -2,6 +2,8 @@ import { getAssetPath } from "./asset-paths.js";
 import { LEVEL_TWO } from "./level-two-settings.js";
 
 const DISPLAY_SIZE = 128;
+const BODY_HEIGHT = 120;
+const ATTACK_VISUAL_BOTTOM_Y = 172;
 const BOX = LEVEL_TWO.nuclearBoxObstacle;
 const BOX_HALF_WIDTH = BOX.displayWidth / 2;
 const CAT_HALF_WIDTH = DISPLAY_SIZE / 2;
@@ -47,7 +49,7 @@ export const MUTANT_CAT_ATTENTIVE_TEXTURE = Object.freeze({
   frameCount: 4,
 });
 
-/** Textur des vierphasigen Sprungangriffs. */
+/** Texturquelle des Katzenangriffs. */
 export const MUTANT_CAT_ATTACK_TEXTURE = Object.freeze({
   key: "mutant-cat-attack-side-v2",
   path: getAssetPath(
@@ -115,16 +117,17 @@ export const MUTANT_CAT = Object.freeze({
   displayWidth: DISPLAY_SIZE,
   displayHeight: DISPLAY_SIZE,
   bodyWidth: 180,
-  bodyHeight: 120,
+  bodyHeight: BODY_HEIGHT,
   bodyOffsetX: 38,
   bodyOffsetY: 126,
+  attackBodyOffsetY: ATTACK_VISUAL_BOTTOM_Y - BODY_HEIGHT,
   patrolSpeed: 48,
   chaseSpeed: 76,
   frameRate: 7,
   attentiveFrameRate: 5,
   attackFrameRate: 8,
-  attackLastFrameSpeedMultiplier: 2,
-  attackDisplayScale: 1.2,
+  attackSlowFromFrame: 1,
+  attackSlowDurationMultiplier: 2,
   detectionRange: 220,
   disengageRange: 300,
   detectionHeightTolerance: DETECTION_HEIGHT_TOLERANCE,
