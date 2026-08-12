@@ -3,6 +3,7 @@ import { MenuButton } from "../../ui/menu-button.class.js";
 import { QuickActionButton } from "../../ui/quick-action-button.class.js";
 import { MenuInputHint } from "../../ui/menu-input-hint.class.js";
 import { MenuInputController } from "../../input/menu-input-controller.class.js";
+import { InputDeviceDetector } from "../../input/input-device-detector.class.js";
 import { MenuNavigationController } from "../controllers/menu-navigation-controller.class.js";
 import { MenuIntroController } from "../controllers/menu-intro-controller.class.js";
 import {
@@ -10,13 +11,15 @@ import {
   setMuteButtonVisibility,
 } from "../controllers/mute-button-controller.class.js";
 import { setMenuSocialLinkVisibility } from "../controllers/menu-social-link-controller.js";
+import { setMenuLegalNavigationVisibility } from
+  "../controllers/menu-legal-navigation-controller.js";
 import { LevelOnePreloadSystem } from "../../systems/level-one-preload-system.class.js";
 import { getAssetPath } from "../../../js/config/asset-paths.js";
 import { MENU_BUTTONS } from "../../../js/config/menu-buttons.js";
 import { QUICK_ACTIONS } from "../../../js/config/quick-actions.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { MENU_START_TRANSITION } from "../../../js/config/menu-transition-settings.js";
-import { getAreaCenter, MENU_LAYOUT } from "../../../js/config/menu-layout.js";
+import { getAreaCenter, getMenuLayout } from "../../../js/config/menu-layout.js";
 
 const MENU_BACKGROUND_KEY = "menu-background";
 const MENU_BACKGROUND_PATH = getAssetPath("backgrounds", "menu-background.png");
@@ -72,18 +75,57 @@ export class MenuScene extends Phaser.Scene {
    * @returns {void}
    */
   create() {
+    this.isTouchLayout = InputDeviceDetector.isTouchLayout();
+    this.menuLayout = getMenuLayout(this.isTouchLayout);
+    this.registerMenuLifecycle();
+    this.createMenuElements();
+    this.initializeMenuSystems();
+  }
+
+  /**
+   * Registriert globale Menüelemente und deren Aufräumroutine.
+   * @returns {void}
+   */
+  registerMenuLifecycle() {
+    document.body.classList.add("is-menu-scene");
     setMuteButtonGameMode(false);
     this.setExternalMenuControlsVisibility(true);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () =>
-      this.setExternalMenuControlsVisibility(false),
-    );
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanupMenu());
+  }
+
+  /**
+   * Entfernt szenenabhängige Klassen und externe Menüaktionen.
+   * @returns {void}
+   */
+  cleanupMenu() {
+    document.body.classList.remove("is-menu-scene");
+    this.setExternalMenuControlsVisibility(false);
+  }
+
+  /**
+   * Erstellt sämtliche sichtbaren Elemente des Hauptmenüs.
+   * @returns {void}
+   */
+  createMenuElements() {
     this.createBackground();
     this.createLogo();
     this.createVersionInfo();
     this.createMainMenu();
-    this.createMenuInput();
-    this.inputHint = new MenuInputHint(this, MENU_LAYOUT.inputHint);
+    this.inputHint = new MenuInputHint(this, this.menuLayout.inputHint);
+    if (this.isTouchLayout) {
+      const { popupDurationMs, fadeDurationMs } = this.menuLayout.inputHint;
+      this.inputHint.setInputMode("touch");
+      this.inputHint.showTemporarily(popupDurationMs, fadeDurationMs);
+    }
     this.createQuickActions();
+  }
+
+  /**
+   * Initialisiert Eingabe, Intro und vorbereitendes Laden für Level 1.
+   * @returns {void}
+   */
+  initializeMenuSystems() {
+    this.createMenuInput();
     this.introController = new MenuIntroController(this);
     this.introController.prepare();
     this.levelOneAssetsReady = LevelOnePreloadSystem.preload(this);
@@ -105,23 +147,23 @@ export class MenuScene extends Phaser.Scene {
    * @returns {void}
    */
   createLogo() {
-    const area = MENU_LAYOUT.areas.logo;
+    const area = this.menuLayout.areas.logo;
     const center = getAreaCenter(area);
     const source = this.textures.get(MENU_LOGO_KEY).getSourceImage();
     const scale =
       Math.min(area.width / source.width, area.height / source.height) *
-      MENU_LAYOUT.logo.scale;
-    const displayWidth = source.width * scale + MENU_LAYOUT.logo.extraWidth;
+      this.menuLayout.logo.scale;
+    const displayWidth = source.width * scale + this.menuLayout.logo.extraWidth;
     const displayHeight = displayWidth * (source.height / source.width);
 
     this.logo = this.add
       .image(
-        center.x + MENU_LAYOUT.logo.offsetX,
-        center.y + MENU_LAYOUT.logo.offsetY,
+        center.x + this.menuLayout.logo.offsetX,
+        center.y + this.menuLayout.logo.offsetY,
         MENU_LOGO_KEY,
       )
       .setDisplaySize(displayWidth, displayHeight)
-      .setAngle(MENU_LAYOUT.logo.angle);
+      .setAngle(this.menuLayout.logo.angle);
   }
 
   /**
@@ -129,7 +171,7 @@ export class MenuScene extends Phaser.Scene {
    * @returns {Phaser.GameObjects.Text} Erstellte Versionsanzeige.
    */
   createVersionInfo() {
-    const { version, areas } = MENU_LAYOUT;
+    const { version, areas } = this.menuLayout;
     this.versionInfo = this.add
       .text(
         areas.version.x,
@@ -164,12 +206,12 @@ export class MenuScene extends Phaser.Scene {
     this.unavailableLabels = [];
     MENU_BUTTONS.forEach((config, index) => {
       if (!config.disabled) return;
-      const style = MENU_LAYOUT.unavailableLabel;
+      const style = this.menuLayout.unavailableLabel;
       const position = this.getMenuButtonPosition(index);
       const unavailableLabel = this.add
         .text(
-          MENU_LAYOUT.areas.mainMenu.x +
-            MENU_LAYOUT.mainMenu.buttonWidth -
+          this.menuLayout.areas.mainMenu.x +
+            this.menuLayout.mainMenu.buttonWidth -
             style.offsetX,
           position.y - style.offsetY,
           style.text,
@@ -195,22 +237,22 @@ export class MenuScene extends Phaser.Scene {
    * @returns {void}
    */
   createQuickActions() {
-    this.quickActionButtons = QUICK_ACTIONS.map(
+    this.visibleQuickActions = this.isTouchLayout
+      ? QUICK_ACTIONS.filter(({ disabled }) => !disabled)
+      : QUICK_ACTIONS;
+    this.quickActionButtons = this.visibleQuickActions.map(
       (action, index) =>
         new QuickActionButton(this, {
           ...this.getQuickActionPosition(action, index),
           width: action.buttonDisplaySize.width,
           height: action.buttonDisplaySize.height,
-          iconSize: MENU_LAYOUT.quickActions.iconSize,
+          iconSize: this.menuLayout.quickActions.iconSize,
           iconKey: action.iconKey,
           iconCrop: action.iconCrop,
           iconDisplaySize: action.iconDisplaySize,
           iconOffsetY: action.iconOffsetY,
           disabled: action.disabled,
           unavailableLabel: action.unavailableLabel,
-          onActivate: action.disabled
-            ? null
-            : () => this.menuNavigation.activateQuickAction(action),
         }),
     );
   }
@@ -222,8 +264,8 @@ export class MenuScene extends Phaser.Scene {
    * @returns {{x: number, y: number}} Mittelpunktposition.
    */
   getQuickActionPosition(action, index) {
-    const { areas, quickActions } = MENU_LAYOUT;
-    const precedingWidth = QUICK_ACTIONS.slice(0, index).reduce(
+    const { areas, quickActions } = this.menuLayout;
+    const precedingWidth = this.visibleQuickActions.slice(0, index).reduce(
       (width, precedingAction) =>
         width +
         precedingAction.buttonDisplaySize.width +
@@ -249,10 +291,12 @@ export class MenuScene extends Phaser.Scene {
     const position = this.getMenuButtonPosition(index);
     const menuButton = new MenuButton(this, {
       ...position,
-      width: MENU_LAYOUT.mainMenu.buttonWidth,
-      height: MENU_LAYOUT.mainMenu.buttonHeight,
+      width: this.menuLayout.mainMenu.buttonWidth,
+      height: this.menuLayout.mainMenu.buttonHeight,
+      hitHeight: this.menuLayout.mainMenu.hitHeight,
+      iconSize: this.menuLayout.mainMenu.iconSize,
       label: buttonConfig.label,
-      fontSize: buttonConfig.fontSize,
+      fontSize: this.menuLayout.mainMenu.fontSize ?? buttonConfig.fontSize,
       iconKey: buttonConfig.iconKey,
       iconCrop: buttonConfig.iconCrop,
       iconOffsetY: buttonConfig.iconOffsetY,
@@ -298,6 +342,7 @@ export class MenuScene extends Phaser.Scene {
   setExternalMenuControlsVisibility(isVisible) {
     setMuteButtonVisibility(isVisible);
     setMenuSocialLinkVisibility(isVisible);
+    setMenuLegalNavigationVisibility(isVisible);
   }
 
   /**
@@ -306,7 +351,7 @@ export class MenuScene extends Phaser.Scene {
    * @returns {{x: number, y: number}} Mittelpunktposition des Buttons.
    */
   getMenuButtonPosition(index) {
-    const { mainMenu, areas } = MENU_LAYOUT;
+    const { mainMenu, areas } = this.menuLayout;
     const step = mainMenu.buttonHeight + mainMenu.buttonGap;
     return {
       x: areas.mainMenu.x + mainMenu.buttonWidth / 2,

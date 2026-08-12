@@ -10,6 +10,22 @@ test("Startbereich verlinkt das Impressum semantisch", async () => {
 
   assert.match(html, /<footer[^>]*aria-label="Rechtliche Navigation"/);
   assert.match(html, /href="\.\/impressum\.html"[^>]*>Impressum<\/a>/);
+  assert.match(html, /id="menu-legal-navigation"/);
+  assert.match(html, /aria-hidden="true"/);
+  assert.match(html, /href="\.\/impressum\.html"[^>]*tabindex="-1"/s);
+});
+
+test("Impressum wird ausschließlich mit dem Hauptmenü freigeschaltet", async () => {
+  const menuScene = await readProjectFile(
+    "classes/core/scenes/menu-scene.class.js",
+  );
+  const controller = await readProjectFile(
+    "classes/core/controllers/menu-legal-navigation-controller.js",
+  );
+
+  assert.match(menuScene, /setMenuLegalNavigationVisibility\(isVisible\)/);
+  assert.match(controller, /site-footer--visible/);
+  assert.match(controller, /link\.tabIndex = isVisible \? 0 : -1/);
 });
 
 test("Impressum enthält reale Anbieter- und Kontaktangaben", async () => {

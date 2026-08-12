@@ -29,13 +29,24 @@ test("unfertige Hauptmenüpunkte bleiben eindeutig deaktiviert", () => {
   assert.deepEqual(unavailableActions, ["upgrades", "extras"]);
 });
 
-test("nur der Optionen-Schnellzugriff ist ausführbar", () => {
+test("Hauptmenü zeigt keine funktionslose Beenden-Aktion", () => {
+  assert.equal(
+    MENU_BUTTONS.some(({ action }) => action === "exit"),
+    false,
+  );
+});
+
+test("Schnellzugriffe zeigen keine redundante Optionen-Aktion", () => {
   const enabledActions = QUICK_ACTIONS
     .filter(({ disabled }) => !disabled)
     .map(({ action }) => action);
   const disabledActions = QUICK_ACTIONS.filter(({ disabled }) => disabled);
 
-  assert.deepEqual(enabledActions, ["options"]);
+  assert.deepEqual(enabledActions, []);
+  assert.equal(
+    QUICK_ACTIONS.some(({ action }) => action === "options"),
+    false,
+  );
   assert.deepEqual(
     disabledActions.map(({ action }) => action),
     ["achievements", "statistics"],

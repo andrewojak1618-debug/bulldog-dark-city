@@ -7,6 +7,8 @@ import { setMuteButtonVisibility } from
   "./mute-button-controller.class.js";
 import { setMenuSocialLinkVisibility } from
   "./menu-social-link-controller.js";
+import { setMenuLegalNavigationVisibility } from
+  "./menu-legal-navigation-controller.js";
 import { MENU_START_TRANSITION } from "../../../js/config/menu-transition-settings.js";
 
 /**
@@ -278,6 +280,7 @@ export class MenuIntroController {
   animateMenuExit() {
     setMuteButtonVisibility(false);
     setMenuSocialLinkVisibility(false);
+    setMenuLegalNavigationVisibility(false);
     const { leftObjects, rightObjects } = this.getExitGroups();
     const interfaceObjects = [
       ...leftObjects,

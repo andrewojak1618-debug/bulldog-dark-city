@@ -1,4 +1,3 @@
-import { MenuDialog } from "../../ui/menu-dialog.class.js";
 import { OptionsDialog } from "../../ui/options-dialog.class.js";
 import { globalMuteSystem } from
   "../../systems/global-mute-system.class.js";
@@ -43,7 +42,6 @@ export class MenuNavigationController {
     const actions = {
       start: () => this.startLevelOne(),
       options: () => this.openOptionsDialog(),
-      exit: () => this.openExitDialog(),
     };
     actions[action]?.();
   }
@@ -85,72 +83,4 @@ export class MenuNavigationController {
     this.onDialogClosed?.();
   }
 
-  /**
-   * Öffnet die webtaugliche Bestätigung zum Beenden des Spiels.
-   * @returns {void}
-   */
-  openExitDialog() {
-    this.openDialog({
-      title: "SPIEL BEENDEN?",
-      message:
-        "Browser dürfen Tabs nicht zuverlässig selbst schließen. " +
-          "Nach der Bestätigung kannst du diesen Tab manuell schließen.",
-      confirmLabel: "BEENDEN",
-      cancelLabel: "ZURÜCK",
-      onConfirm: () => this.openExitNotice(),
-    });
-  }
-
-  /**
-   * Erklärt nach der Bestätigung das sichere Verhalten im Browser.
-   * @returns {void}
-   */
-  openExitNotice() {
-    this.openDialog({
-      title: "BIS BALD",
-      message:
-        "Das Spiel bleibt sicher pausiert. Du kannst den Browser-Tab jetzt schließen.",
-      confirmLabel: "ZUM MENÜ",
-    });
-  }
-
-  /**
-   * Führt die eindeutig konfigurierte Aktion eines Schnellzugriffs aus.
-   * @param {{action: string}} action - Konfiguration des Schnellzugriffs.
-   * @returns {void}
-   */
-  activateQuickAction(action) {
-    const actions = {
-      options: () => this.openOptionsDialog(),
-    };
-    actions[action.action]?.();
-  }
-
-  /**
-   * Öffnet genau einen modalen Dialog und pausiert die Menüsteuerung.
-   * @param {Object} options - Dialoginhalt und optionale Aktionen.
-   * @returns {void}
-   */
-  openDialog(options) {
-    if (this.activeDialog || this.isTransitioning) return;
-    this.menuInput.setEnabled(false);
-    this.onDialogStateChange?.(true);
-    this.activeDialog = new MenuDialog(this.scene, {
-      ...options,
-      onConfirm: this.createDialogHandler(options.onConfirm),
-      onCancel: this.createDialogHandler(options.onCancel),
-    });
-  }
-
-  /**
-   * Reaktiviert zuerst das Menü und führt danach die Dialogaktion aus.
-   * @param {(() => void)|undefined} callback - Optionale Folgeaktion.
-   * @returns {() => void} Einheitlicher Dialog-Handler.
-   */
-  createDialogHandler(callback) {
-    return () => {
-      this.restoreMenu();
-      callback?.();
-    };
-  }
 }

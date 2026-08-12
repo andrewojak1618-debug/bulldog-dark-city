@@ -32,7 +32,9 @@ export class ViewportController {
    * @returns {void}
    */
   update() {
+    const isTouchLayout = InputDeviceDetector.isTouchLayout();
     const shouldLock = InputDeviceDetector.isPortraitTouchLayout();
+    document.body.classList.toggle("is-touch-layout", isTouchLayout);
     document.body.classList.toggle("is-portrait-locked", shouldLock);
     this.notice?.setAttribute("aria-hidden", String(!shouldLock));
     this.game.canvas?.setAttribute("aria-hidden", String(shouldLock));

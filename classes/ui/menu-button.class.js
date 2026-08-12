@@ -18,6 +18,8 @@ import { getTornButtonPoints } from "../../js/utils/menu-button-shape.js";
  * @property {{x: number, y: number, width: number,
  * height: number}|null} [iconCrop=null] - Sichtbarer Bildausschnitt.
  * @property {number} [iconOffsetY=0] - Vertikale optische Korrektur des Symbols.
+ * @property {number} [iconSize=40] - Maximale sichtbare Symbolgröße.
+ * @property {number} [hitHeight] - Optionale größere Bedienhöhe.
  * @property {boolean} [centerLabel=false] - Zentriert Text ohne Symbol.
  * @property {Function|null} [onActivate=null] - Aktion bei erfolgreicher Aktivierung.
  * @property {Function|null} [onFocus=null] - Aktion bei Maus- oder Touchfokus.
@@ -38,6 +40,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
     super(scene, options.x, options.y);
     this.buttonWidth = options.width;
     this.buttonHeight = options.height;
+    this.iconSize = options.iconSize ?? MENU_BUTTON_CONTENT.iconSize;
     this.iconOffsetY = options.iconOffsetY ?? 0;
     this.centerLabel = options.centerLabel ?? false;
     this.onActivate = options.onActivate ?? null;
@@ -48,7 +51,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
     this.icon = this.createIcon(scene, options.iconKey, options.iconCrop);
     this.addContent();
     this.layoutContent();
-    this.setSize(options.width, options.height);
+    this.setSize(options.width, options.hitHeight ?? options.height);
     scene.add.existing(this);
     this.configureInteraction();
     this.renderState();
@@ -100,8 +103,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
 
     if (!iconCrop) {
       return icon.setDisplaySize(
-        MENU_BUTTON_CONTENT.iconSize,
-        MENU_BUTTON_CONTENT.iconSize,
+        this.iconSize,
+        this.iconSize,
       );
     }
 
@@ -128,7 +131,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
    */
   getIconDisplaySize({ width, height }) {
     const maxDimension = Math.max(width, height);
-    const scale = MENU_BUTTON_CONTENT.iconSize / maxDimension;
+    const scale = this.iconSize / maxDimension;
     return {
       width: width * scale,
       height: height * scale,
@@ -163,7 +166,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
 
     if (this.icon) {
       this.icon.setPosition(
-        left + MENU_BUTTON_CONTENT.iconSize / 2,
+        left + this.iconSize / 2,
         this.iconOffsetY,
       );
     }
@@ -180,7 +183,7 @@ export class MenuButton extends Phaser.GameObjects.Container {
     }
 
     return (
-      left + MENU_BUTTON_CONTENT.iconSize + MENU_BUTTON_CONTENT.iconTextGap
+      left + this.iconSize + MENU_BUTTON_CONTENT.iconTextGap
     );
   }
 

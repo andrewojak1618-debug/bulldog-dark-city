@@ -55,24 +55,4 @@ export const QUICK_ACTIONS = Object.freeze([
     disabled: true,
     unavailableLabel: "BALD",
   }),
-  Object.freeze({
-    action: "options",
-    iconKey: "menu-options",
-    iconFile: "settings-gear.png",
-    iconCrop: Object.freeze({
-      x: 288,
-      y: 219,
-      width: 680,
-      height: 674,
-    }),
-    iconDisplaySize: Object.freeze({
-      width: 32,
-      height: 32,
-    }),
-    buttonDisplaySize: Object.freeze({
-      width: 30,
-      height: 30,
-    }),
-    iconOffsetY: 2,
-  }),
 ]);

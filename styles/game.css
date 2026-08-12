@@ -18,18 +18,28 @@
 }
 
 .site-footer {
-  display: flex;
+  position: absolute;
+  top: 94.375%;
+  right: 71.3889%;
+  z-index: 840;
+  display: none;
   min-height: 24px;
   align-items: center;
   justify-content: center;
   font: 16px/1.25 Arial, sans-serif;
+  transform: translateY(-50%);
+}
+
+.site-footer--visible {
+  display: flex;
 }
 
 .legal-navigation-link {
   padding: 2px 8px;
   border-radius: 4px;
-  color: #b8b0bd;
-  text-underline-offset: 3px;
+  color: #96919c;
+  font-size: 16px;
+  text-decoration: none;
   transition:
     color 160ms ease,
     background-color 160ms ease,
@@ -50,7 +60,7 @@
 
 .mute-toggle {
   position: absolute;
-  top: 70px;
+  top: 30px;
   right: 22px;
   z-index: 900;
   display: grid;
@@ -156,6 +166,11 @@
   filter: none;
 }
 
+.mute-toggle:active,
+.github-profile-link:active {
+  transform: scale(0.96);
+}
+
 .github-profile-link--hidden {
   opacity: 0;
   pointer-events: none;
@@ -257,4 +272,54 @@ body.is-portrait-locked .site-footer {
 
 body.is-portrait-locked .orientation-notice {
   display: flex;
+}
+
+body.is-touch-layout {
+  gap: 0;
+  padding: 0;
+}
+
+body.is-touch-layout #game {
+  width: min(100vw, 150svh, 720px);
+}
+
+body.is-touch-layout .mute-toggle,
+body.is-touch-layout .github-profile-link {
+  width: 44px;
+  height: 44px;
+}
+
+body.is-touch-layout .mute-toggle {
+  top: 14px;
+  font-size: 18px;
+}
+
+body.is-touch-layout .github-profile-link {
+  right: 22px;
+  bottom: 12px;
+}
+
+body.is-touch-layout .github-profile-link::before {
+  font-size: 16px;
+}
+
+body.is-touch-layout .github-profile-link img {
+  width: 38px;
+  height: 38px;
+}
+
+body.is-touch-layout .site-footer {
+  top: 94.375%;
+  right: 68.0556%;
+  bottom: auto;
+  z-index: 950;
+  min-height: 44px;
+  transform: translateY(-50%);
+}
+
+body.is-touch-layout .legal-navigation-link {
+  display: grid;
+  min-height: 44px;
+  place-items: center;
+  padding: 0 12px;
 }

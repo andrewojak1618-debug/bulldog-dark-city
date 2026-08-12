@@ -68,17 +68,4 @@ export const MENU_BUTTONS = Object.freeze([
     }),
     disabled: true,
   }),
-  Object.freeze({
-    action: "exit",
-    label: "BEENDEN",
-    fontSize: "16px",
-    iconKey: "menu-exit",
-    iconFile: "exit-power.png",
-    iconCrop: Object.freeze({
-      x: 295,
-      y: 237,
-      width: 667,
-      height: 706,
-    }),
-  }),
 ]);
