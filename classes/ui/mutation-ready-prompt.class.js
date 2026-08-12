@@ -3,7 +3,7 @@ import { COLLECTIBLE_KEYS, HUD } from "../../js/config/hud-settings.js";
 import { InputDeviceDetector } from
   "../input/input-device-detector.class.js";
 
-/** Zeigt die verfügbare Tastenkombination bei vollständig gefülltem Serum. */
+/** Zeigt die verfügbare Mutationstaste bei vollständig gefülltem Serum. */
 export class MutationReadyPrompt extends Phaser.GameObjects.Container {
   /**
    * Erstellt die zunächst verborgene, kamerafeste Mutationsanzeige.
@@ -40,7 +40,7 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
       ];
     }
     const keyCap = this.createKeyCap(scene);
-    const keyText = scene.add.text(24, 12, "J + F", this.settings.keyStyle)
+    const keyText = scene.add.text(24, 12, "M", this.settings.keyStyle)
       .setOrigin(0.5);
     const label = scene.add.text(55, 12, "MUTATION BEREIT", this.settings.labelStyle)
       .setOrigin(0, 0.5);

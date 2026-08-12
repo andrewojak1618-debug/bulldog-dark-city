@@ -13,6 +13,20 @@ test("Spielerklärung enthält alle zentralen Desktopaktionen", () => {
   assert.ok(actions.some((action) => action.includes("Mutation")));
 });
 
+test("Desktop-Erklärung entspricht der ergonomischen Tastaturbelegung", () => {
+  const controls = PLAYER_GUIDE.desktop.controls;
+
+  assert.ok(controls.some(({ input, action }) =>
+    input === "F / J / Linksklick" && action === "Angreifen"
+  ));
+  assert.ok(controls.some(({ input, action }) =>
+    input === "M" && action.includes("Mutation")
+  ));
+  assert.ok(controls.some(({ input, action }) =>
+    input === "K / L" && action.includes("Wurfknochen")
+  ));
+});
+
 test("Touch-Erklärung nennt Mutation und beide Wurfknochen", () => {
   const controls = PLAYER_GUIDE.touch.controls;
   assert.ok(controls.some(({ input }) => input === "M"));

@@ -1,6 +1,8 @@
 import { OptionsDialog } from "../../ui/options-dialog.class.js";
 import { globalMuteSystem } from
   "../../systems/global-mute-system.class.js";
+import { globalDisplaySystem } from
+  "../../systems/global-display-system.class.js";
 import { LevelOnePreloadSystem } from
   "../../systems/level-one-preload-system.class.js";
 import { SCENES } from "../../../js/config/game-settings.js";
@@ -71,6 +73,7 @@ export class MenuNavigationController {
     this.onDialogStateChange?.(true);
     this.activeDialog = new OptionsDialog(this.scene, {
       muteSystem: globalMuteSystem,
+      displaySystem: globalDisplaySystem,
       onClose: () => this.restoreMenu(),
     });
   }

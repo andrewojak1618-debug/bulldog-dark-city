@@ -56,6 +56,28 @@ test("Touchaktionen werden nur einmal verbraucht", () => {
   assert.equal(input.consumeMutation(), false);
 });
 
+test("Laufen, Springen und Angreifen funktionieren gleichzeitig", () => {
+  const input = new InputSystem(createSceneStub());
+  input.setTouchAction(TOUCH_ACTIONS.right, true);
+  input.setTouchAction(TOUCH_ACTIONS.jump, true);
+  input.setTouchAction(TOUCH_ACTIONS.attack, true);
+  assert.equal(input.getHorizontalAxis(), 1);
+  assert.equal(input.consumeJump(), true);
+  assert.equal(input.consumeAttack(), true);
+  assert.equal(input.getHorizontalAxis(), 1);
+});
+
+test("Fokus- oder Orientierungswechsel verwirft alle Touchimpulse", () => {
+  const input = new InputSystem(createSceneStub());
+  input.setTouchAction(TOUCH_ACTIONS.left, true);
+  input.setTouchAction(TOUCH_ACTIONS.jump, true);
+  input.setTouchAction(TOUCH_ACTIONS.attack, true);
+  input.clearTouchState();
+  assert.equal(input.getHorizontalAxis(), 0);
+  assert.equal(input.consumeJump(), false);
+  assert.equal(input.consumeAttack(), false);
+});
+
 test("Beide Wurfknochen besitzen getrennte Touchpuffer", () => {
   const input = new InputSystem(createSceneStub());
   input.setTouchAction(TOUCH_ACTIONS.normalBone, true);

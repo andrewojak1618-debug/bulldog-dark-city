@@ -1,5 +1,16 @@
 import { getAssetPath } from "./asset-paths.js";
 
+const HEALTH_SCALE = 1.5;
+const HEALTH_Y = 50;
+const HEALTH_BASE_HEIGHT = 28.05;
+const HEALTH_HEIGHT = HEALTH_BASE_HEIGHT * HEALTH_SCALE;
+const HUD_ROW_GAP = 5;
+const COLLECTIBLE_SCALE = 1.25;
+const COLLECTIBLE_BASE_HEIGHT = 31.2;
+const COIN_HEIGHT = COLLECTIBLE_BASE_HEIGHT * COLLECTIBLE_SCALE;
+const COIN_Y = HEALTH_Y + HEALTH_HEIGHT + HUD_ROW_GAP;
+const SERUM_Y = COIN_Y + COIN_HEIGHT + HUD_ROW_GAP;
+
 /**
  * Zentrale Gestaltung, Positionen und Assetpfade des Level-HUDs.
  */
@@ -17,46 +28,46 @@ export const HUD = Object.freeze({
   health: Object.freeze({
     maximum: 100,
     x: 14,
-    y: 50,
-    width: 137.5,
-    height: 28.05,
+    y: HEALTH_Y,
+    width: 137.5 * HEALTH_SCALE,
+    height: HEALTH_HEIGHT,
     textureKey: "hud-health-bar-frame",
     path: getAssetPath("ui", "hud/health-bar-frame.png"),
-    fillX: 35.2,
-    fillY: 7.7,
-    fillWidth: 97.35,
-    fillHeight: 11,
+    fillX: 35.2 * HEALTH_SCALE,
+    fillY: 7.7 * HEALTH_SCALE,
+    fillWidth: 97.35 * HEALTH_SCALE,
+    fillHeight: 11 * HEALTH_SCALE,
     fillBackgroundColor: 0x19040e,
     fillBackgroundAlpha: 0.9,
     fillColor: 0xff075f,
-    fillRadius: 2,
+    fillRadius: 2 * HEALTH_SCALE,
     textStyle: Object.freeze({
       fontFamily: "Arial",
-      fontSize: "9px",
+      fontSize: `${9 * HEALTH_SCALE}px`,
       fontStyle: "bold",
       color: "#ffffff",
       stroke: "#14010b",
-      strokeThickness: 2,
+      strokeThickness: 2 * HEALTH_SCALE,
     }),
   }),
   coin: Object.freeze({
     x: 14,
-    y: 83.05,
-    width: 90,
-    height: 31.2,
-    textX: 62.4,
-    textY: 15.6,
+    y: COIN_Y,
+    width: 90 * COLLECTIBLE_SCALE,
+    height: COIN_HEIGHT,
+    textX: 62.4 * COLLECTIBLE_SCALE,
+    textY: 15.6 * COLLECTIBLE_SCALE,
     textureKey: "hud-coin-bar-frame",
     path: getAssetPath("ui", "hud/coin-bar-frame.png"),
     fill: Object.freeze({
       maximum: 1000,
       durationMs: 1800,
-      x: 31.5,
-      y: 8,
-      width: 54.5,
-      height: 15,
-      waveAmplitude: 0.35,
-      waveLength: 12,
+      x: 31.5 * COLLECTIBLE_SCALE,
+      y: 8 * COLLECTIBLE_SCALE,
+      width: 54.5 * COLLECTIBLE_SCALE,
+      height: 15 * COLLECTIBLE_SCALE,
+      waveAmplitude: 0.35 * COLLECTIBLE_SCALE,
+      waveLength: 12 * COLLECTIBLE_SCALE,
       colorLeft: 0x7a22d4,
       colorRight: 0xd13cff,
       colorBottomLeft: 0x46107f,
@@ -66,22 +77,22 @@ export const HUD = Object.freeze({
   }),
   serum: Object.freeze({
     x: 14,
-    y: 119.25,
-    width: 94.8,
-    height: 31.2,
-    textX: 64.8,
-    textY: 15.6,
+    y: SERUM_Y,
+    width: 94.8 * COLLECTIBLE_SCALE,
+    height: COLLECTIBLE_BASE_HEIGHT * COLLECTIBLE_SCALE,
+    textX: 64.8 * COLLECTIBLE_SCALE,
+    textY: 15.6 * COLLECTIBLE_SCALE,
     textureKey: "hud-serum-bar-frame",
     path: getAssetPath("ui", "hud/serum-bar-frame.png"),
     fill: Object.freeze({
       maximum: 2,
       durationMs: 1400,
-      x: 26.5,
-      y: 8.5,
-      width: 64,
-      height: 14.5,
-      waveAmplitude: 1.2,
-      waveLength: 10,
+      x: 26.5 * COLLECTIBLE_SCALE,
+      y: 8.5 * COLLECTIBLE_SCALE,
+      width: 64 * COLLECTIBLE_SCALE,
+      height: 14.5 * COLLECTIBLE_SCALE,
+      waveAmplitude: 1.2 * COLLECTIBLE_SCALE,
+      waveLength: 10 * COLLECTIBLE_SCALE,
       colorLeft: 0x28f596,
       colorRight: 0xb52cff,
       colorBottomLeft: 0x087c60,
@@ -111,8 +122,8 @@ export const HUD = Object.freeze({
     path: getAssetPath("ui", "hud/mutation-bar-frame.png"),
   }),
   mutationReady: Object.freeze({
-    x: 114,
-    y: 123,
+    x: 14 + 94.8 * COLLECTIBLE_SCALE + 5.2,
+    y: SERUM_Y + 3.75 * COLLECTIBLE_SCALE,
     keyWidth: 48,
     keyHeight: 24,
     pulseAlphaMin: 0.58,
@@ -135,10 +146,10 @@ export const HUD = Object.freeze({
   }),
   collectibleTextStyle: Object.freeze({
     fontFamily: "Permanent Marker",
-    fontSize: "12px",
+    fontSize: `${12 * COLLECTIBLE_SCALE}px`,
     color: "#ffffff",
     stroke: "#09010f",
-    strokeThickness: 2,
+    strokeThickness: 2 * COLLECTIBLE_SCALE,
   }),
 });
 

@@ -7,6 +7,8 @@ import { BulldogAnimationSystem } from "../../systems/bulldog-animation-system.c
 import { DogCatcherAnimationSystem } from
   "../../systems/dog-catcher-animation-system.class.js";
 import { DogCatcherSystem } from "../../systems/dog-catcher-system.class.js";
+import { DogCatcherRangeDebugSystem } from
+  "../../systems/dog-catcher-range-debug-system.class.js";
 import { EnemyHealthBarSystem } from
   "../../systems/enemy-health-bar-system.class.js";
 import { LevelHudSystem } from "../../systems/level-hud-system.class.js";
@@ -95,6 +97,11 @@ export class LevelOneScene extends Phaser.Scene {
     this.createPlayer();
     this.createBackgroundMusic();
     this.dogCatchers = DogCatcherSystem.create(this, this.platforms);
+    this.dogCatcherRangeDebug = DogCatcherRangeDebugSystem.create(
+      this,
+      this.dogCatchers,
+      this.player,
+    );
     EnemyHealthBarSystem.attachDogCatchers(this, this.dogCatchers);
     this.levelExit = LevelExitSystem.create(this);
     DogCatcherSystem.onceDefeated(
@@ -298,6 +305,7 @@ export class LevelOneScene extends Phaser.Scene {
       this.healthSystem,
       time,
     );
+    this.dogCatcherRangeDebug?.update();
     LevelEnvironmentSystem.update(this, delta);
     if (this.levelExit?.update(this.player)) {
       this.completeLevel();

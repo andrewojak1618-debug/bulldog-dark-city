@@ -1,11 +1,14 @@
 import Phaser from "phaser";
 import { PLAYER_GUIDE } from "../../js/config/player-guide-settings.js";
 import { OptionsScrollView } from "./options-scroll-view.class.js";
+import { OptionsDisplaySection } from "./options-display-section.class.js";
 
 /**
  * @typedef {Object} OptionsDialogOptions
  * @property {import("../systems/global-mute-system.class.js").GlobalMuteSystem}
  * muteSystem - Globale Audiosteuerung.
+ * @property {import("../systems/global-display-system.class.js").GlobalDisplaySystem}
+ * displaySystem - Persistente Bildschirmdarstellung.
  * @property {(() => void)|null} [onClose=null] - Aktion nach dem Schließen.
  */
 
@@ -19,6 +22,7 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   constructor(scene, options) {
     super(scene, scene.scale.width / 2, scene.scale.height / 2);
     this.muteSystem = options.muteSystem;
+    this.displaySystem = options.displaySystem;
     this.onClose = options.onClose ?? null;
     this.isClosed = false;
     this.build(scene);
@@ -41,6 +45,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
     this.createGoal(scene);
     this.createInstructions(scene);
     this.createAudioAction(scene);
+    this.displaySection = new OptionsDisplaySection(
+      scene, this, this.displaySystem,
+    );
     this.createCloseActions(scene);
   }
 
@@ -361,6 +368,7 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
     this.isClosed = true;
     this.keyboard?.off("keydown-ESC", this.escapeHandler);
     this.unsubscribeMute?.();
+    this.displaySection?.destroy();
     this.scrollView?.destroy();
     const callback = this.onClose;
     this.destroy(true);

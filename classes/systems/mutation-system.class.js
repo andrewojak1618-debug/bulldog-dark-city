@@ -31,14 +31,16 @@ export class MutationSystem {
   }
 
   /**
-   * Prüft die Tastenkombination einmal pro Szenenupdate.
+   * Prüft die Mutationsaktion einmal pro Szenenupdate.
    * @param {import("../input/input-system.class.js").InputSystem} input -
    * Aktuelle Spielereingaben.
    * @returns {boolean} `true`, wenn die Mutation neu aktiviert wurde.
    */
   update(input) {
     if (!input.consumeMutation()) return false;
-    return this.activate();
+    const wasActivated = this.activate();
+    if (wasActivated) input.discardAttack();
+    return wasActivated;
   }
 
   /**

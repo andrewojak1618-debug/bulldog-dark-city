@@ -60,7 +60,7 @@ Die Bulldogge besitzt zwei verschiedene Zustände.
 ### Mutierter Modus
 
 Zwei eingesammelte Serum-Items füllen die Serumleiste voll. Die Mutation wird
-auf dem Desktop mit `J + F` und in der Touch-Steuerung mit `M` ausgelöst.
+auf dem Desktop und in der Touch-Steuerung mit `M` ausgelöst.
 
 Während der zeitlich begrenzten Mutation läuft die Bulldogge auf zwei Beinen
 und erhält:
@@ -173,8 +173,8 @@ Desktop:
 
 - `A` / `D` oder Pfeiltasten: Laufen
 - `W`, Pfeil hoch oder Leertaste: Springen
-- `J` oder linke Maustaste: Angreifen
-- `J + F`: Mutation bei voller Serumleiste
+- `F`, `J` oder linke Maustaste: Angreifen
+- `M`: Mutation bei voller Serumleiste
 - `K` / `L`: eingesammelten Wurfknochen verwenden
 - `ESC`: zurück zum Hauptmenü
 - Leertaste: Intro- und Victoryvideo überspringen
@@ -191,7 +191,7 @@ Desktopansicht.
 - fahrende Züge, Helikopter, bewegliche Plattformen und animierte Hindernisse
 - Einsammel- und Splash-Animationen für Coins, Lebensenergie und Serum
 - Gegnerbelohnungen sowie langsame Füllanimationen der Statusanzeigen
-- gespeicherter globaler Mute-Zustand per LocalStorage
+- gespeicherter globaler Mute-Zustand und Bildschirmmodus per LocalStorage
 - sichere externe GitHub-Navigation und semantische rechtliche Navigation
 
 ## 💻 Technik
@@ -210,8 +210,8 @@ Das Projekt wird mit modernen Webtechnologien entwickelt.
 - **HTML und CSS:** semantische Seitenhülle und responsive Canvas-Einbettung
 - **Szenenübergreifender Spielzustand:** Leben und Sammelobjekte werden beim
   Levelwechsel übernommen
-- **LocalStorage:** speichert den globalen Mute-Zustand dauerhaft; weitere
-  Spielstände sind geplant
+- **LocalStorage:** speichert den globalen Mute-Zustand und den gewählten
+  Bildschirmmodus dauerhaft; weitere Spielstände sind geplant
 - **Vite:** lokaler Entwicklungsserver und Produktions-Build
 - **Node-Test-Runner:** automatisierte Tests für zentrale Spiellogik
 

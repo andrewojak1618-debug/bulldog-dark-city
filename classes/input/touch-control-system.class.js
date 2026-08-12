@@ -1,6 +1,10 @@
 import { BULLDOG_EVENTS } from
   "../../js/config/bulldog-animation-settings.js";
-import { TOUCH_ACTIONS, TOUCH_CONTROLS } from
+import {
+  createTouchControlLayout,
+  TOUCH_ACTIONS,
+  TOUCH_CONTROLS,
+} from
   "../../js/config/touch-control-settings.js";
 import { TouchControlButton } from
   "../ui/touch-control-button.class.js";
@@ -43,20 +47,51 @@ export class TouchControlSystem {
     this.isDisabled = false;
     this.isTouchLayoutVisible = false;
     this.throwAvailability = new Map();
-    this.releaseControls = () => this.releaseAll();
-    this.handleViewportChange = () => {
-      this.releaseAll();
-      this.updateLayoutVisibility();
-    };
-    this.preventContextMenu = (event) => event.preventDefault();
-    const controls = this.getVisibleControls(options.showThrowControls);
-    this.buttons = controls.map((settings) =>
-      new TouchControlButton(scene, settings, (action, isPressed) =>
-        input.setTouchAction(action, isPressed)),
-    );
+    this.initializeCallbacks();
+    this.buttons = this.createButtons(options.showThrowControls);
+    this.updateControlLayout();
     this.hideEmptyThrowControls();
     this.updateLayoutVisibility();
     this.bindLifecycle();
+  }
+
+  /** Erstellt stabile Callback-Referenzen für globale Browserereignisse. */
+  initializeCallbacks() {
+    this.releaseControls = () => this.releaseAll();
+    this.handleViewportChange = () => this.refreshViewportLayout();
+    this.preventContextMenu = (event) => event.preventDefault();
+  }
+
+  /** Aktualisiert Positionen und Sichtbarkeit nach einer Viewportänderung. */
+  refreshViewportLayout() {
+    this.releaseAll();
+    this.updateControlLayout();
+    this.updateLayoutVisibility();
+  }
+
+  /**
+   * Erzeugt die für das aktuelle Level benötigten Touchbuttons.
+   * @param {boolean} showThrowControls - Ob Wurfbuttons angelegt werden.
+   * @returns {TouchControlButton[]} Erzeugte Touchbuttons.
+   */
+  createButtons(showThrowControls) {
+    const controls = this.getVisibleControls(showThrowControls);
+    return controls.map((settings) =>
+      this.createButton(settings),
+    );
+  }
+
+  /**
+   * Erstellt einen Touchbutton mit der gemeinsamen Eingabeweiterleitung.
+   * @param {Object} settings - Darstellung und Aktion des Buttons.
+   * @returns {TouchControlButton} Erzeugter Touchbutton.
+   */
+  createButton(settings) {
+    return new TouchControlButton(
+      this.scene,
+      settings,
+      (action, isPressed) => this.input.setTouchAction(action, isPressed),
+    );
   }
 
   /**
@@ -68,6 +103,57 @@ export class TouchControlSystem {
     return TOUCH_CONTROLS.controls.filter(
       (control) => showThrowControls || !control.throwControl,
     );
+  }
+
+  /**
+   * Berechnet Smartphone- oder Tabletpositionen für die aktuelle Ansicht.
+   * @returns {void}
+   */
+  updateControlLayout() {
+    const layout = this.createCurrentLayout();
+    const positions = new Map(layout.map((entry) => [entry.action, entry]));
+    this.buttons.forEach((button) => {
+      const position = positions.get(button.settings.action);
+      if (position) button.setPosition(position.x, position.y);
+    });
+  }
+
+  /** @returns {Object[]} Touchlayout für den aktuellen Browser-Viewport. */
+  createCurrentLayout() {
+    const viewport = window.visualViewport ?? window;
+    return createTouchControlLayout(
+      this.scene.scale.width,
+      this.scene.scale.height,
+      viewport.width ?? window.innerWidth,
+      viewport.height ?? window.innerHeight,
+      this.getSafeAreaInsets(),
+    );
+  }
+
+  /**
+   * Überträgt CSS-Safe-Areas proportional in interne Canvas-Pixel.
+   * @returns {{left: number, right: number, bottom: number}} Sichere Ränder.
+   */
+  getSafeAreaInsets() {
+    const bounds = this.scene.game.canvas.getBoundingClientRect();
+    const scaleX = bounds.width > 0 ? this.scene.scale.width / bounds.width : 1;
+    const scaleY = bounds.height > 0 ? this.scene.scale.height / bounds.height : 1;
+    return {
+      left: this.readSafeAreaValue("--safe-area-left") * scaleX,
+      right: this.readSafeAreaValue("--safe-area-right") * scaleX,
+      bottom: this.readSafeAreaValue("--safe-area-bottom") * scaleY,
+    };
+  }
+
+  /**
+   * Liest einen durch CSS `env()` aufgelösten Safe-Area-Wert.
+   * @param {string} property - Name der CSS Custom Property.
+   * @returns {number} Wert in CSS-Pixeln.
+   */
+  readSafeAreaValue(property) {
+    const value = getComputedStyle(document.documentElement)
+      .getPropertyValue(property);
+    return Number.parseFloat(value) || 0;
   }
 
   /**
@@ -139,6 +225,12 @@ export class TouchControlSystem {
    */
   bindLifecycle() {
     this.player.once(BULLDOG_EVENTS.knockedOut, () => this.disable());
+    this.bindWindowLifecycle();
+    this.bindSceneLifecycle();
+  }
+
+  /** Bindet globale Ereignisse, die gehaltene Touchzustände beenden. */
+  bindWindowLifecycle() {
     window.addEventListener("blur", this.releaseControls);
     window.addEventListener("resize", this.handleViewportChange);
     window.addEventListener("orientationchange", this.handleViewportChange);
@@ -147,6 +239,10 @@ export class TouchControlSystem {
       this.handleViewportChange,
     );
     document.addEventListener("visibilitychange", this.releaseControls);
+  }
+
+  /** Bindet Canvas- und Szenenereignisse der Touchsteuerung. */
+  bindSceneLifecycle() {
     this.scene.game.canvas.addEventListener(
       "contextmenu",
       this.preventContextMenu,
@@ -182,6 +278,12 @@ export class TouchControlSystem {
     this.releaseAll();
     this.throwInventoryUnsubscribe?.();
     this.throwInventoryUnsubscribe = null;
+    this.unbindWindowLifecycle();
+    this.unbindSceneLifecycle();
+  }
+
+  /** Entfernt die zuvor gebundenen globalen Browserereignisse. */
+  unbindWindowLifecycle() {
     window.removeEventListener("blur", this.releaseControls);
     window.removeEventListener("resize", this.handleViewportChange);
     window.removeEventListener(
@@ -193,6 +295,10 @@ export class TouchControlSystem {
       this.handleViewportChange,
     );
     document.removeEventListener("visibilitychange", this.releaseControls);
+  }
+
+  /** Entfernt den Canvas-Listener der Touchsteuerung. */
+  unbindSceneLifecycle() {
     this.scene.game.canvas.removeEventListener(
       "contextmenu",
       this.preventContextMenu,

@@ -3,3 +3,95 @@
     text-shadow: none;
   }
 }
+
+/*
+ * Chrome Responsive 4K skaliert das Touch-Canvas auf 2160 × 1440 CSS-Pixel.
+ * Die außerhalb des Canvas liegenden DOM-Aktionen folgen demselben Faktor.
+ */
+@media (min-width: 1920px) and (min-height: 1080px) {
+  body:not(.is-touch-layout) {
+    gap: 0;
+    padding: 0;
+  }
+
+  body:not(.is-touch-layout) #game {
+    width: min(84.375vw, 150svh, 2160px);
+    max-height: 1440px;
+  }
+
+  body:not(.is-touch-layout) .mute-toggle {
+    top: min(3.5156vw, 6.25svh, 90px);
+    right: min(2.5781vw, 4.5833svh, 66px);
+    width: min(2.5781vw, 4.5833svh, 66px);
+    height: min(2.5781vw, 4.5833svh, 66px);
+    font-size: min(1.1719vw, 2.0833svh, 30px);
+  }
+
+  body:not(.is-touch-layout) .github-profile-link {
+    right: min(2.5781vw, 4.5833svh, 66px);
+    bottom: min(2.5781vw, 4.5833svh, 66px);
+    width: min(3.5156vw, 6.25svh, 90px);
+    height: min(3.5156vw, 6.25svh, 90px);
+  }
+
+  body:not(.is-touch-layout) .github-profile-link::before {
+    bottom: calc(100% + min(0.5859vw, 1.0417svh, 15px));
+    font-size: min(1.1719vw, 2.0833svh, 30px);
+  }
+
+  body:not(.is-touch-layout) .github-profile-link img {
+    width: min(3.2813vw, 5.8333svh, 84px);
+    height: min(3.2813vw, 5.8333svh, 84px);
+  }
+
+  body:not(.is-touch-layout) .site-footer {
+    min-height: min(2.8125vw, 5svh, 72px);
+  }
+
+  body:not(.is-touch-layout) .legal-navigation-link {
+    padding: min(0.2344vw, 0.4167svh, 6px)
+      min(0.9375vw, 1.6667svh, 24px);
+    font-size: min(1.1719vw, 2.0833svh, 30px);
+  }
+
+  body.is-touch-layout .mute-toggle,
+  body.is-touch-layout .github-profile-link {
+    width: min(6.1111vw, 9.1667svh);
+    height: min(6.1111vw, 9.1667svh);
+  }
+
+  body.is-touch-layout .mute-toggle {
+    top: min(1.9444vw, 2.9167svh);
+    right: min(3.0556vw, 4.5833svh);
+    font-size: min(2.5vw, 3.75svh);
+  }
+
+  body.is-touch-layout .github-profile-link {
+    right: min(3.0556vw, 4.5833svh);
+    bottom: min(1.6667vw, 2.5svh);
+  }
+
+  body.is-touch-layout .github-profile-link::before {
+    bottom: calc(100% + min(0.6944vw, 1.0417svh));
+    font-size: min(2.2222vw, 3.3333svh);
+  }
+
+  body.is-touch-layout .github-profile-link img {
+    width: min(5.2778vw, 7.9167svh);
+    height: min(5.2778vw, 7.9167svh);
+  }
+
+  body.is-touch-layout .site-footer,
+  body.is-touch-layout .legal-navigation-link {
+    min-height: min(6.1111vw, 9.1667svh);
+  }
+
+  body.is-touch-layout .site-footer {
+    transform: translate(58px, -50%);
+  }
+
+  body.is-touch-layout .legal-navigation-link {
+    padding: 0 min(2.7778vw, 4.1667svh);
+    font-size: min(3.3333vw, 5svh);
+  }
+}

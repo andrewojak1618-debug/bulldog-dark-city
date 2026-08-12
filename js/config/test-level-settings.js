@@ -19,7 +19,8 @@ export const TEST_LEVEL = Object.freeze({
     text:
       "LEVEL 1 · BEWEGUNGSINFO\nA/D oder ←/→ · Bewegung\n" +
       "W, ↑ oder Leertaste · Sprung\n" +
-      "J, Linksklick oder Gamepad-X · Biss\nESC · Menü",
+      "F, J, Linksklick oder Gamepad-X · Biss\n" +
+      "M · Mutation bei vollem Serum\nESC · Menü",
     fontFamily: "Arial",
     fontSize: 13,
     color: "#d7d2dc",

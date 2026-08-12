@@ -14,14 +14,15 @@ export class InputSystem {
     this.attackQueued = false;
     this.touchState = { left: false, right: false };
     this.touchActions = new Set();
-    this.wasMutationComboPressed = false;
+    this.wasMutationPressed = false;
     this.cursors = scene.input.keyboard?.createCursorKeys();
     this.keys = scene.input.keyboard?.addKeys({
       left: "A",
       right: "D",
       jump: "W",
-      attack: "J",
-      mutation: "F",
+      primaryAttack: "F",
+      alternativeAttack: "J",
+      mutation: "M",
     });
     this.wasGamepadJumpPressed = false;
     this.wasGamepadAttackPressed = false;
@@ -51,7 +52,7 @@ export class InputSystem {
   }
 
   /**
-   * Puffert Angriffe von Tastatur und linker Maustaste.
+   * Puffert Angriffe von beiden Tastaturbelegungen und linker Maustaste.
    * @returns {void}
    */
   bindAttackInputs() {
@@ -65,9 +66,11 @@ export class InputSystem {
         this.attackQueued = true;
       }
     };
+    keyboard?.on("keydown-F", this.queueKeyboardAttack);
     keyboard?.on("keydown-J", this.queueKeyboardAttack);
     this.scene.input.on("pointerdown", this.queuePointerAttack);
     this.scene.events.once("shutdown", () => {
+      keyboard?.off("keydown-F", this.queueKeyboardAttack);
       keyboard?.off("keydown-J", this.queueKeyboardAttack);
       this.scene.input.off("pointerdown", this.queuePointerAttack);
     });
@@ -128,8 +131,8 @@ export class InputSystem {
   }
 
   /**
-   * Meldet einen neuen Angriffsimpuls von J, Linksklick oder Gamepad-X genau
-   * einmal pro Betätigung.
+   * Meldet einen neuen Angriffsimpuls von F, J, Linksklick oder Gamepad-X
+   * genau einmal pro Betätigung.
    * @returns {boolean} `true`, wenn ein neuer Angriff angefordert wurde.
    */
   consumeAttack() {
@@ -143,20 +146,22 @@ export class InputSystem {
     return shouldAttack;
   }
 
+  /** Verwirft einen gepufferten Tastatur-, Maus- oder Touchangriff. */
+  discardAttack() {
+    this.attackQueued = false;
+  }
+
   /**
-   * Meldet die neue Tastenkombination J und F genau einmal pro Betätigung.
-   * Eine durch J gepufferte Bissattacke wird dabei verworfen.
-   * @returns {boolean} `true`, wenn beide Mutationstasten neu gedrückt sind.
+   * Meldet M oder den mobilen Mutationsbutton genau einmal pro Betätigung.
+   * @returns {boolean} `true`, wenn die Mutation neu angefordert wurde.
    */
   consumeMutation() {
-    const comboPressed = Boolean(
-      this.keys?.attack?.isDown && this.keys?.mutation?.isDown,
-    );
-    const newCombo = comboPressed && !this.wasMutationComboPressed;
+    const mutationPressed = Boolean(this.keys?.mutation?.isDown);
+    const newKeyboardMutation =
+      mutationPressed && !this.wasMutationPressed;
     const touchMutation = this.consumeTouchAction(TOUCH_ACTIONS.mutation);
-    this.wasMutationComboPressed = comboPressed;
-    if (newCombo || touchMutation) this.attackQueued = false;
-    return newCombo || touchMutation;
+    this.wasMutationPressed = mutationPressed;
+    return newKeyboardMutation || touchMutation;
   }
 
   /**
@@ -205,6 +210,8 @@ export class InputSystem {
   clearTouchState() {
     this.touchState.left = false;
     this.touchState.right = false;
+    this.jumpQueued = false;
+    this.attackQueued = false;
     this.touchActions.clear();
   }
 }

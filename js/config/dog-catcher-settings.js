@@ -107,11 +107,41 @@ export const DOG_CATCHER = Object.freeze({
   rearDetectionRange: 100,
   groundLevelTolerance: 48,
   attackRange: 130,
-  attackHitRange: 145,
+  attackHitRange: 130,
   attackDamage: 10,
   attackCooldownMs: 1500,
   biteHitRange: 145,
   biteGroundLevelTolerance: 48,
   biteHitsToDefeat: 4,
   hitReactionMs: 220,
+});
+
+/**
+ * Darstellung und Einstiegspunkt der lokalen Reichweiten-Diagnose.
+ * Die Ansicht wird nur im Vite-Entwicklungsmodus per URL-Parameter aktiv.
+ */
+export const DOG_CATCHER_RANGE_DEBUG = Object.freeze({
+  queryParameter: "debugDogCatcherRanges",
+  queryValue: "1",
+  playerStartPadding: 20,
+  depth: 950,
+  frontColor: 0x35d7ff,
+  rearColor: 0xffd35a,
+  attackColor: 0xff4068,
+  areaAlpha: 0.18,
+  lineAlpha: 0.95,
+  frontOffsetY: 12,
+  rearOffsetY: 24,
+  attackOffsetY: 36,
+  rangeHeight: 7,
+  markerHeight: 24,
+  legendX: 12,
+  legendY: 78,
+  legendDepth: 1_100,
+  legendText: [
+    "ENTWICKLUNGSANSICHT: HUNDEFÄNGER-REICHWEITEN",
+    "Cyan: Sicht vorn 300 px",
+    "Gelb: Sicht hinten 100 px",
+    "Rot: Angriff und Treffer 130 px",
+  ].join("\n"),
 });
