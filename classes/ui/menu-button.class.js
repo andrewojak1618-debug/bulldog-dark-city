@@ -7,37 +7,48 @@ import {
 import { getTornButtonPoints } from "../../js/utils/menu-button-shape.js";
 
 /**
+ * Defines the MenuButtonOptions data structure.
  * @typedef {Object} MenuButtonOptions
- * @property {number} x - Horizontale Mittelpunktposition.
- * @property {number} y - Vertikale Mittelpunktposition.
- * @property {number} width - Breite des Buttons.
- * @property {number} height - Höhe des Buttons.
- * @property {string} label - Sichtbare Buttonbeschriftung.
- * @property {string} [fontSize] - Optionale individuelle Schriftgröße.
- * @property {string|null} [iconKey=null] - Optionaler Phaser-Texturschlüssel.
- * @property {{x: number, y: number, width: number,
- * height: number}|null} [iconCrop=null] - Sichtbarer Bildausschnitt.
- * @property {number} [iconOffsetY=0] - Vertikale optische Korrektur des Symbols.
- * @property {number} [iconSize=40] - Maximale sichtbare Symbolgröße.
- * @property {number} [hitHeight] - Optionale größere Bedienhöhe.
- * @property {boolean} [centerLabel=false] - Zentriert Text ohne Symbol.
- * @property {Function|null} [onActivate=null] - Aktion bei erfolgreicher Aktivierung.
- * @property {Function|null} [onFocus=null] - Aktion bei Maus- oder Touchfokus.
- * @property {boolean} [selected=false] - Anfänglicher Auswahlzustand.
- * @property {boolean} [disabled=false] - Anfänglicher Sperrzustand.
+ * @property {number} x - The horizontal position.
+ * @property {number} y - The vertical position.
+ * @property {number} width - The width in pixels.
+ * @property {number} height - The height in pixels.
+ * @property {string} label - The label value.
+ * @property {string} [fontSize] - The font size value.
+ * @property {string|null} [iconKey=null] - The icon key value.
+ * @property {{x: number, y: number, width: number, height: number}|null} [iconCrop=null] - The icon crop value.
+ * @property {number} [iconOffsetY=0] - The icon offset y value.
+ * @property {number} [iconSize=40] - The icon size value.
+ * @property {number} [hitHeight] - The hit height value.
+ * @property {boolean} [centerLabel=false] - The center label value.
+ * @property {Function|null} [onActivate=null] - The on activate value.
+ * @property {Function|null} [onFocus=null] - The on focus value.
+ * @property {boolean} [selected=false] - The selected value.
+ * @property {boolean} [disabled=false] - The disabled value.
  */
 
 /**
- * Stellt einen konfigurierbaren Menübutton mit gemeinsamen Zuständen dar.
+ * Manages menu button behavior.
  */
 export class MenuButton extends Phaser.GameObjects.Container {
   /**
-   * Erstellt einen Menübutton und bindet seine Zeigerinteraktionen.
-   * @param {Phaser.Scene} scene - Szene, in der der Button angezeigt wird.
-   * @param {MenuButtonOptions} options - Darstellung und Verhalten des Buttons.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {MenuButtonOptions} options - The optional configuration values.
    */
   constructor(scene, options) {
     super(scene, options.x, options.y);
+    this.initializeOptions(options);
+    this.createContent(scene, options);
+    this.finishSetup(scene, options);
+  }
+
+  /**
+   * Initializes button options and state.
+   * @param {MenuButtonOptions} options - The button options.
+   * @returns {void} No value is returned.
+   */
+  initializeOptions(options) {
     this.buttonWidth = options.width;
     this.buttonHeight = options.height;
     this.iconSize = options.iconSize ?? MENU_BUTTON_CONTENT.iconSize;
@@ -46,11 +57,29 @@ export class MenuButton extends Phaser.GameObjects.Container {
     this.onActivate = options.onActivate ?? null;
     this.onFocus = options.onFocus ?? null;
     this.setInitialState(options);
+  }
+
+  /**
+   * Creates the button display content.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {MenuButtonOptions} options - The button options.
+   * @returns {void} No value is returned.
+   */
+  createContent(scene, options) {
     this.background = scene.add.graphics();
     this.label = this.createLabel(scene, options.label, options.fontSize);
     this.icon = this.createIcon(scene, options.iconKey, options.iconCrop);
     this.addContent();
     this.layoutContent();
+  }
+
+  /**
+   * Completes button registration and interaction setup.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {MenuButtonOptions} options - The button options.
+   * @returns {void} No value is returned.
+   */
+  finishSetup(scene, options) {
     this.setSize(options.width, options.hitHeight ?? options.height);
     scene.add.existing(this);
     this.configureInteraction();
@@ -58,9 +87,9 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Übernimmt die anfänglichen Zustandswerte aus der Konfiguration.
-   * @param {MenuButtonOptions} options - Buttonkonfiguration.
-   * @returns {void}
+   * Sets initial state.
+   * @param {MenuButtonOptions} options - The optional configuration values.
+   * @returns {void} No value is returned.
    */
   setInitialState(options) {
     this.isSelected = options.selected ?? false;
@@ -70,11 +99,11 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt die sichtbare Beschriftung des Buttons.
-   * @param {Phaser.Scene} scene - Zugehörige Phaser-Szene.
-   * @param {string} label - Sichtbare Buttonbeschriftung.
-   * @param {string|undefined} fontSize - Optionale Schriftgröße.
-   * @returns {Phaser.GameObjects.Text} Erstelltes Textobjekt.
+   * Creates label.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {string} label - The label value.
+   * @param {string|undefined} fontSize - The font size value.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createLabel(scene, label, fontSize) {
     return scene.add
@@ -87,12 +116,11 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt ein optionales Symbol für den Button.
-   * @param {Phaser.Scene} scene - Zugehörige Phaser-Szene.
-   * @param {string|null|undefined} iconKey - Optionaler Texturschlüssel.
-   * @param {{x: number, y: number, width: number, height: number}
-   * |null|undefined} iconCrop - Sichtbarer Bildausschnitt.
-   * @returns {Phaser.GameObjects.Image|null} Symbol oder `null`.
+   * Creates icon.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {string|null|undefined} iconKey - The icon key value.
+   * @param {{x: number, y: number, width: number, height: number} |null|undefined} iconCrop - The icon crop value.
+   * @returns {Phaser.GameObjects.Image|null} The resulting data object.
    */
   createIcon(scene, iconKey, iconCrop) {
     if (!iconKey) {
@@ -112,11 +140,10 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Beschneidet ein Symbol und skaliert es proportional in den Iconbereich.
-   * @param {Phaser.GameObjects.Image} icon - Zu bearbeitendes Symbol.
-   * @param {{x: number, y: number, width: number,
-   * height: number}} crop - Sichtbarer Bildausschnitt.
-   * @returns {Phaser.GameObjects.Image} Zentriertes und skaliertes Symbol.
+   * Handles crop icon.
+   * @param {Phaser.GameObjects.Image} icon - The icon value.
+   * @param {{x: number, y: number, width: number, height: number}} crop - The crop value.
+   * @returns {Phaser.GameObjects.Image} The resulting data object.
    */
   cropIcon(icon, crop) {
     const displaySize = this.getIconDisplaySize(crop);
@@ -125,9 +152,9 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Berechnet eine proportionale Symbolgröße innerhalb der Maximalgröße.
-   * @param {{width: number, height: number}} crop - Größe des Bildausschnitts.
-   * @returns {{width: number, height: number}} Proportionale Anzeigegröße.
+   * Returns icon display size.
+   * @param {{width: number, height: number}} crop - The crop value.
+   * @returns {{width: number, height: number}} The resulting numeric value.
    */
   getIconDisplaySize({ width, height }) {
     const maxDimension = Math.max(width, height);
@@ -139,8 +166,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Fügt Hintergrund, Beschriftung und optionales Symbol zum Container hinzu.
-   * @returns {void}
+   * Adds content.
+   * @returns {void} No value is returned.
    */
   addContent() {
     this.add([this.background, this.label]);
@@ -151,8 +178,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Positioniert Beschriftung und optionales Symbol im Button.
-   * @returns {void}
+   * Handles layout content.
+   * @returns {void} No value is returned.
    */
   layoutContent() {
     if (this.centerLabel && !this.icon) {
@@ -173,9 +200,9 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Berechnet die horizontale Startposition der Beschriftung.
-   * @param {number} left - Linker innerer Rand des Buttons.
-   * @returns {number} Horizontale Textposition.
+   * Returns label position.
+   * @param {number} left - The left value.
+   * @returns {number} The resulting numeric value.
    */
   getLabelPosition(left) {
     if (!this.icon) {
@@ -188,8 +215,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Aktiviert die Hitbox und bindet alle Zeigerereignisse.
-   * @returns {void}
+   * Configures interaction.
+   * @returns {void} No value is returned.
    */
   configureInteraction() {
     this.setInteractive({ useHandCursor: !this.isDisabled });
@@ -200,9 +227,9 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Setzt den Hoverzustand, wenn der Zeiger den Button betritt.
-   * @param {Phaser.Input.Pointer} pointer - Auslösender Maus- oder Touchzeiger.
-   * @returns {void}
+   * Handles pointer over.
+   * @param {Phaser.Input.Pointer} pointer - The triggering Phaser pointer.
+   * @returns {void} No value is returned.
    */
   handlePointerOver(pointer) {
     if (!this.isDisabled) {
@@ -214,8 +241,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Entfernt Hover- und Druckzustand, wenn der Zeiger den Button verlässt.
-   * @returns {void}
+   * Handles pointer out.
+   * @returns {void} No value is returned.
    */
   handlePointerOut() {
     this.isPointerOver = false;
@@ -224,9 +251,9 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Aktiviert den gedrückten Zustand eines ausführbaren Buttons.
-   * @param {Phaser.Input.Pointer} pointer - Auslösender Maus- oder Touchzeiger.
-   * @returns {void}
+   * Handles pointer down.
+   * @param {Phaser.Input.Pointer} pointer - The triggering Phaser pointer.
+   * @returns {void} No value is returned.
    */
   handlePointerDown(pointer) {
     if (this.isDisabled) {
@@ -239,8 +266,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Führt die Buttonaktion nach einem vollständigen Klick aus.
-   * @returns {void}
+   * Handles pointer up.
+   * @returns {void} No value is returned.
    */
   handlePointerUp() {
     if (!this.canActivate()) {
@@ -251,16 +278,16 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Prüft, ob der Button seine Aktion ausführen darf.
-   * @returns {boolean} `true`, wenn der Button gedrückt und nicht gesperrt ist.
+   * Checks the activate condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   canActivate() {
     return !this.isDisabled && this.isPressed;
   }
 
   /**
-   * Führt die konfigurierte Buttonaktion aus, wenn der Button aktiv ist.
-   * @returns {boolean} `true`, wenn die Aktion ausgeführt wurde.
+   * Handles activate.
+   * @returns {boolean} Whether the requested condition is met.
    */
   activate() {
     if (this.isDisabled) {
@@ -274,9 +301,9 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Ändert den ausgewählten Zustand des Buttons.
-   * @param {boolean} selected - Neuer Auswahlzustand.
-   * @returns {MenuButton} Aktuelle Buttoninstanz für verkettete Aufrufe.
+   * Sets selected.
+   * @param {boolean} selected - The selected value.
+   * @returns {MenuButton} The resulting value.
    */
   setSelected(selected = true) {
     this.isSelected = selected;
@@ -285,9 +312,9 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Sperrt oder entsperrt den Button und aktualisiert den Mauszeiger.
-   * @param {boolean} disabled - Neuer Sperrzustand.
-   * @returns {MenuButton} Aktuelle Buttoninstanz für verkettete Aufrufe.
+   * Sets disabled.
+   * @param {boolean} disabled - The disabled value.
+   * @returns {MenuButton} The resulting value.
    */
   setDisabled(disabled = true) {
     this.isDisabled = disabled;
@@ -298,8 +325,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Ermittelt den sichtbaren Zustand anhand der aktuellen Interaktion.
-   * @returns {string} Schlüssel des anzuwendenden Buttonzustands.
+   * Returns state.
+   * @returns {string} The resulting string value.
    */
   getState() {
     if (this.isDisabled) return MENU_BUTTON_STATE.disabled;
@@ -311,8 +338,8 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Aktualisiert Hintergrund, Inhalt und Skalierung des Buttons.
-   * @returns {void}
+   * Renders state.
+   * @returns {void} No value is returned.
    */
   renderState() {
     const style = MENU_BUTTON_STYLE[this.getState()];
@@ -322,9 +349,9 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet den gemeinsamen Hintergrund für den aktuellen Zustand.
-   * @param {Object} style - Darstellungswerte des aktuellen Zustands.
-   * @returns {void}
+   * Draws background.
+   * @param {Object} style - The style value.
+   * @returns {void} No value is returned.
    */
   drawBackground(style) {
     const points = getTornButtonPoints(
@@ -344,27 +371,27 @@ export class MenuButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet die gefüllte Fläche des zerrissenen Buttonhintergrunds.
-   * @param {Phaser.Geom.Point[]} points - Punkte der Außenkontur.
-   * @returns {void}
+   * Draws background fill.
+   * @param {Phaser.Geom.Point[]} points - The points value.
+   * @returns {void} No value is returned.
    */
   drawBackgroundFill(points) {
     this.background.fillPoints(points, true);
   }
 
   /**
-   * Zeichnet die Kontur des zerrissenen Buttonhintergrunds.
-   * @param {Phaser.Geom.Point[]} points - Punkte der Außenkontur.
-   * @returns {void}
+   * Draws background stroke.
+   * @param {Phaser.Geom.Point[]} points - The points value.
+   * @returns {void} No value is returned.
    */
   drawBackgroundStroke(points) {
     this.background.strokePoints(points, true);
   }
 
   /**
-   * Überträgt die Zustandsfarben auf Text und Symbol.
-   * @param {Object} style - Darstellungswerte des aktuellen Zustands.
-   * @returns {void}
+   * Applies content style.
+   * @param {Object} style - The style value.
+   * @returns {void} No value is returned.
    */
   applyContentStyle(style) {
     this.label.setColor(style.textColor);

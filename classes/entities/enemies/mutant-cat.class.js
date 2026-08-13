@@ -15,16 +15,17 @@ import { MutantCatAudioSystem } from "../../systems/mutant-cat-audio-system.clas
 import { MutantCatDetectionSystem } from "../../systems/mutant-cat-detection-system.class.js";
 import { MutantCatGroundingSystem } from "../../systems/mutant-cat-grounding-system.class.js";
 
-/** Patrouilliert als mutierte Katze innerhalb eines konfigurierten Abschnitts. */
+/**
+ * Manages mutant cat behavior.
+ */
 export class MutantCat extends Enemy {
   /**
-   * Erstellt die Katze mit einer bodennahen Arcade-Physics-Hitbox.
-   * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
-   * @param {number} x - Horizontale Startposition.
-   * @param {number} y - Vertikale Startposition.
-   * @param {string} texture - Schlüssel der Lauftextur.
-   * @param {{minX: number, maxX: number, initialDirection: -1|1}} patrol -
-   * Individuelle Patrouillengrenzen und Startrichtung.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {string} texture - The texture configuration to use.
+   * @param {{minX: number, maxX: number, initialDirection: -1|1}} patrol - The patrol value.
    */
   constructor(scene, x, y, texture, patrol) {
     super(scene, x, y, texture);
@@ -36,8 +37,8 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Konfiguriert Darstellung, Hitbox und Weltbegrenzung.
-   * @returns {void}
+   * Configures physics.
+   * @returns {void} No value is returned.
    */
   configurePhysics() {
     this.setDisplaySize(MUTANT_CAT.displayWidth, MUTANT_CAT.displayHeight);
@@ -48,10 +49,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Initialisiert Patrouillen-, Treffer- und Aktionszustände.
-   * @param {{minX: number, maxX: number, initialDirection: -1|1}} patrol -
-   * Individuelle Patrouillengrenzen und Startrichtung.
-   * @returns {void}
+   * Initializes state.
+   * @param {{minX: number, maxX: number, initialDirection: -1|1}} patrol - The patrol value.
+   * @returns {void} No value is returned.
    */
   initializeState(patrol) {
     this.patrolMinX = patrol.minX;
@@ -68,10 +68,10 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Wechselt abhängig von der Bulldogge zwischen Reaktion und Patrouille.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Updates behavior.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   updateBehavior(player, time) {
     if (this.isDead) return;
@@ -85,9 +85,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Beendet eine abgelaufene Trefferreaktion und sperrt laufende Aktionen.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} `true`, wenn ein neuer Verhaltensschritt erlaubt ist.
+   * Checks the continue behavior condition.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   canContinueBehavior(time) {
     if (this.state === MUTANT_CAT_STATES.attack) return false;
@@ -98,10 +98,10 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Wählt für eine aktive Begegnung Reaktion, Abklingzeit oder Bewegung.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Updates engaged behavior.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   updateEngagedBehavior(player, time) {
     if (this.state === MUTANT_CAT_STATES.patrol) {
@@ -115,9 +115,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Prüft, ob die Bulldogge die Angriffsreichweite erreicht hat.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Geprüfte Bulldogge.
-   * @returns {boolean} Ob eine Attacke gestartet werden darf.
+   * Checks the attack player condition.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   canAttackPlayer(player) {
     return MutantCatDetectionSystem.getHorizontalDistance(this, player) <=
@@ -125,9 +125,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Stoppt die Katze, richtet sie aus und spielt die Reaktion einmal ab.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {void}
+   * Shows attentive reaction.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   showAttentiveReaction(player) {
     this.setVelocityX(0);
@@ -146,8 +146,8 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Startet nach Verlassen des Sichtbereichs wieder die Laufanimation.
-   * @returns {void}
+   * Handles resume patrol.
+   * @returns {void} No value is returned.
    */
   resumePatrol() {
     if (this.state === MUTANT_CAT_STATES.patrol) return;
@@ -156,9 +156,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Läuft innerhalb des Boxenabschnitts auf die Bulldogge zu.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Verfolgte Bulldogge.
-   * @returns {void}
+   * Handles chase player.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   chasePlayer(player) {
     const direction = Math.sign(player.x - this.x);
@@ -168,8 +168,8 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Startet eine einzelne Angriffssequenz in Nahkampfreichweite.
-   * @returns {void}
+   * Starts attack.
+   * @returns {void} No value is returned.
    */
   startAttack() {
     this.state = MUTANT_CAT_STATES.attack;
@@ -184,8 +184,8 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Beendet den Angriff und startet dessen Abklingzeit.
-   * @returns {void}
+   * Completes attack.
+   * @returns {void} No value is returned.
    */
   finishAttack() {
     this.restoreDefaultGeometry();
@@ -195,8 +195,8 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Zeigt während der Abklingzeit die letzte Alarmhaltung.
-   * @returns {void}
+   * Shows attack cooldown frame.
+   * @returns {void} No value is returned.
    */
   showAttackCooldownFrame() {
     this.setVelocityX(0);
@@ -209,8 +209,8 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Richtet die Angriffsdarstellung bodenfest an der Standardgröße aus.
-   * @returns {void}
+   * Applies attack geometry.
+   * @returns {void} No value is returned.
    */
   applyAttackGeometry() {
     if (this.isAttackGeometryApplied) return;
@@ -224,8 +224,8 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Stellt nach der Attacke Größe und Bodenposition wieder her.
-   * @returns {void}
+   * Restores default geometry.
+   * @returns {void} No value is returned.
    */
   restoreDefaultGeometry() {
     if (!this.isAttackGeometryApplied) return;
@@ -239,8 +239,8 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Bringt die Katze nach einem tödlichen Treffer sicher auf den Boden zurück.
-   * @returns {void}
+   * Handles settle after knock out.
+   * @returns {void} No value is returned.
    */
   settleAfterKnockOut() {
     const wasAttacking = this.state === MUTANT_CAT_STATES.attack;
@@ -253,9 +253,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Zeigt pro Biss den ersten Trefferframe und startet beim neunten den Tod.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} `true`, sobald die Katze besiegt wurde.
+   * Handles take bite hit.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   takeBiteHit(time) {
     if (this.isDead || this.state === MUTANT_CAT_STATES.hit) return false;
@@ -269,9 +269,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Stoppt die laufende Aktion und zählt einen gültigen Biss.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Handles prepare bite hit.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   prepareBiteHit(time) {
     const wasAttacking = this.state === MUTANT_CAT_STATES.attack;
@@ -284,9 +284,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Zeigt für einen nicht tödlichen Biss kurz den Trefferframe.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Shows bite hit reaction.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   showBiteHitReaction(time) {
     this.state = MUTANT_CAT_STATES.hit;
@@ -295,9 +295,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Beendet Bewegung und KI und meldet den Sieg nach der Todessequenz.
-   * @param {number} time - Zeitpunkt des entscheidenden neunten Treffers.
-   * @returns {void}
+   * Starts death.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   startDeath(time) {
     this.state = MUTANT_CAT_STATES.dead;
@@ -314,9 +314,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Meldet Position und gemessene Kampfzeit an das Belohnungssystem.
-   * @param {number} elapsedMs - Kampfzeit vom ersten bis zum letzten Biss.
-   * @returns {void}
+   * Handles emit defeat result.
+   * @param {number} elapsedMs - The elapsed ms value.
+   * @returns {void} No value is returned.
    */
   emitDefeatResult(elapsedMs) {
     this.emit(MUTANT_CAT_EVENTS.defeated, {
@@ -327,9 +327,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Meldet genau einen Treffer im konfigurierten Angriffsframe.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Angegriffene Bulldogge.
-   * @returns {boolean} `true`, wenn dieser Angriff neu getroffen hat.
+   * Consumes attack hit.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   consumeAttackHit(player) {
     if (!this.canConsumeAttackHit(player)) return false;
@@ -338,9 +338,9 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Prüft Zeitpunkt, Höhe und Reichweite eines Katzentreffers.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Angegriffene Bulldogge.
-   * @returns {boolean} Ob der aktuelle Angriff treffen darf.
+   * Checks the consume attack hit condition.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   canConsumeAttackHit(player) {
     if (this.state !== MUTANT_CAT_STATES.attack) return false;
@@ -352,26 +352,26 @@ export class MutantCat extends Enemy {
   }
 
   /**
-   * Richtet die Katze zur aktuellen Position der Bulldogge aus.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {void}
+   * Handles face player.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   facePlayer(player) {
     this.setFlipX(player.x < this.x);
   }
 
   /**
-   * Liefert den eindeutigen Phaser-Eventnamen eines Animationsendes.
-   * @param {string} animationKey - Eindeutiger Animationsschlüssel.
-   * @returns {string} Phaser-Eventname für diese Animation.
+   * Returns animation complete event.
+   * @param {string} animationKey - The animation key value.
+   * @returns {string} The resulting string value.
    */
   getAnimationCompleteEvent(animationKey) {
     return Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + animationKey;
   }
 
   /**
-   * Bewegt die Katze innerhalb des konfigurierten Boxenabschnitts.
-   * @returns {void}
+   * Updates patrol.
+   * @returns {void} No value is returned.
    */
   updatePatrol() {
     if (this.x <= this.patrolMinX) this.patrolDirection = 1;

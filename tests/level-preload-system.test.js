@@ -4,7 +4,9 @@ import test from "node:test";
 import { LevelPreloadSystem } from
   "../classes/systems/level-preload-system.class.js";
 
-/** Erstellt eine minimale Phaser-ähnliche Szene für den Ladeablauf. */
+/**
+ * Creates scene double.
+ */
 function createSceneDouble(failedKey = null) {
   const values = new Map();
   let completeHandler;

@@ -1,6 +1,8 @@
 import { getAssetPath } from "./asset-paths.js";
 
-/** Zentrale Audiodaten der mutierten Katze. */
+/**
+ * Defines the mutant cat audio configuration.
+ */
 export const MUTANT_CAT_AUDIO = Object.freeze({
   attentive: Object.freeze({
     key: "mutant-cat-attentive-sound",

@@ -31,12 +31,14 @@ const STANDARD_ANIMATIONS = Object.freeze([
   }),
 ]);
 
-/** Registriert sämtliche Animationen der mutierten Katze. */
+/**
+ * Manages mutant cat animation system behavior.
+ */
 export class MutantCatAnimationSystem {
   /**
-   * Erstellt die Animation höchstens einmal im globalen Phaser-Manager.
-   * @param {Phaser.Scene} scene - Szene mit geladener Katzentextur.
-   * @returns {void}
+   * Registers the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static register(scene) {
     STANDARD_ANIMATIONS.forEach((animation) =>
@@ -46,11 +48,10 @@ export class MutantCatAnimationSystem {
   }
 
   /**
-   * Registriert eine konfigurierte Katzenanimation genau einmal.
-   * @param {Phaser.Scene} scene - Szene mit globalem Animationsmanager.
-   * @param {{key: string, texture: object, frameRate: number, repeat: number}}
-   * animation - Zentrale Animationskonfiguration.
-   * @returns {void}
+   * Registers animation.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{key: string, texture: object, frameRate: number, repeat: number}} animation - The animation configuration to use.
+   * @returns {void} No value is returned.
    */
   static registerAnimation(scene, animation) {
     if (scene.anims.exists(animation.key)) return;
@@ -66,9 +67,9 @@ export class MutantCatAnimationSystem {
   }
 
   /**
-   * Registriert den Angriff mit individuell abgestimmten Framezeiten.
-   * @param {Phaser.Scene} scene - Szene mit globalem Animationsmanager.
-   * @returns {void}
+   * Registers attack animation.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static registerAttackAnimation(scene) {
     if (scene.anims.exists(MUTANT_CAT_ATTACK_ANIMATION_KEY)) return;
@@ -83,8 +84,8 @@ export class MutantCatAnimationSystem {
   }
 
   /**
-   * Erstellt die Framefolge mit einer verlangsamten zweiten Angriffshälfte.
-   * @returns {Phaser.Types.Animations.AnimationFrame[]} Angriffsframes.
+   * Creates attack frames.
+   * @returns {Phaser.Types.Animations.AnimationFrame[]} The resulting collection.
    */
   static createAttackFrames() {
     const standardFrameDurationMs = 1000 / MUTANT_CAT.attackFrameRate;

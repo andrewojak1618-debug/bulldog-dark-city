@@ -1,5 +1,5 @@
 /**
- * Bündelt Asset- und Animationswerte des Übergangs vom Menü zum ersten Level.
+ * Defines the menu start transition configuration.
  */
 export const MENU_START_TRANSITION = Object.freeze({
   video: Object.freeze({
@@ -10,6 +10,11 @@ export const MENU_START_TRANSITION = Object.freeze({
     ).href,
     noAudio: false,
     volume: 1,
+    loadingText: "VORSPANN WIRD GELADEN ...",
+    stalledText: "VORSPANN WIRD NACHGELADEN ...",
+    lockedText: "VORSPANN WARTET AUF EINGABE ...",
+    startTimeout: 8000,
+    stalledTimeout: 5000,
     visibleFrame: Object.freeze({
       x: 0,
       y: 0,

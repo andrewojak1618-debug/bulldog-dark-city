@@ -5,19 +5,31 @@ import {
   GlobalDisplaySystem,
 } from "../classes/systems/global-display-system.class.js";
 
-/** Kleiner LocalStorage-Ersatz für isolierte Anzeigetests. */
+/**
+ * Manages storage stub behavior.
+ */
 class StorageStub {
-  /** Erstellt den Speicher mit optionalen Anfangswerten. */
+  /**
+   * Creates a new instance.
+   */
   constructor(entries = {}) {
     this.entries = new Map(Object.entries(entries));
   }
 
-  /** @param {string} key - Speicherschlüssel. @returns {string|null} Wert. */
+  /**
+   * Returns item.
+   * @param {string} key - The storage key.
+   * @returns {string|null} The stored value.
+   */
   getItem(key) {
     return this.entries.get(key) ?? null;
   }
 
-  /** @param {string} key - Schlüssel. @param {string} value - Wert. */
+  /**
+   * Sets item.
+   * @param {string} key - The storage key.
+   * @param {string} value - The value to store.
+   */
   setItem(key, value) {
     this.entries.set(key, value);
   }

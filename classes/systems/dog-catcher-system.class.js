@@ -10,13 +10,13 @@ import {
 } from "../../js/config/dog-catcher-settings.js";
 
 /**
- * Verbindet Hundefänger, Levelphysik und Spielerschaden.
+ * Manages dog catcher system behavior.
  */
 export class DogCatcherSystem {
   /**
-   * Lädt alle derzeit benötigten Hundefänger-Spritesheets.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     Object.values(DOG_CATCHER_TEXTURES).forEach((texture) => {
@@ -30,10 +30,10 @@ export class DogCatcherSystem {
   }
 
   /**
-   * Erstellt die Gegnergruppe und verbindet sie mit den Plattformen.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Levelplattformen.
-   * @returns {Phaser.GameObjects.Group} Gruppe der Hundefänger.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @returns {Phaser.GameObjects.Group} The resulting data object.
    */
   static create(scene, platforms) {
     const group = scene.add.group({ runChildUpdate: false });
@@ -48,12 +48,12 @@ export class DogCatcherSystem {
   }
 
   /**
-   * Aktualisiert alle Gegner und verarbeitet jeden Treffer genau einmal.
-   * @param {Phaser.GameObjects.Group} group - Gruppe der Hundefänger.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Angegriffene Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Updates the current state.
+   * @param {Phaser.GameObjects.Group} group - The Phaser group to process.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   static update(group, player, health, time) {
     group?.getChildren().forEach((dogCatcher) => {
@@ -70,10 +70,10 @@ export class DogCatcherSystem {
   }
 
   /**
-   * Registriert eine einmalige Aktion nach der vollständigen Todesanimation.
-   * @param {Phaser.GameObjects.Group} group - Gruppe der Hundefänger.
-   * @param {Function} callback - Aktion nach dem besiegten Gegner.
-   * @returns {void}
+   * Handles once defeated.
+   * @param {Phaser.GameObjects.Group} group - The Phaser group to process.
+   * @param {Function} callback - The callback to invoke.
+   * @returns {void} No value is returned.
    */
   static onceDefeated(group, callback) {
     group?.getChildren().forEach((dogCatcher) => {
@@ -82,12 +82,12 @@ export class DogCatcherSystem {
   }
 
   /**
-   * Zieht bei einem Gegnertreffer Leben ab und wählt die Trefferreaktion.
-   * @param {boolean} wasHit - Ob der Angriffsframe getroffen hat.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Resolves player hit.
+   * @param {boolean} wasHit - The was hit value.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   static resolvePlayerHit(wasHit, player, health, time) {
     if (!wasHit || !BulldogMutationStateSystem.canReceiveNormalDamage(player)) {

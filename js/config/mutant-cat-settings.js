@@ -11,11 +11,13 @@ const FIRST_PATROL_MIN_X = BOX.xPositions[0] + BOX_HALF_WIDTH + CAT_HALF_WIDTH;
 const FIRST_PATROL_MAX_X = BOX.xPositions[1] - BOX_HALF_WIDTH - CAT_HALF_WIDTH;
 const SECOND_PATROL_MIN_X = BOX.xPositions[1] + BOX_HALF_WIDTH + CAT_HALF_WIDTH;
 const SECOND_PATROL_MAX_X = BOX.xPositions[2] - BOX_HALF_WIDTH - CAT_HALF_WIDTH;
-const SECOND_PATROL_STEP =
-  (SECOND_PATROL_MAX_X - SECOND_PATROL_MIN_X) / 3;
+const SECOND_PATROL_CENTER_X =
+  (SECOND_PATROL_MIN_X + SECOND_PATROL_MAX_X) / 2;
 const DETECTION_HEIGHT_TOLERANCE = BOX.collisionHeight;
 
-/** Eindeutige Verhaltenszustände einer mutierten Katze. */
+/**
+ * Defines the mutant cat states configuration.
+ */
 export const MUTANT_CAT_STATES = Object.freeze({
   patrol: "patrol",
   attentive: "attentive",
@@ -25,7 +27,9 @@ export const MUTANT_CAT_STATES = Object.freeze({
   dead: "dead",
 });
 
-/** Textur und Laufanimation der mutierten Katze. */
+/**
+ * Defines the mutant cat texture configuration.
+ */
 export const MUTANT_CAT_TEXTURE = Object.freeze({
   key: "mutant-cat-walk-side-v2",
   path: getAssetPath(
@@ -37,7 +41,9 @@ export const MUTANT_CAT_TEXTURE = Object.freeze({
   frameCount: 4,
 });
 
-/** Textur der einmalig abgespielten Aufmerksamkeitsreaktion. */
+/**
+ * Defines the mutant cat attentive texture configuration.
+ */
 export const MUTANT_CAT_ATTENTIVE_TEXTURE = Object.freeze({
   key: "mutant-cat-attentive-side-v2",
   path: getAssetPath(
@@ -49,7 +55,9 @@ export const MUTANT_CAT_ATTENTIVE_TEXTURE = Object.freeze({
   frameCount: 4,
 });
 
-/** Texturquelle des Katzenangriffs. */
+/**
+ * Defines the mutant cat attack texture configuration.
+ */
 export const MUTANT_CAT_ATTACK_TEXTURE = Object.freeze({
   key: "mutant-cat-attack-side-v2",
   path: getAssetPath(
@@ -61,7 +69,9 @@ export const MUTANT_CAT_ATTACK_TEXTURE = Object.freeze({
   frameCount: 4,
 });
 
-/** Textur der Trefferpose und vollständigen Todessequenz. */
+/**
+ * Defines the mutant cat dead texture configuration.
+ */
 export const MUTANT_CAT_DEAD_TEXTURE = Object.freeze({
   key: "mutant-cat-dead-side-v2",
   path: getAssetPath(
@@ -73,25 +83,37 @@ export const MUTANT_CAT_DEAD_TEXTURE = Object.freeze({
   frameCount: 4,
 });
 
-/** Eindeutiger Phaser-Schlüssel der Katzen-Laufanimation. */
+/**
+ * Defines the mutant cat animation key configuration.
+ */
 export const MUTANT_CAT_ANIMATION_KEY = "mutant-cat-walk-v2";
 
-/** Eindeutiger Phaser-Schlüssel der Aufmerksamkeitsreaktion. */
+/**
+ * Defines the mutant cat attentive animation key configuration.
+ */
 export const MUTANT_CAT_ATTENTIVE_ANIMATION_KEY =
   "mutant-cat-attentive-v2";
 
-/** Eindeutiger Phaser-Schlüssel des Katzenangriffs. */
+/**
+ * Defines the mutant cat attack animation key configuration.
+ */
 export const MUTANT_CAT_ATTACK_ANIMATION_KEY = "mutant-cat-attack-v2";
 
-/** Eindeutiger Phaser-Schlüssel der Todesanimation. */
+/**
+ * Defines the mutant cat dead animation key configuration.
+ */
 export const MUTANT_CAT_DEAD_ANIMATION_KEY = "mutant-cat-dead-v2";
 
-/** Eindeutige Fachereignisse des mutierten Katzengegners. */
+/**
+ * Defines the mutant cat events configuration.
+ */
 export const MUTANT_CAT_EVENTS = Object.freeze({
   defeated: "mutant-cat-defeated",
 });
 
-/** Zentrale Bewegungs- und Physikwerte des Level-2-Gegners. */
+/**
+ * Defines the mutant cat configuration.
+ */
 export const MUTANT_CAT = Object.freeze({
   spawnY: 320,
   patrols: Object.freeze([
@@ -102,13 +124,7 @@ export const MUTANT_CAT = Object.freeze({
       initialDirection: 1,
     }),
     Object.freeze({
-      spawnX: SECOND_PATROL_MIN_X + SECOND_PATROL_STEP,
-      minX: SECOND_PATROL_MIN_X,
-      maxX: SECOND_PATROL_MAX_X,
-      initialDirection: 1,
-    }),
-    Object.freeze({
-      spawnX: SECOND_PATROL_MAX_X - SECOND_PATROL_STEP,
+      spawnX: SECOND_PATROL_CENTER_X,
       minX: SECOND_PATROL_MIN_X,
       maxX: SECOND_PATROL_MAX_X,
       initialDirection: -1,
@@ -133,12 +149,12 @@ export const MUTANT_CAT = Object.freeze({
   detectionHeightTolerance: DETECTION_HEIGHT_TOLERANCE,
   attackRange: 95,
   attackHitRange: 120,
-  attackDamage: 30,
+  attackDamage: 20,
   attackImpactFrame: 2,
-  attackCooldownMs: 1_500,
+  attackCooldownMs: 2_400,
   deadFrameRate: 5,
   biteHitRange: 125,
   biteGroundLevelTolerance: 100,
-  biteHitsToDefeat: 9,
+  biteHitsToDefeat: 6,
   hitReactionMs: 220,
 });

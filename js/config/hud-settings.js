@@ -1,6 +1,6 @@
 import { getAssetPath } from "./asset-paths.js";
 
-const HEALTH_SCALE = 1.5;
+const HEALTH_SCALE = 1.125;
 const HEALTH_Y = 50;
 const HEALTH_BASE_HEIGHT = 28.05;
 const HEALTH_HEIGHT = HEALTH_BASE_HEIGHT * HEALTH_SCALE;
@@ -12,7 +12,7 @@ const COIN_Y = HEALTH_Y + HEALTH_HEIGHT + HUD_ROW_GAP;
 const SERUM_Y = COIN_Y + COIN_HEIGHT + HUD_ROW_GAP;
 
 /**
- * Zentrale Gestaltung, Positionen und Assetpfade des Level-HUDs.
+ * Defines the hud configuration.
  */
 export const HUD = Object.freeze({
   depth: 200,
@@ -154,7 +154,7 @@ export const HUD = Object.freeze({
 });
 
 /**
- * Schlüssel der bereits im normalen HUD angezeigten Sammelobjekte.
+ * Defines the collectible keys configuration.
  */
 export const COLLECTIBLE_KEYS = Object.freeze({
   coins: "coins",

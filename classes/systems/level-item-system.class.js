@@ -1,44 +1,55 @@
 import { LEVEL_ITEMS } from "../../js/config/level-item-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
+import { ItemFeedbackSystem } from "./item-feedback-system.class.js";
 
 /**
- * Lädt und erzeugt die animierten Sammelobjekte des Testlevels.
+ * Manages level item system behavior.
  */
 export class LevelItemSystem {
   /**
-   * Lädt alle konfigurierten Item-Spritesheets.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
-    Object.values(LEVEL_ITEMS.textures).forEach((texture) => {
-      if (scene.textures.exists(texture.key)) return;
-      scene.load.spritesheet(texture.key, texture.path, {
-        frameWidth: texture.frameWidth,
-        frameHeight: texture.frameHeight,
-      });
-    });
-    Object.values(LEVEL_ITEMS.pickupEffects).forEach((effect) => {
-      if (scene.textures.exists(effect.textureKey)) return;
-      scene.load.spritesheet(effect.textureKey, effect.path, {
-        frameWidth: effect.frameWidth,
-        frameHeight: effect.frameHeight,
-      });
-    });
-    Object.values(LEVEL_ITEMS.pickupEffects).forEach((effect) => {
-      const soundPath = effect.soundPaths ?? effect.soundPath;
-      if (!soundPath) return;
-      AssetLoaderSystem.loadAudio(scene, {
-        key: effect.soundKey,
-        path: soundPath,
-      });
+    Object.values(LEVEL_ITEMS.textures).forEach((texture) =>
+      this.loadSpritesheet(scene, texture, texture.key));
+    Object.values(LEVEL_ITEMS.pickupEffects).forEach((effect) =>
+      this.loadPickupEffect(scene, effect));
+  }
+
+  /**
+   * Loads pickup effect.
+   */
+  static loadPickupEffect(scene, effect) {
+    this.loadSpritesheet(scene, effect, effect.textureKey);
+    this.loadPickupSound(scene, effect);
+  }
+
+  /**
+   * Loads spritesheet.
+   */
+  static loadSpritesheet(scene, settings, key) {
+    if (scene.textures.exists(key)) return;
+    scene.load.spritesheet(key, settings.path, {
+      frameWidth: settings.frameWidth,
+      frameHeight: settings.frameHeight,
     });
   }
 
   /**
-   * Registriert jede Item-Animation höchstens einmal im Animationsmanager.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {void}
+   * Loads pickup sound.
+   */
+  static loadPickupSound(scene, effect) {
+    const path = effect.soundPaths ?? effect.soundPath;
+    if (!path) return;
+    AssetLoaderSystem.loadAudio(scene, { key: effect.soundKey, path });
+  }
+
+  /**
+   * Registers animations.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static registerAnimations(scene) {
     const animations = [
@@ -46,37 +57,42 @@ export class LevelItemSystem {
       ...Object.values(LEVEL_ITEMS.pickupEffects),
     ];
 
-    animations.forEach((animation) => {
-      if (scene.anims.exists(animation.key)) return;
+    animations.forEach((animation) =>
+      this.registerAnimation(scene, animation));
+  }
 
-      scene.anims.create({
-        key: animation.key,
-        frames: animation.frames.map((frame) => ({
-          key: animation.textureKey,
-          frame,
-        })),
-        frameRate: animation.frameRate,
-        yoyo: animation.yoyo ?? false,
-        repeat: animation.repeat ?? -1,
-      });
+  /**
+   * Registers animation.
+   */
+  static registerAnimation(scene, animation) {
+    if (scene.anims.exists(animation.key)) return;
+    scene.anims.create({
+      key: animation.key,
+      frames: animation.frames.map((frame) => ({
+        key: animation.textureKey,
+        frame,
+      })),
+      frameRate: animation.frameRate,
+      yoyo: animation.yoyo ?? false,
+      repeat: animation.repeat ?? -1,
     });
   }
 
   /**
-   * Setzt die konfigurierten Testitems ins Level und startet ihre Animation.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Sammelnde Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
-   * @param {ReadonlyArray<object>} [placements=LEVEL_ITEMS.placements] - Levelpositionen.
-   * @returns {Phaser.GameObjects.Group} Gruppe aller sichtbaren Items.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
+   * @param {ReadonlyArray<object>} [placements=LEVEL_ITEMS.placements.initial] - The placements value.
+   * @returns {Phaser.GameObjects.Group} The resulting data object.
    */
   static create(
     scene,
     player,
     health,
     collectibles,
-    placements = LEVEL_ITEMS.placements,
+    placements = LEVEL_ITEMS.placements.initial,
   ) {
     this.registerAnimations(scene);
     const group = scene.add.group({ runChildUpdate: false });
@@ -89,10 +105,24 @@ export class LevelItemSystem {
   }
 
   /**
-   * Erzeugt ein einzelnes physikbasiertes Item aus seiner Konfiguration.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {object} placement - Position, Typ und Darstellungsgröße.
-   * @returns {Phaser.Physics.Arcade.Sprite} Fertiges Sammelobjekt.
+   * Adds placements.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Group} group - The Phaser group to process.
+   * @param {ReadonlyArray<object>} placements - The placements value.
+   * @returns {Phaser.GameObjects.Group} The resulting data object.
+   */
+  static addPlacements(scene, group, placements) {
+    placements.forEach((placement) => {
+      group.add(this.createItem(scene, placement));
+    });
+    return group;
+  }
+
+  /**
+   * Creates item.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} placement - The placement value.
+   * @returns {Phaser.Physics.Arcade.Sprite} The created instance.
    */
   static createItem(scene, placement) {
     const animation = LEVEL_ITEMS.animations[placement.type];
@@ -107,9 +137,9 @@ export class LevelItemSystem {
   }
 
   /**
-   * Konfiguriert eine unbewegliche Item-Hitbox ohne Schwerkraft.
-   * @param {Phaser.Physics.Arcade.Sprite} item - Zu konfigurierendes Item.
-   * @returns {void}
+   * Configures body.
+   * @param {Phaser.Physics.Arcade.Sprite} item - The collectible item instance.
+   * @returns {void} No value is returned.
    */
   static configureBody(item) {
     item.body
@@ -120,13 +150,13 @@ export class LevelItemSystem {
   }
 
   /**
-   * Verbindet Bulldogge und Itemgruppe mit einer einzelnen Overlap-Prüfung.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Sammelnde Bulldogge.
-   * @param {Phaser.GameObjects.Group} group - Gruppe der Sammelobjekte.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
-   * @returns {void}
+   * Binds pickup overlap.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {Phaser.GameObjects.Group} group - The Phaser group to process.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
+   * @returns {void} No value is returned.
    */
   static bindPickupOverlap(scene, player, group, health, collectibles) {
     scene.physics.add.overlap(player, group, (_player, item) => {
@@ -135,19 +165,22 @@ export class LevelItemSystem {
   }
 
   /**
-   * Wendet den konfigurierten Itemeffekt genau einmal an.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {Phaser.Physics.Arcade.Sprite} item - Berührtes Sammelobjekt.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
-   * @returns {boolean} `true`, wenn das Item eingesammelt wurde.
+   * Collects the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.Sprite} item - The collectible item instance.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static collect(scene, item, health, collectibles) {
     if (!item.active || item.getData("collected")) return false;
 
     const itemType = item.getData("itemType");
     const effect = LEVEL_ITEMS.effects[itemType];
-    if (!this.canCollect(effect, health, collectibles)) return false;
+    if (!this.canCollect(effect, health, collectibles)) {
+      this.showBlockedFeedback(scene, item, effect, health);
+      return false;
+    }
     this.disableCollectedItem(item);
     this.applyEffect(effect, health, collectibles);
     this.playPickupEffect(scene, item, itemType);
@@ -156,11 +189,11 @@ export class LevelItemSystem {
   }
 
   /**
-   * Prüft, ob der konfigurierte Effekt aktuell aufgenommen werden darf.
-   * @param {object|undefined} effect - Effekt des berührten Items.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
-   * @returns {boolean} `true`, wenn eine Aufnahme möglich ist.
+   * Checks the collect condition.
+   * @param {object|undefined} effect - The effect value.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static canCollect(effect, health, collectibles) {
     if (!effect || (effect.healthAmount && health.isFull())) return false;
@@ -169,9 +202,22 @@ export class LevelItemSystem {
   }
 
   /**
-   * Sperrt ein Item unmittelbar gegen weitere Overlap-Auslösungen.
-   * @param {Phaser.Physics.Arcade.Sprite} item - Eingesammeltes Item.
-   * @returns {void}
+   * Shows blocked feedback.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.Sprite} item - The collectible item instance.
+   * @param {object|undefined} effect - The effect value.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @returns {boolean} Whether the requested condition is met.
+   */
+  static showBlockedFeedback(scene, item, effect, health) {
+    if (!effect?.healthAmount || !health.isFull()) return false;
+    return ItemFeedbackSystem.showFullHealth(scene, item);
+  }
+
+  /**
+   * Handles disable collected item.
+   * @param {Phaser.Physics.Arcade.Sprite} item - The collectible item instance.
+   * @returns {void} No value is returned.
    */
   static disableCollectedItem(item) {
     item.setData("collected", true);
@@ -180,11 +226,11 @@ export class LevelItemSystem {
   }
 
   /**
-   * Wendet Heilung oder Zähleränderung anhand der Konfiguration an.
-   * @param {object} effect - Effekt des eingesammelten Items.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
-   * @returns {void}
+   * Applies effect.
+   * @param {object} effect - The effect value.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
+   * @returns {void} No value is returned.
    */
   static applyEffect(effect, health, collectibles) {
     if (effect.healthAmount) {
@@ -199,37 +245,43 @@ export class LevelItemSystem {
   }
 
   /**
-   * Spielt den optionalen, einmaligen Aufnahmeeffekt am Item-Ursprung ab.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {Phaser.GameObjects.Sprite} item - Eingesammeltes Item.
-   * @param {string} itemType - Konfigurierter Typ des Items.
-   * @returns {Phaser.GameObjects.Sprite|null} Erzeugter Effekt oder `null`.
+   * Plays pickup effect.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} item - The collectible item instance.
+   * @param {string} itemType - The item type value.
+   * @returns {Phaser.GameObjects.Sprite|null} The resulting data object.
    */
   static playPickupEffect(scene, item, itemType) {
     const effect = LEVEL_ITEMS.pickupEffects[itemType];
     if (!effect) return null;
 
     this.playPickupSound(scene, effect);
-    const effectSprite = scene.add
-      .sprite(
-        item.x + (effect.offsetX ?? 0),
-        item.y + (effect.offsetY ?? 0),
-        effect.textureKey,
-        0,
-      )
-      .setDisplaySize(effect.displayWidth, effect.displayHeight)
-      .setAngle(effect.angle ?? 0)
-      .setDepth(LEVEL_ITEMS.depth + 1);
+    const effectSprite = this.createPickupEffectSprite(scene, item, effect);
     effectSprite.once("animationcomplete", () => effectSprite.destroy());
     effectSprite.play(effect.key);
     return effectSprite;
   }
 
   /**
-   * Spielt den optionalen Itemklang genau beim Start des Aufnahmeeffekts ab.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {{soundKey?: string, soundVolume?: number}} effect - Effektwerte.
-   * @returns {boolean} Ob der Sound abgespielt werden konnte.
+   * Creates pickup effect sprite.
+   */
+  static createPickupEffectSprite(scene, item, effect) {
+    return scene.add.sprite(
+      item.x + (effect.offsetX ?? 0),
+      item.y + (effect.offsetY ?? 0),
+      effect.textureKey,
+      0,
+    )
+      .setDisplaySize(effect.displayWidth, effect.displayHeight)
+      .setAngle(effect.angle ?? 0)
+      .setDepth(LEVEL_ITEMS.depth + 1);
+  }
+
+  /**
+   * Plays pickup sound.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{soundKey?: string, soundVolume?: number}} effect - The effect value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static playPickupSound(scene, effect) {
     if (!effect.soundKey || !scene.cache.audio.exists(effect.soundKey)) {
@@ -242,10 +294,10 @@ export class LevelItemSystem {
   }
 
   /**
-   * Blendet ein eingesammeltes Item kurz vergrößert aus.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {Phaser.GameObjects.Sprite} item - Eingesammeltes Item.
-   * @returns {void}
+   * Plays pickup tween.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} item - The collectible item instance.
+   * @returns {void} No value is returned.
    */
   static playPickupTween(scene, item) {
     scene.tweens.add({

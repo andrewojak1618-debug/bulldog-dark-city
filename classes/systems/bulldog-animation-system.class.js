@@ -7,13 +7,13 @@ import { BulldogAudioSystem } from "./bulldog-audio-system.class.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
- * Registriert die Bewegungsanimationen der normalen Bulldogge.
+ * Manages bulldog animation system behavior.
  */
 export class BulldogAnimationSystem {
   /**
-   * Lädt Bulldog-Texturen und delegiert das Laden der zugehörigen Sounds.
-   * @param {Phaser.Scene} scene - Szene, welche die Texturen verwendet.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     Object.values(BULLDOG_TEXTURES).forEach((texture) => {
@@ -24,9 +24,9 @@ export class BulldogAnimationSystem {
   }
 
   /**
-   * Erstellt jede Animation genau einmal im globalen Phaser-Manager.
-   * @param {Phaser.Scene} scene - Szene mit geladenen Bulldog-Texturen.
-   * @returns {void}
+   * Registers the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static register(scene) {
     BULLDOG_ANIMATIONS.forEach((animation) =>
@@ -35,10 +35,10 @@ export class BulldogAnimationSystem {
   }
 
   /**
-   * Registriert eine einzelne Animation, sofern sie noch nicht existiert.
-   * @param {Phaser.Scene} scene - Szene mit globalem Animationsmanager.
-   * @param {object} animation - Zentrale Animationskonfiguration.
-   * @returns {void}
+   * Registers animation.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} animation - The animation configuration to use.
+   * @returns {void} No value is returned.
    */
   static registerAnimation(scene, animation) {
     if (scene.anims.exists(animation.key)) return;
@@ -51,10 +51,10 @@ export class BulldogAnimationSystem {
   }
 
   /**
-   * Erzeugt die Framefolge mit optionaler Dauer und Rückwärtsrichtung.
-   * @param {Phaser.Scene} scene - Szene mit globalem Animationsmanager.
-   * @param {object} animation - Zentrale Animationskonfiguration.
-   * @returns {Phaser.Types.Animations.AnimationFrame[]} Fertige Framefolge.
+   * Creates frames.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} animation - The animation configuration to use.
+   * @returns {Phaser.Types.Animations.AnimationFrame[]} The resulting collection.
    */
   static createFrames(scene, animation) {
     const frames = scene.anims.generateFrameNumbers(animation.textureKey, {

@@ -8,22 +8,22 @@ import { LevelTwoDroneAnimationSystem } from
   "./level-two-drone-animation-system.class.js";
 
 /**
- * Lädt und steuert die rein visuellen Drohnenpatrouillen in Level zwei.
+ * Manages level two drone system behavior.
  */
 export class LevelTwoDroneSystem {
   /**
-   * Lädt alle konfigurierten Drohnen-Spritesheets.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     LevelTwoDroneAnimationSystem.load(scene);
   }
 
   /**
-   * Erstellt beide Drohnen mit entgegengesetzten Flugrichtungen.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {Phaser.GameObjects.Sprite[]} Erstellte Drohnen.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.Sprite[]} The resulting collection.
    */
   static create(scene) {
     return LEVEL_TWO.drones.variants.map((drone) =>
@@ -32,10 +32,10 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Registriert Animation und Patrouille einer einzelnen Drohne.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {Phaser.GameObjects.Sprite} Animierte Drohne.
+   * Creates drone.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} drone - The drone value.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   static createDrone(scene, drone) {
     const settings = LEVEL_TWO.drones;
@@ -47,11 +47,11 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Erzeugt die sichtbare Drohne an ihrer konfigurierten Startposition.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {Phaser.GameObjects.Sprite} Sichtbare Drohne.
+   * Creates drone sprite.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   static createDroneSprite(scene, settings, drone) {
     const startsMovingRight = drone.initialDirection > 0;
@@ -67,12 +67,12 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Hinterlegt die fachlichen Zustands- und Patrouillendaten.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite} sprite - Neue Drohne.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {void}
+   * Initializes core data.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static initializeCoreData(scene, sprite, settings, drone) {
     sprite.setDataEnabled();
@@ -88,12 +88,12 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Hinterlegt Lichtkegel, Schweben und Aufklärungszustand.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite} sprite - Neue Drohne.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {void}
+   * Initializes visual data.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static initializeVisualData(scene, sprite, settings, drone) {
     sprite.setData("beam", this.createTrackingBeam(scene, drone));
@@ -107,11 +107,11 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Aktualisiert den Alarmzustand aller Drohnen anhand der Bulldogge.
-   * @param {Phaser.GameObjects.Sprite[]} drones - Aktive Drohnen.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates the current state.
+   * @param {Phaser.GameObjects.Sprite[]} drones - The drones value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static update(drones = [], player, delta = 0) {
     if (!player) return;
@@ -119,11 +119,11 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Aktualisiert genau eine nicht zerstörte Drohne.
-   * @param {Phaser.GameObjects.Sprite} sprite - Zu aktualisierende Drohne.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates drone.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static updateDrone(sprite, player, delta) {
     if (sprite.getData("isDestroyed")) return;
@@ -140,9 +140,9 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Stoppt die Patrouille und spielt die Alarmsequenz einmal ab.
-   * @param {Phaser.GameObjects.Sprite} sprite - Alarmierte Drohne.
-   * @returns {void}
+   * Handles activate alarm.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @returns {void} No value is returned.
    */
   static activateAlarm(sprite) {
     if (sprite.getData("isAlert")) return;
@@ -159,9 +159,9 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Setzt nach Verlassen des Sichtbereichs die Flugpatrouille fort.
-   * @param {Phaser.GameObjects.Sprite} sprite - Beruhigte Drohne.
-   * @returns {void}
+   * Handles deactivate alarm.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @returns {void} No value is returned.
    */
   static deactivateAlarm(sprite) {
     if (!sprite.getData("isAlert")) return;
@@ -178,10 +178,10 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Setzt die Aufklärungsdrohne auf ihre Patrouillenhöhe zurück.
-   * @param {Phaser.GameObjects.Sprite} sprite - Aufklärungsdrohne.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {void}
+   * Resets scout approach.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {object} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static resetScoutApproach(sprite, drone) {
     sprite.y = drone.y;
@@ -192,11 +192,11 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Bewegt eine alarmierte Drohne kontrolliert über der Bulldogge hin und her.
-   * @param {Phaser.GameObjects.Sprite} sprite - Alarmierte Drohne.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Verfolgte Bulldogge.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates alarm patrol.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static updateAlarmPatrol(sprite, player, delta) {
     const settings = LEVEL_TWO.drones;
@@ -215,10 +215,10 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Berechnet die erlaubten Alarmgrenzen innerhalb der Weltpatrouille.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Verfolgte Bulldogge.
-   * @returns {{minX: number, maxX: number}} Horizontale Alarmgrenzen.
+   * Returns alarm patrol bounds.
+   * @param {object} settings - The configuration values to use.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {{minX: number, maxX: number}} The resulting numeric value.
    */
   static getAlarmPatrolBounds(settings, player) {
     return {
@@ -234,42 +234,42 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Lässt die kleine Aufklärungsdrohne stufenweise absinken und zurückkehren.
-   * @param {Phaser.GameObjects.Sprite} sprite - Alarmierte Drohne.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates scout approach.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static updateScoutApproach(sprite, delta) {
     LevelTwoScoutDroneSystem.update(sprite, delta);
   }
 
   /**
-   * Erstellt den separaten Lichtkegel nur für entsprechend konfigurierte Drohnen.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {Phaser.GameObjects.Graphics|null} Lichtkegel oder `null`.
+   * Creates tracking beam.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} drone - The drone value.
+   * @returns {Phaser.GameObjects.Graphics|null} The resulting data object.
    */
   static createTrackingBeam(scene, drone) {
     return LevelTwoDroneBeamSystem.create(scene, drone);
   }
 
   /**
-   * Richtet den roten Lichtkegel der großen Drohne auf die Bulldogge aus.
-   * @param {Phaser.GameObjects.Sprite} sprite - Lichtquelle.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Verfolgtes Ziel.
-   * @returns {void}
+   * Updates tracking beam.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static updateTrackingBeam(sprite, player) {
     LevelTwoDroneBeamSystem.update(sprite, player);
   }
 
   /**
-   * Bewegt eine Drohne dauerhaft zwischen den hinteren Patrouillengrenzen.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite} sprite - Bewegte Drohne.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {Phaser.Tweens.Tween} Horizontaler Patrouillen-Tween.
+   * Creates patrol tween.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {Phaser.Tweens.Tween} The created instance.
    */
   static createPatrolTween(scene, sprite, settings, drone) {
     const targetX = drone.initialDirection > 0
@@ -289,12 +289,12 @@ export class LevelTwoDroneSystem {
   }
 
   /**
-   * Ergänzt eine kleine unabhängige Schwebewegung.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite} sprite - Schwebende Drohne.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {Phaser.Tweens.Tween} Vertikaler Schwebe-Tween.
+   * Creates hover tween.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {Phaser.Tweens.Tween} The created instance.
    */
   static createHoverTween(scene, sprite, settings, drone) {
     return scene.tweens.add({

@@ -9,13 +9,15 @@ import { RobotCatAudioSystem } from
 import { RobotCatCollisionSystem } from
   "./robot-cat-collision-system.class.js";
 
-/** Steuert Abheben, Hindernisüberflug und Landung der Roboterkatze. */
+/**
+ * Manages robot cat flight system behavior.
+ */
 export class RobotCatFlightSystem {
   /**
-   * Startet die Abhebephase und deaktiviert die bodennahe Blockierfläche.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {{id: string, x: number}} obstacle - Aktives Hindernis.
-   * @returns {void}
+   * Starts the current state.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {{id: string, x: number}} obstacle - The obstacle value.
+   * @returns {void} No value is returned.
    */
   static begin(robotCat, obstacle) {
     this.setMovementState(robotCat, ROBOT_CAT_STATES.takingOff);
@@ -29,10 +31,10 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Aktualisiert den gerade aktiven Flugzustand.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates the current state.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static update(robotCat, delta) {
     const state = robotCat.getData("movementState");
@@ -42,10 +44,10 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Hebt die Roboterkatze während ihrer Startanimation weich an.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates takeoff.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static updateTakeoff(robotCat, delta) {
     const elapsed = this.advanceStateTime(robotCat, delta);
@@ -56,9 +58,9 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Berechnet die weich beschleunigte Höhe nach der Bodenhaftungsphase.
-   * @param {number} elapsed - Vergangene Zeit der Abhebephase.
-   * @returns {number} Fortschritt zwischen 0 und 1.
+   * Returns takeoff progress.
+   * @param {number} elapsed - The elapsed value.
+   * @returns {number} The resulting numeric value.
    */
   static getTakeoffProgress(elapsed) {
     const contactDuration = ROBOT_CAT.takeoffDuration /
@@ -69,10 +71,10 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Bewegt die Roboterkatze bis hinter das aktive Hindernis.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} delta - Zeit seit dem letzten Frame.
-   * @returns {void}
+   * Updates flight.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static updateFlight(robotCat, delta) {
     const direction = robotCat.getData("direction") ?? -1;
@@ -83,9 +85,9 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Startet die manuell getaktete Landephase.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @returns {void}
+   * Starts landing.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
    */
   static beginLanding(robotCat) {
     const texture = ROBOT_CAT_FLIGHT_TEXTURE;
@@ -94,10 +96,10 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Senkt die Roboterkatze ab und schließt die Landung ab.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} delta - Zeit seit dem letzten Frame.
-   * @returns {void}
+   * Updates landing.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static updateLanding(robotCat, delta) {
     const elapsed = this.advanceStateTime(robotCat, delta);
@@ -108,10 +110,10 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Startet die Audioausblendung kurz vor dem Bodenkontakt.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Landende Roboterkatze.
-   * @param {number} elapsed - Vergangene Landezeit.
-   * @returns {void}
+   * Fades thrust before ground contact.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} elapsed - The elapsed value.
+   * @returns {void} No value is returned.
    */
   static fadeThrustBeforeGroundContact(robotCat, elapsed) {
     const fadeDuration = ROBOT_CAT.thrustFadeBeforeGroundMs;
@@ -121,32 +123,38 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Berechnet die weiche Abwärtsbewegung bis zum Bodenkontakt.
-   * @param {number} elapsed - Vergangene Landezeit.
-   * @returns {number} Fortschritt zwischen 0 und 1.
+   * Returns landing progress.
+   * @param {number} elapsed - The elapsed value.
+   * @returns {number} The resulting numeric value.
    */
   static getLandingProgress(elapsed) {
     return this.smoothStep(elapsed / this.getLandingAirborneDuration());
   }
 
-  /** @returns {number} Zeit bis zum ersten sichtbaren Bodenkontakt. */
+  /**
+   * Returns landing airborne duration.
+   * @returns {number} The resulting numeric value.
+   */
   static getLandingAirborneDuration() {
     return ROBOT_CAT_FLIGHT_TEXTURE.landingFrameDurations
       .slice(0, -1)
       .reduce((total, duration) => total + duration, 0);
   }
 
-  /** @returns {number} Gesamtdauer der Landeanimation. */
+  /**
+   * Returns landing duration.
+   * @returns {number} The resulting numeric value.
+   */
   static getLandingDuration() {
     return ROBOT_CAT_FLIGHT_TEXTURE.landingFrameDurations
       .reduce((total, duration) => total + duration, 0);
   }
 
   /**
-   * Wählt den Lande-Frame anhand seiner individuellen Haltedauer.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} elapsed - Vergangene Landezeit.
-   * @returns {void}
+   * Updates landing frame.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} elapsed - The elapsed value.
+   * @returns {void} No value is returned.
    */
   static updateLandingFrame(robotCat, elapsed) {
     const texture = ROBOT_CAT_FLIGHT_TEXTURE;
@@ -161,9 +169,9 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Wechselt nach der Landung zurück in den Bodenzustand.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @returns {void}
+   * Completes landing.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
    */
   static finishLanding(robotCat) {
     RobotCatAudioSystem.stopThrustFlight(robotCat);
@@ -177,10 +185,10 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Setzt Zustand und zustandsbezogene Laufzeit gemeinsam zurück.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {string} state - Neuer Bewegungszustand.
-   * @returns {void}
+   * Sets movement state.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {string} state - The state value to apply.
+   * @returns {void} No value is returned.
    */
   static setMovementState(robotCat, state) {
     robotCat.setData("movementState", state);
@@ -188,10 +196,10 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Richtet die vertikale Position am Flugfortschritt aus.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} progress - Flugfortschritt zwischen 0 und 1.
-   * @returns {void}
+   * Sets flight height.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} progress - The progress value.
+   * @returns {void} No value is returned.
    */
   static setFlightHeight(robotCat, progress) {
     const groundY = robotCat.getData("groundY");
@@ -199,9 +207,9 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Begrenzt und glättet einen linearen Fortschrittswert.
-   * @param {number} value - Linearer Fortschrittswert.
-   * @returns {number} Begrenzter und geglätteter Fortschritt.
+   * Handles smooth step.
+   * @param {number} value - The value to process.
+   * @returns {number} The resulting numeric value.
    */
   static smoothStep(value) {
     const progress = Math.min(1, Math.max(0, value));
@@ -209,10 +217,10 @@ export class RobotCatFlightSystem {
   }
 
   /**
-   * Erhöht den Zeitzähler des aktuellen Bewegungszustands.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} delta - Zeit seit dem letzten Frame.
-   * @returns {number} Aktualisierte Zustandszeit.
+   * Handles advance state time.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {number} The resulting numeric value.
    */
   static advanceStateTime(robotCat, delta) {
     const elapsed = (robotCat.getData("stateElapsed") ?? 0) + delta;

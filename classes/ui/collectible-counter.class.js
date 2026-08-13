@@ -2,26 +2,22 @@ import Phaser from "phaser";
 import { HUD } from "../../js/config/hud-settings.js";
 
 /**
- * Zeigt einen einzelnen Sammelzähler in einem grafischen HUD-Rahmen.
+ * Manages collectible counter behavior.
  */
 export class CollectibleCounter extends Phaser.GameObjects.Container {
   /**
-   * Erstellt einen kamerafesten Zähler für eine Objektart.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {string} key - Schlüssel des Sammelobjekts.
-   * @param {{x: number, y: number, width: number, height: number,
-   * textX: number, textY: number, textureKey: string}} settings - Darstellung.
-   * @param {import(
-   * "../systems/collectible-system.class.js"
-   * ).CollectibleSystem} system - Zählerdaten.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {string} key - The lookup key.
+   * @param {{x: number, y: number, width: number, height: number, textX: number, textY: number, textureKey: string}} settings - The configuration values to use.
+   * @param {import( "../systems/collectible-system.class.js" ).CollectibleSystem} system - The associated system instance.
    */
   constructor(scene, key, settings, system) {
     super(scene, settings.x, settings.y);
     scene.add.existing(this);
     this.key = key;
     this.settings = settings;
-    this.fillProgress = { value: 0 };
-    this.fillTween = null;
+    this.initializeFillState();
     this.fillGraphics = this.createFillGraphics(scene, settings);
     const frame = this.createFrame(scene, settings);
     this.valueText = this.createValueText(scene, settings);
@@ -33,9 +29,18 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeigt einen übernommenen Sammelstand ohne verzögerten Start-Tween an.
-   * @param {number} count - Anfangswert des Sammelobjekts.
-   * @returns {void}
+   * Initializes collectible fill animation state.
+   * @returns {void} No value is returned.
+   */
+  initializeFillState() {
+    this.fillProgress = { value: 0 };
+    this.fillTween = null;
+  }
+
+  /**
+   * Sets initial value.
+   * @param {number} count - The count value.
+   * @returns {void} No value is returned.
    */
   setInitialValue(count) {
     this.valueText.setText(String(count));
@@ -48,10 +53,10 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt den Rahmen des Sammelzählers.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {object} settings - Zentrale Darstellungswerte.
-   * @returns {Phaser.GameObjects.Image} Rahmenbild.
+   * Creates frame.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @returns {Phaser.GameObjects.Image} The resulting data object.
    */
   createFrame(scene, settings) {
     return scene.add.image(0, 0, settings.textureKey)
@@ -60,20 +65,20 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt optional eine dynamische Füllfläche hinter dem HUD-Rahmen.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {object} settings - Zentrale Darstellungswerte.
-   * @returns {Phaser.GameObjects.Graphics|null} Füllgrafik oder `null`.
+   * Creates fill graphics.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @returns {Phaser.GameObjects.Graphics|null} The resulting data object.
    */
   createFillGraphics(scene, settings) {
     return settings.fill ? scene.add.graphics() : null;
   }
 
   /**
-   * Erstellt den Zahlenwert im Sammelrahmen.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {object} settings - Zentrale Darstellungswerte.
-   * @returns {Phaser.GameObjects.Text} Textobjekt des Zählers.
+   * Creates value text.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createValueText(scene, settings) {
     return scene.add.text(
@@ -85,11 +90,9 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Reagiert nur auf Änderungen der zugehörigen Sammelobjektart.
-   * @param {import(
-   * "../systems/collectible-system.class.js"
-   * ).CollectibleSystem} system - Zählerdaten.
-   * @returns {void}
+   * Binds system.
+   * @param {import( "../systems/collectible-system.class.js" ).CollectibleSystem} system - The associated system instance.
+   * @returns {void} No value is returned.
    */
   bindSystem(system) {
     const unsubscribe = system.onChange((changedKey, count) => {
@@ -102,9 +105,9 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Animiert die konfigurierte Füllanzeige zum nächsten Zielwert.
-   * @param {number} count - Aktueller Sammelstand dieser Anzeige.
-   * @returns {void}
+   * Updates fill.
+   * @param {number} count - The count value.
+   * @returns {void} No value is returned.
    */
   updateFill(count) {
     const fill = this.settings.fill;
@@ -116,9 +119,9 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt die langsame Übergangsanimation zum neuen Sammelstand.
-   * @param {number} targetRatio - Zielfüllstand zwischen null und eins.
-   * @returns {Phaser.Tweens.Tween} Laufender Fülltween.
+   * Creates fill tween.
+   * @param {number} targetRatio - The target ratio value.
+   * @returns {Phaser.Tweens.Tween} The created instance.
    */
   createFillTween(targetRatio) {
     return this.scene.tweens.add({
@@ -132,9 +135,9 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Fixiert nach dem Tween den exakten Zielstand und gibt die Referenz frei.
-   * @param {number} targetRatio - Erreichter Zielfüllstand.
-   * @returns {void}
+   * Completes fill tween.
+   * @param {number} targetRatio - The target ratio value.
+   * @returns {void} No value is returned.
    */
   finishFillTween(targetRatio) {
     this.fillProgress.value = targetRatio;
@@ -143,9 +146,9 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet den aktuellen Füllfortschritt mit bewegter Wellenkante.
-   * @param {number} ratio - Sichtbarer Füllstand zwischen null und eins.
-   * @returns {void}
+   * Draws fill.
+   * @param {number} ratio - The normalized value between zero and one.
+   * @returns {void} No value is returned.
    */
   drawFill(ratio) {
     const fill = this.settings.fill;
@@ -159,11 +162,11 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Berechnet die geschlossene Fläche inklusive bewegter Wellenkante.
-   * @param {object} fill - Zentrale Füllkonfiguration.
-   * @param {number} filledWidth - Sichtbare Breite der Füllung.
-   * @param {number} ratio - Aktueller Füllstand.
-   * @returns {Phaser.Geom.Point[]} Punkte der geschlossenen Fläche.
+   * Returns fill points.
+   * @param {object} fill - The fill value.
+   * @param {number} filledWidth - The filled width value.
+   * @param {number} ratio - The normalized value between zero and one.
+   * @returns {Phaser.Geom.Point[]} The resulting collection.
    */
   getFillPoints(fill, filledWidth, ratio) {
     const points = [
@@ -178,11 +181,11 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Berechnet die vertikale Position eines Punkts der Wellenkante.
-   * @param {object} fill - Zentrale Füllkonfiguration.
-   * @param {number} offset - Horizontaler Abstand innerhalb der Füllung.
-   * @param {number} ratio - Aktueller Füllstand.
-   * @returns {number} Vertikale Position des Wellenpunkts.
+   * Returns wave y.
+   * @param {object} fill - The fill value.
+   * @param {number} offset - The offset value.
+   * @param {number} ratio - The normalized value between zero and one.
+   * @returns {number} The resulting numeric value.
    */
   getWaveY(fill, offset, ratio) {
     const phase = (offset / fill.waveLength + ratio) * Math.PI * 2;
@@ -190,9 +193,9 @@ export class CollectibleCounter extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Setzt den zentral konfigurierten Farbverlauf der Füllanzeige.
-   * @param {object} fill - Zentrale Füllkonfiguration.
-   * @returns {void}
+   * Applies fill style.
+   * @param {object} fill - The fill value.
+   * @returns {void} No value is returned.
    */
   applyFillStyle(fill) {
     this.fillGraphics.fillGradientStyle(

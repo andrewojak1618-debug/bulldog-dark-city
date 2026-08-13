@@ -5,7 +5,9 @@ import { EnemyHealthBar } from
 import { ENEMY_HEALTH_BAR } from
   "../js/config/enemy-health-bar-settings.js";
 
-/** Erstellt minimale Phaser-Doubles für eine gegnergebundene Anzeige. */
+/**
+ * Creates doubles.
+ */
 function createDoubles() {
   const graphics = {
     visible: true,

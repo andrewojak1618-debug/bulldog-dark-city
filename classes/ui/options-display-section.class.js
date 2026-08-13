@@ -1,14 +1,15 @@
 import { DISPLAY_MODES } from "../systems/global-display-system.class.js";
 import { PLAYER_GUIDE } from "../../js/config/player-guide-settings.js";
 
-/** Verbindet den persistenten Bildschirmmodus mit der Optionsansicht. */
+/**
+ * Manages options display section behavior.
+ */
 export class OptionsDisplaySection {
   /**
-   * Erstellt Überschrift und Umschalter im vorhandenen Scrollbereich.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {import("./options-dialog.class.js").OptionsDialog} host - Dialog.
-   * @param {import("../systems/global-display-system.class.js").GlobalDisplaySystem}
-   * displaySystem - Globale Anzeigeeinstellung.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import("./options-dialog.class.js").OptionsDialog} host - The host value.
+   * @param {import("../systems/global-display-system.class.js").GlobalDisplaySystem} displaySystem - The display system value.
    */
   constructor(scene, host, displaySystem) {
     this.displaySystem = displaySystem;
@@ -21,22 +22,33 @@ export class OptionsDisplaySection {
       settings.title,
     );
     host.addToScroll(this.heading);
-    this.action = host.createAction(
-      scene,
-      PLAYER_GUIDE.dialog.displayActionX,
-      0,
-      "",
-      () => displaySystem.toggle(),
-    );
+    this.action = this.createAction(scene, host, displaySystem);
     this.positionAction(layout.headingContentGap);
     host.addToScroll(this.action);
     this.unsubscribe = displaySystem.onChange((mode) => this.updateLabel(mode));
   }
 
   /**
-   * Platziert den Umschalter unter seiner Abschnittsüberschrift.
-   * @param {number} gap - Abstand zwischen Überschrift und Aktion.
-   * @returns {void}
+   * Creates the display mode action.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import("./options-dialog.class.js").OptionsDialog} host - The dialog host.
+   * @param {object} displaySystem - The display system.
+   * @returns {Phaser.GameObjects.Text} The action text.
+   */
+  createAction(scene, host, displaySystem) {
+    return host.createAction(
+      scene,
+      PLAYER_GUIDE.dialog.displayActionX,
+      0,
+      "",
+      () => displaySystem.toggle(),
+    );
+  }
+
+  /**
+   * Handles position action.
+   * @param {number} gap - The gap value.
+   * @returns {void} No value is returned.
    */
   positionAction(gap) {
     this.action.setY(
@@ -45,9 +57,9 @@ export class OptionsDisplaySection {
   }
 
   /**
-   * Aktualisiert die Beschriftung passend zum aktiven Modus.
-   * @param {string} mode - Aktueller Bildschirmmodus.
-   * @returns {void}
+   * Updates label.
+   * @param {string} mode - The mode value.
+   * @returns {void} No value is returned.
    */
   updateLabel(mode) {
     const settings = PLAYER_GUIDE.display;
@@ -56,7 +68,9 @@ export class OptionsDisplaySection {
     this.action.setText(label);
   }
 
-  /** Entfernt die Zustandsbeobachtung beim Schließen des Dialogs. */
+  /**
+   * Releases the current state.
+   */
   destroy() {
     this.unsubscribe?.();
   }

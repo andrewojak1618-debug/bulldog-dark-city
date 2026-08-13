@@ -1,12 +1,13 @@
-/** Hält bodengebundene Katzen auf ihrer zuerst erreichten Laufebene. */
+/**
+ * Manages mutant cat grounding system behavior.
+ */
 export class MutantCatGroundingSystem {
   static groundBottoms = new WeakMap();
 
   /**
-   * Registriert oder korrigiert den festen Bodenkontakt einer Katze.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat
-   * Zu stabilisierende Katze.
-   * @returns {void}
+   * Updates the current state.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - The mutant cat instance.
+   * @returns {void} No value is returned.
    */
   static update(cat) {
     if (!cat?.body?.enable || cat.isDead) return;
@@ -18,10 +19,9 @@ export class MutantCatGroundingSystem {
   }
 
   /**
-   * Speichert die erste durch Arcade Physics bestätigte Bodenposition.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat
-   * Zu registrierende Katze.
-   * @returns {void}
+   * Registers ground contact.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - The mutant cat instance.
+   * @returns {void} No value is returned.
    */
   static registerGroundContact(cat) {
     if (!this.isGrounded(cat)) return;
@@ -31,10 +31,9 @@ export class MutantCatGroundingSystem {
   }
 
   /**
-   * Setzt eine abgewichene Physics-Unterkante auf die Laufebene zurück.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat
-   * Zu korrigierende Katze.
-   * @returns {void}
+   * Restores ground contact.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - The mutant cat instance.
+   * @returns {void} No value is returned.
    */
   static restoreGroundContact(cat) {
     const groundBottom = this.groundBottoms.get(cat);
@@ -46,22 +45,21 @@ export class MutantCatGroundingSystem {
   }
 
   /**
-   * Prüft den von Arcade Physics gemeldeten Bodenkontakt.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat
-   * Zu prüfende Katze.
-   * @returns {boolean} Ob die Katze den Boden berührt.
+   * Checks the grounded condition.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - The mutant cat instance.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isGrounded(cat) {
     return cat.body.blocked.down || cat.body.touching.down;
   }
 
   /**
-   * Ändert Darstellung und Hitbox, ohne die Bodenkante zu verschieben.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - Katze.
-   * @param {number} width - Gewünschte Darstellungsbreite.
-   * @param {number} height - Gewünschte Darstellungshöhe.
-   * @param {number|null} [bodyOffsetY=null] - Optionaler vertikaler Hitbox-Offset.
-   * @returns {void}
+   * Applies geometry keeping body bottom.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - The mutant cat instance.
+   * @param {number} width - The width in pixels.
+   * @param {number} height - The height in pixels.
+   * @param {number|null} [bodyOffsetY=null] - The body offset y value.
+   * @returns {void} No value is returned.
    */
   static applyGeometryKeepingBodyBottom(cat, width, height, bodyOffsetY = null) {
     const bodyBottom = cat.body.bottom;

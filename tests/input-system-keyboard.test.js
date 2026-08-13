@@ -3,9 +3,8 @@ import test from "node:test";
 import { InputSystem } from "../classes/input/input-system.class.js";
 
 /**
- * Erstellt eine steuerbare Szene für Tastatur-, Maus- und Gamepadtests.
- * @returns {{scene: object, keys: object, keyboardHandlers: Map,
- * pointerHandlers: Map, gamepad: object}}
+ * Creates input fixture.
+ * @returns {{scene: object, keys: object, keyboardHandlers: Map, pointerHandlers: Map, gamepad: object}} The resulting collection.
  */
 function createInputFixture() {
   const keyboardHandlers = new Map();

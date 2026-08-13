@@ -5,14 +5,14 @@ import {
 } from "../../js/config/bulldog-animation-settings.js";
 
 /**
- * Steuert die bewegungsabhängigen Animationen der normalen Bulldogge.
+ * Manages bulldog movement animation system behavior.
  */
 export class BulldogMovementAnimationSystem {
   /**
-   * Wählt anhand der Physik den passenden Luft- oder Bodenstatus.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {-1|0|1} direction - Horizontale Bewegungsrichtung.
-   * @returns {void}
+   * Updates the current state.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {-1|0|1} direction - The horizontal movement direction.
+   * @returns {void} No value is returned.
    */
   static update(player, direction) {
     if (player.isMutated) {
@@ -33,10 +33,10 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Wechselt die mutierte Bulldogge zwischen Boden- und Luftanimationen.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {-1|0|1} direction - Horizontale Bewegungsrichtung.
-   * @returns {void}
+   * Updates mutation movement.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {-1|0|1} direction - The horizontal movement direction.
+   * @returns {void} No value is returned.
    */
   static updateMutationMovement(player, direction) {
     const isGrounded = player.isGrounded();
@@ -53,9 +53,9 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Startet die Mutations-Sprunganimation in der Luft genau einmal.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Updates mutation jump.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static updateMutationJump(player) {
     player.wasMutationAirborne = true;
@@ -66,9 +66,9 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Spielt nach dem ersten Bodenkontakt den separaten Landeframe.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {boolean} `true`, solange die Landung den Zustand übernimmt.
+   * Updates mutation landing.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static updateMutationLanding(player) {
     if (player.wasMutationAirborne) {
@@ -81,10 +81,10 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Spielt oder beendet die Sprunganimation.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {boolean} isJumping - Ob sich die Bulldogge aufwärts bewegt.
-   * @returns {void}
+   * Updates jump.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {boolean} isJumping - The is jumping value.
+   * @returns {void} No value is returned.
    */
   static updateJump(player, isJumping) {
     if (isJumping) {
@@ -97,10 +97,10 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Spielt oder beendet die Fallanimation.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {boolean} isFalling - Ob die Bulldogge frei abwärts fällt.
-   * @returns {void}
+   * Updates fall.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {boolean} isFalling - The is falling value.
+   * @returns {void} No value is returned.
    */
   static updateFall(player, isFalling) {
     if (isFalling) {
@@ -113,11 +113,11 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Aktualisiert die einmalige Landesequenz.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {boolean} isFalling - Ob die Bulldogge frei fällt.
-   * @param {boolean} isGrounded - Ob sie den Boden berührt.
-   * @returns {boolean} `true`, solange die Landesequenz aktiv ist.
+   * Updates landing.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {boolean} isFalling - The is falling value.
+   * @param {boolean} isGrounded - The is grounded value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static updateLanding(player, isFalling, isGrounded) {
     const hasJustLanded = player.wasFalling && isGrounded;
@@ -134,9 +134,9 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Prüft, ob die Landesequenz noch abgespielt wird.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {boolean} Aktiver Zustand der Landesequenz.
+   * Checks the landing animation playing condition.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isLandingAnimationPlaying(player) {
     return player.anims.currentAnim?.key === BULLDOG_ANIMATION_KEYS.land &&
@@ -144,11 +144,11 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Spielt die Laufanimation nur während einer Bodenbewegung.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {-1|0|1} direction - Horizontale Bewegungsrichtung.
-   * @param {boolean} isGrounded - Ob die Bulldogge den Boden berührt.
-   * @returns {void}
+   * Updates run.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {-1|0|1} direction - The horizontal movement direction.
+   * @param {boolean} isGrounded - The is grounded value.
+   * @returns {void} No value is returned.
    */
   static updateRun(player, direction, isGrounded) {
     const isRunning = direction !== 0 && player.body.velocity.y === 0 &&
@@ -163,11 +163,11 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Startet nach längerer Ruhe Sitzhaltung und Atemschleife.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {-1|0|1} direction - Horizontale Bewegungsrichtung.
-   * @param {boolean} isGrounded - Ob die Bulldogge den Boden berührt.
-   * @returns {void}
+   * Updates wait.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {-1|0|1} direction - The horizontal movement direction.
+   * @param {boolean} isGrounded - The is grounded value.
+   * @returns {void} No value is returned.
    */
   static updateWait(player, direction, isGrounded) {
     const isStanding = direction === 0 && player.body.velocity.y === 0 &&
@@ -182,9 +182,9 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Zeigt abhängig von der bisherigen Wartezeit Sitzen oder Atmen.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Plays wait state.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static playWaitState(player) {
     const standingDuration = player.scene.time.now - player.standingStartedAt;
@@ -200,9 +200,9 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Beendet eine aktive Wartesequenz.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Stops wait.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static stopWait(player) {
     player.stopWaitBreathing();
@@ -214,9 +214,9 @@ export class BulldogMovementAnimationSystem {
   }
 
   /**
-   * Zeigt die ruhige Sitzhaltung vor der Atemschleife.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Shows seated frame.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static showSeatedFrame(player) {
     player.stopWaitBreathing();

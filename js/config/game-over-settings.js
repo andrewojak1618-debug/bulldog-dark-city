@@ -1,5 +1,5 @@
 /**
- * Bündelt Video- und Darstellungswerte der Game-over-Sequenz.
+ * Defines the game over configuration.
  */
 export const GAME_OVER = Object.freeze({
   video: Object.freeze({

@@ -1,7 +1,7 @@
 import { getAssetPath } from "./asset-paths.js";
 
 /**
- * Zentrale Darstellungseinstellungen des zweiten Levels.
+ * Defines the level two configuration.
  */
 export const LEVEL_TWO = Object.freeze({
   preloadDelayMs: 1_200,
@@ -15,7 +15,9 @@ export const LEVEL_TWO = Object.freeze({
     startY: 390,
   }),
   itemPlacements: Object.freeze([
+    Object.freeze({ type: "health", x: 1_123, y: 445, size: 54 }),
     Object.freeze({ type: "serum", x: 1_390, y: 260, size: 58 }),
+    Object.freeze({ type: "health", x: 1_855, y: 445, size: 54 }),
   ]),
   levelEntry: Object.freeze({
     startX: 30,

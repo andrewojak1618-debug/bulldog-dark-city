@@ -4,13 +4,13 @@ import { BULLDOG_ANIMATION_KEYS } from
   "../../js/config/bulldog-animation-settings.js";
 
 /**
- * Verwaltet Laden, Wiedergabe und Lebenszyklus der Bulldog-Sounds.
+ * Manages bulldog audio system behavior.
  */
 export class BulldogAudioSystem {
   /**
-   * Lädt alle Bulldog-Sounds genau einmal in den Phaser-Audiocache.
-   * @param {Phaser.Scene} scene - Szene, welche die Sounds verwendet.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     Object.values(BULLDOG_AUDIO).forEach((audio) => {
@@ -20,9 +20,9 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Erstellt die kontrollierten Soundinstanzen für eine Bulldogge.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Zugehörige Bulldogge.
-   * @param {Phaser.Scene} scene - Aktive Spielszene.
+   * Creates a new instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
    */
   constructor(player, scene) {
     this.player = player;
@@ -37,10 +37,10 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Erstellt eine Soundinstanz aus den zentralen Konfigurationswerten.
-   * @param {Phaser.Scene} scene - Aktive Spielszene.
-   * @param {{key: string, volume: number, loop?: boolean}} settings - Soundwerte.
-   * @returns {Phaser.Sound.BaseSound} Erstellte Soundinstanz.
+   * Creates sound.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{key: string, volume: number, loop?: boolean}} settings - The configuration values to use.
+   * @returns {Phaser.Sound.BaseSound} The created instance.
    */
   createSound(scene, settings) {
     return scene.sound.add(settings.key, {
@@ -50,8 +50,8 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Bindet Frame- und Aufräumereignisse genau einmal an die Bulldogge.
-   * @returns {void}
+   * Binds lifecycle events.
+   * @returns {void} No value is returned.
    */
   bindLifecycleEvents() {
     this.player.on(
@@ -68,8 +68,8 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Bereitet einen neuen Biss vor und beendet die Atemschleife.
-   * @returns {void}
+   * Handles prepare bite attack.
+   * @returns {void} No value is returned.
    */
   prepareBiteAttack() {
     this.biteSoundPlayed = false;
@@ -77,9 +77,9 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Startet den Mutationssound synchron mit beiden Transformationen.
-   * @param {Phaser.Animations.Animation} animation - Gestartete Animation.
-   * @returns {void}
+   * Handles animation start.
+   * @param {Phaser.Animations.Animation} animation - The animation configuration to use.
+   * @returns {void} No value is returned.
    */
   handleAnimationStart(animation) {
     const isTransformation = [
@@ -92,10 +92,10 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Spielt den Bisssound genau einmal ab dem konfigurierten Angriffsframe.
-   * @param {Phaser.Animations.Animation} animation - Aktuelle Animation.
-   * @param {Phaser.Animations.AnimationFrame} frame - Aktueller Frame.
-   * @returns {void}
+   * Handles animation update.
+   * @param {Phaser.Animations.Animation} animation - The animation configuration to use.
+   * @param {Phaser.Animations.AnimationFrame} frame - The frame value.
+   * @returns {void} No value is returned.
    */
   handleAnimationUpdate(animation, frame) {
     const isBiteFrame = animation.key === BULLDOG_ANIMATION_KEYS.biteAttack &&
@@ -107,8 +107,8 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Startet die Atemschleife genau einmal beim aktiven Wartezustand.
-   * @returns {void}
+   * Starts wait breathing.
+   * @returns {void} No value is returned.
    */
   startWaitBreathing() {
     if (this.waitSound.isPlaying) return;
@@ -116,8 +116,8 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Beendet die Atemschleife unmittelbar bei Bewegung oder einer Aktion.
-   * @returns {void}
+   * Stops wait breathing.
+   * @returns {void} No value is returned.
    */
   stopWaitBreathing() {
     if (!this.waitSound.isPlaying) return;
@@ -125,8 +125,8 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Stoppt alle aktiven Bulldog-Sounds bei Treffer oder K.-o.
-   * @returns {void}
+   * Stops all.
+   * @returns {void} No value is returned.
    */
   stopAll() {
     this.stopWaitBreathing();
@@ -135,8 +135,8 @@ export class BulldogAudioSystem {
   }
 
   /**
-   * Entfernt Listener und Soundinstanzen beim Zerstören der Bulldogge.
-   * @returns {void}
+   * Releases the current state.
+   * @returns {void} No value is returned.
    */
   destroy() {
     this.player.off(

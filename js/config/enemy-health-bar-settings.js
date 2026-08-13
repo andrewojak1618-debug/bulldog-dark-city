@@ -1,4 +1,6 @@
-/** Gemeinsame Darstellung kleiner Lebensanzeigen direkt an Gegnern. */
+/**
+ * Defines the enemy health bar configuration.
+ */
 export const ENEMY_HEALTH_BAR = Object.freeze({
   height: 9,
   minWidth: 42,

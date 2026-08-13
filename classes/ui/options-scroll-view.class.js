@@ -1,12 +1,14 @@
 import Phaser from "phaser";
 
-/** Verwaltet einen maskierten UI-Inhalt mit Mausrad- und Touchscrollen. */
+/**
+ * Manages options scroll view behavior.
+ */
 export class OptionsScrollView {
   /**
-   * Erstellt Scrollzone, Inhalt, Maske und Positionsanzeiger.
-   * @param {Phaser.Scene} scene - Zugehörige Szene.
-   * @param {Phaser.GameObjects.Container} host - Aufnehmender Dialog.
-   * @param {object} settings - Zentrale Scrollwerte.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Container} host - The host value.
+   * @param {object} settings - The configuration values to use.
    */
   constructor(scene, host, settings) {
     this.scene = scene;
@@ -22,14 +24,17 @@ export class OptionsScrollView {
     this.updatePosition();
   }
 
-  /** @returns {number} Sichtbare Höhe des Inhaltsbereichs. */
+  /**
+   * Returns viewport height.
+   * @returns {number} The resulting numeric value.
+   */
   getViewportHeight() {
     return this.settings.bottom - this.settings.top;
   }
 
   /**
-   * Erstellt die interaktive Fläche für Mausrad und Wischbewegung.
-   * @returns {Phaser.GameObjects.Rectangle} Interaktive Scrollfläche.
+   * Creates zone.
+   * @returns {Phaser.GameObjects.Rectangle} The resulting data object.
    */
   createZone() {
     const height = this.getViewportHeight();
@@ -40,7 +45,9 @@ export class OptionsScrollView {
     ).setInteractive();
   }
 
-  /** Beschränkt bewegliche Inhalte auf den sichtbaren Dialogbereich. */
+  /**
+   * Creates mask.
+   */
   createMask() {
     const { x, top, width } = this.settings;
     this.maskShape = this.scene.make.graphics({ add: false });
@@ -51,7 +58,9 @@ export class OptionsScrollView {
     this.content.setMask(this.mask);
   }
 
-  /** Registriert Mausrad und Touch-Wischen für den Inhaltsbereich. */
+  /**
+   * Binds input.
+   */
   bindInput() {
     this.wheelHandler = (pointer, _objects, _deltaX, deltaY) =>
       this.handleWheel(pointer, deltaY);
@@ -64,19 +73,19 @@ export class OptionsScrollView {
   }
 
   /**
-   * Fügt ein UI-Element dem beweglichen Inhalt hinzu.
-   * @param {Phaser.GameObjects.GameObject} gameObject - Neues Element.
-   * @returns {void}
+   * Adds the current state.
+   * @param {Phaser.GameObjects.GameObject} gameObject - The game object value.
+   * @returns {void} No value is returned.
    */
   add(gameObject) {
     this.content.add(gameObject);
   }
 
   /**
-   * Scrollt nur, wenn der Zeiger über dem sichtbaren Inhalt steht.
-   * @param {Phaser.Input.Pointer} pointer - Aktuelle Zeigerposition.
-   * @param {number} deltaY - Vertikale Mausradbewegung.
-   * @returns {void}
+   * Handles wheel.
+   * @param {Phaser.Input.Pointer} pointer - The triggering Phaser pointer.
+   * @param {number} deltaY - The delta y value.
+   * @returns {void} No value is returned.
    */
   handleWheel(pointer, deltaY) {
     if (!this.contains(pointer)) return;
@@ -84,9 +93,9 @@ export class OptionsScrollView {
   }
 
   /**
-   * Beginnt eine Wischbewegung innerhalb der Scrollfläche.
-   * @param {Phaser.Input.Pointer} pointer - Auslösender Zeiger.
-   * @returns {void}
+   * Starts drag.
+   * @param {Phaser.Input.Pointer} pointer - The triggering Phaser pointer.
+   * @returns {void} No value is returned.
    */
   startDrag(pointer) {
     this.isDragging = true;
@@ -94,9 +103,9 @@ export class OptionsScrollView {
   }
 
   /**
-   * Überträgt eine gehaltene Wischbewegung auf den Inhalt.
-   * @param {Phaser.Input.Pointer} pointer - Bewegter Zeiger.
-   * @returns {void}
+   * Handles drag.
+   * @param {Phaser.Input.Pointer} pointer - The triggering Phaser pointer.
+   * @returns {void} No value is returned.
    */
   handleDrag(pointer) {
     if (!this.isDragging || !pointer.isDown) return;
@@ -105,15 +114,17 @@ export class OptionsScrollView {
     this.scrollBy(deltaY);
   }
 
-  /** Beendet eine aktive Wischbewegung. */
+  /**
+   * Stops drag.
+   */
   stopDrag() {
     this.isDragging = false;
   }
 
   /**
-   * Prüft eine Zeigerposition gegen den sichtbaren Bereich.
-   * @param {Phaser.Input.Pointer} pointer - Aktuelle Zeigerposition.
-   * @returns {boolean} Ob der Zeiger über dem Inhalt steht.
+   * Handles contains.
+   * @param {Phaser.Input.Pointer} pointer - The triggering Phaser pointer.
+   * @returns {boolean} Whether the requested condition is met.
    */
   contains(pointer) {
     const localX = pointer.x - this.host.x;
@@ -124,9 +135,9 @@ export class OptionsScrollView {
   }
 
   /**
-   * Verschiebt den Inhalt innerhalb seiner erlaubten Grenzen.
-   * @param {number} amount - Scrollbewegung in Canvaspixeln.
-   * @returns {void}
+   * Handles scroll by.
+   * @param {number} amount - The amount value.
+   * @returns {void} No value is returned.
    */
   scrollBy(amount) {
     const nextOffset = this.offset + amount;
@@ -134,18 +145,25 @@ export class OptionsScrollView {
     this.updatePosition();
   }
 
-  /** @returns {number} Maximale vertikale Verschiebung des Inhalts. */
+  /**
+   * Returns max scroll.
+   * @returns {number} The resulting numeric value.
+   */
   getMaxScroll() {
     return Math.max(0, this.settings.contentHeight - this.getViewportHeight());
   }
 
-  /** Aktualisiert Inhalt und Positionsanzeiger mit demselben Offset. */
+  /**
+   * Updates position.
+   */
   updatePosition() {
     this.content.y = this.settings.top - this.offset;
     this.drawBar();
   }
 
-  /** Zeichnet Spur und proportionalen Positionsanzeiger neu. */
+  /**
+   * Draws bar.
+   */
   drawBar() {
     const height = this.getViewportHeight();
     const ratio = height / this.settings.contentHeight;
@@ -154,10 +172,10 @@ export class OptionsScrollView {
   }
 
   /**
-   * Rendert den Scrollbalken an der berechneten Position.
-   * @param {number} height - Höhe der Scrollspur.
-   * @param {number} thumbHeight - Höhe des Positionsanzeigers.
-   * @returns {void}
+   * Renders bar.
+   * @param {number} height - The height in pixels.
+   * @param {number} thumbHeight - The thumb height value.
+   * @returns {void} No value is returned.
    */
   renderBar(height, thumbHeight) {
     const settings = this.settings;
@@ -176,7 +194,9 @@ export class OptionsScrollView {
     );
   }
 
-  /** Entfernt Eingaben, Maske und die zugehörigen Anzeigeobjekte. */
+  /**
+   * Releases the current state.
+   */
   destroy() {
     this.scene.input.off("wheel", this.wheelHandler);
     this.scene.input.off("pointermove", this.moveHandler);

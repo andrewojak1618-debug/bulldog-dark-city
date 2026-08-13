@@ -12,12 +12,14 @@ import { LevelPreloadSystem } from "./level-preload-system.class.js";
 const READY_KEY = "level-one-assets-ready";
 const PROMISE_KEY = "level-one-assets-promise";
 
-/** Lädt die Assets von Level 1 bereits während des Hauptmenüs. */
+/**
+ * Manages level one preload system behavior.
+ */
 export class LevelOnePreloadSystem {
   /**
-   * Stellt alle benötigten Dateien in die aktuelle Phaser-Ladewarteschlange.
-   * @param {Phaser.Scene} scene - Szene mit aktivem Loader.
-   * @returns {void}
+   * Queues the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static queue(scene) {
     BulldogAnimationSystem.load(scene);
@@ -31,9 +33,9 @@ export class LevelOnePreloadSystem {
   }
 
   /**
-   * Startet das Hintergrundladen genau einmal pro Spielsitzung.
-   * @param {Phaser.Scene} scene - Aktive Menüszene.
-   * @returns {Promise<boolean>} Erfolgsstatus des Hintergrundladens.
+   * Preloads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Promise<boolean>} Whether the requested condition is met.
    */
   static preload(scene) {
     return LevelPreloadSystem.preload(scene, {
@@ -44,11 +46,11 @@ export class LevelOnePreloadSystem {
   }
 
   /**
-   * Wartet bei einem frühen Video-Skip sichtbar auf die restlichen Dateien.
-   * @param {Phaser.Scene} scene - Aktive Menüszene.
-   * @param {Promise<boolean>} readyPromise - Laufender Ladevorgang.
-   * @param {() => void} onReady - Wechsel in Level 1.
-   * @returns {void}
+   * Handles enter when ready.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Promise<boolean>} readyPromise - The ready promise value.
+   * @param {() => void} onReady - The on ready value.
+   * @returns {void} No value is returned.
    */
   static enterWhenReady(scene, readyPromise, onReady) {
     LevelPreloadSystem.enterWhenReady(
@@ -57,18 +59,18 @@ export class LevelOnePreloadSystem {
   }
 
   /**
-   * Prüft den globalen Ladezustand von Level 1.
-   * @param {Phaser.Scene} scene - Beliebige aktive Szene.
-   * @returns {boolean} Ob alle Level-1-Assets im Cache liegen.
+   * Checks the ready condition.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isReady(scene) {
     return LevelPreloadSystem.isReady(scene, READY_KEY);
   }
 
   /**
-   * Entfernt die Ladeanzeige nach dem ersten sichtbaren Level-1-Frame.
-   * @param {Phaser.Scene} scene - Vollstaendig aufgebaute Level-1-Szene.
-   * @returns {void}
+   * Completes entry.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static completeEntry(scene) {
     LevelPreloadSystem.hideLoadingOverlayAfterRender(scene);

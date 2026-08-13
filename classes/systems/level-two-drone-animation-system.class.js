@@ -1,12 +1,14 @@
 import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
-/** Lädt und registriert alle Animationen der Level-2-Drohnen. */
+/**
+ * Manages level two drone animation system behavior.
+ */
 export class LevelTwoDroneAnimationSystem {
   /**
-   * Lädt alle konfigurierten Drohnen-Sprite-Sheets.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     const settings = LEVEL_TWO.drones;
@@ -16,11 +18,11 @@ export class LevelTwoDroneAnimationSystem {
   }
 
   /**
-   * Lädt Flug-, Alarm- und Zerstörungstextur einer Drohnenvariante.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {void}
+   * Loads drone textures.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static loadDroneTextures(scene, settings, drone) {
     this.getTextureAssets(drone).forEach((asset) => {
@@ -33,9 +35,9 @@ export class LevelTwoDroneAnimationSystem {
   }
 
   /**
-   * Liefert die drei Sprite-Sheet-Schlüssel einer Drohnenvariante.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {{key: string, path: string}[]} Zu ladende Sprite-Sheets.
+   * Returns texture assets.
+   * @param {object} drone - The drone value.
+   * @returns {{key: string, path: string}[]} The resulting string value.
    */
   static getTextureAssets(drone) {
     return [
@@ -46,11 +48,11 @@ export class LevelTwoDroneAnimationSystem {
   }
 
   /**
-   * Registriert Flug-, Alarm- und Zerstörungsanimation genau einmal.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {void}
+   * Registers the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static register(scene, settings, drone) {
     this.registerFlight(scene, settings, drone);
@@ -59,11 +61,11 @@ export class LevelTwoDroneAnimationSystem {
   }
 
   /**
-   * Registriert die vier Flugphasen genau einmal.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {void}
+   * Registers flight.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static registerFlight(scene, settings, drone) {
     if (scene.anims.exists(drone.animationKey)) return;
@@ -79,11 +81,11 @@ export class LevelTwoDroneAnimationSystem {
   }
 
   /**
-   * Registriert die einmalige Alarmsequenz genau einmal.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {void}
+   * Registers alarm.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static registerAlarm(scene, settings, drone) {
     if (scene.anims.exists(drone.alarmAnimationKey)) return;
@@ -99,11 +101,11 @@ export class LevelTwoDroneAnimationSystem {
   }
 
   /**
-   * Registriert die einmalige Zerstörungssequenz genau einmal.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Gemeinsame Drohneneinstellungen.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {void}
+   * Registers destruction.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static registerDestruction(scene, settings, drone) {
     if (scene.anims.exists(drone.destructionAnimationKey)) return;

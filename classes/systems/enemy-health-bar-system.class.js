@@ -2,13 +2,15 @@ import { EnemyHealthBar } from "../ui/enemy-health-bar.class.js";
 import { DOG_CATCHER } from "../../js/config/dog-catcher-settings.js";
 import { MUTANT_CAT } from "../../js/config/mutant-cat-settings.js";
 
-/** Verbindet Gegnerarten mit der gemeinsamen Welt-Lebensanzeige. */
+/**
+ * Manages enemy health bar system behavior.
+ */
 export class EnemyHealthBarSystem {
   /**
-   * Ergänzt jeden Hundefänger um seine vier Trefferpunkte.
-   * @param {Phaser.Scene} scene - Aktive Level-1-Szene.
-   * @param {Phaser.GameObjects.Group} group - Hundefängergruppe.
-   * @returns {EnemyHealthBar[]} Erstellte Anzeigen.
+   * Handles attach dog catchers.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Group} group - The Phaser group to process.
+   * @returns {EnemyHealthBar[]} The resulting collection.
    */
   static attachDogCatchers(scene, group) {
     return group.getChildren().map((enemy) => this.attach(
@@ -20,11 +22,10 @@ export class EnemyHealthBarSystem {
   }
 
   /**
-   * Ergänzt jede mutierte Katze um ihre neun Trefferpunkte.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat[]}
-   * cats - Gegner des Levels.
-   * @returns {EnemyHealthBar[]} Erstellte Anzeigen.
+   * Handles attach mutant cats.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat[]} cats - The cats value.
+   * @returns {EnemyHealthBar[]} The resulting collection.
    */
   static attachMutantCats(scene, cats) {
     return cats.map((cat) => this.attach(
@@ -36,10 +37,10 @@ export class EnemyHealthBarSystem {
   }
 
   /**
-   * Ergänzt große und kleine Drohne anhand ihrer jeweiligen Trefferpunkte.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite[]} drones - Beide Leveldrohnen.
-   * @returns {EnemyHealthBar[]} Erstellte Anzeigen.
+   * Handles attach drones.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite[]} drones - The drones value.
+   * @returns {EnemyHealthBar[]} The resulting collection.
    */
   static attachDrones(scene, drones) {
     return drones.map((drone) => {
@@ -54,12 +55,12 @@ export class EnemyHealthBarSystem {
   }
 
   /**
-   * Erstellt eine Anzeige und hinterlegt sie am zugehörigen Gegner.
-   * @param {Phaser.Scene} scene - Aktive Spielszene.
-   * @param {Phaser.GameObjects.GameObject} target - Verfolgter Gegner.
-   * @param {number} maximum - Maximale Trefferpunkte.
-   * @param {() => number} getCurrent - Aktueller Lebenswert.
-   * @returns {EnemyHealthBar} Erstellte Lebensanzeige.
+   * Handles attach.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.GameObject} target - The target game object.
+   * @param {number} maximum - The maximum value.
+   * @param {() => number} getCurrent - The get current value.
+   * @returns {EnemyHealthBar} The resulting value.
    */
   static attach(scene, target, maximum, getCurrent) {
     const healthBar = new EnemyHealthBar(

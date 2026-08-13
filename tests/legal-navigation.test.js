@@ -55,7 +55,7 @@ test("Menüdialoge schalten alle externen Menüaktionen gemeinsam ab", async () 
 
   assert.match(
     menuScene,
-    /\(isOpen\) => this\.setExternalMenuControlsVisibility\(!isOpen\)/,
+    /this\.setExternalMenuControlsVisibility\(!isOpen\)/,
   );
   assert.match(menuScene, /setMuteButtonVisibility\(isVisible\)/);
   assert.match(menuScene, /setMenuSocialLinkVisibility\(isVisible\)/);

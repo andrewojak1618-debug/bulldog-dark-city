@@ -1,6 +1,8 @@
 import { MENU_START_TRANSITION } from "./menu-transition-settings.js";
 
-/** Bündelt Video-, Übergangs- und Ersatzwerte der Endsequenz. */
+/**
+ * Defines the ending configuration.
+ */
 export const ENDING = Object.freeze({
   video: Object.freeze({
     key: "bulldog-dark-city-you-win",

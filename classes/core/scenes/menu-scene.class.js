@@ -1,7 +1,5 @@
 import Phaser from "phaser";
-import { MenuButton } from "../../ui/menu-button.class.js";
-import { QuickActionButton } from "../../ui/quick-action-button.class.js";
-import { MenuInputHint } from "../../ui/menu-input-hint.class.js";
+import { HtmlMenuInterface } from "../../ui/html-menu-interface.class.js";
 import { MenuInputController } from "../../input/menu-input-controller.class.js";
 import { InputDeviceDetector } from "../../input/input-device-detector.class.js";
 import { MenuNavigationController } from "../controllers/menu-navigation-controller.class.js";
@@ -15,8 +13,6 @@ import { setMenuLegalNavigationVisibility } from
   "../controllers/menu-legal-navigation-controller.js";
 import { LevelOnePreloadSystem } from "../../systems/level-one-preload-system.class.js";
 import { getAssetPath } from "../../../js/config/asset-paths.js";
-import { MENU_BUTTONS } from "../../../js/config/menu-buttons.js";
-import { QUICK_ACTIONS } from "../../../js/config/quick-actions.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { MENU_START_TRANSITION } from "../../../js/config/menu-transition-settings.js";
 import { getAreaCenter, getMenuLayout } from "../../../js/config/menu-layout.js";
@@ -28,22 +24,21 @@ const MENU_LOGO_PATH = getAssetPath(
   "ui",
   "menu/logo/bulldog-dark-city-logo.png",
 );
-const MENU_ICON_PATH = "menu/icons";
 const MENU_ACTION_LOCK_MS = 180;
+
 /**
- * Stellt den Hintergrund und die interaktiven Bereiche des Hauptmenüs dar.
+ * Manages menu scene behavior.
  */
 export class MenuScene extends Phaser.Scene {
   /**
-   * Erstellt die Menüszene mit ihrem eindeutigen Szenenschlüssel.
+   * Creates a new instance.
    */
   constructor() {
     super(SCENES.menu);
   }
 
   /**
-   * Lädt den Menühintergrund und sämtliche benötigten Buttonsymbole.
-   * @returns {void}
+   * Preloads the current state.
    */
   preload() {
     this.load.image(MENU_BACKGROUND_KEY, MENU_BACKGROUND_PATH);
@@ -53,26 +48,10 @@ export class MenuScene extends Phaser.Scene {
       MENU_START_TRANSITION.video.url,
       MENU_START_TRANSITION.video.noAudio,
     );
-    MENU_BUTTONS.forEach((button) => this.loadMenuIcon(button));
-    const menuIconKeys = new Set(MENU_BUTTONS.map(({ iconKey }) => iconKey));
-    QUICK_ACTIONS.filter(({ iconKey }) => !menuIconKeys.has(iconKey)).forEach(
-      (action) => this.loadMenuIcon(action),
-    );
   }
 
   /**
-   * Lädt das Symbol eines einzelnen Menübuttons.
-   * @param {{iconKey: string, iconFile: string}} button - Buttonkonfiguration.
-   * @returns {void}
-   */
-  loadMenuIcon({ iconKey, iconFile }) {
-    const iconPath = getAssetPath("ui", `${MENU_ICON_PATH}/${iconFile}`);
-    this.load.image(iconKey, iconPath);
-  }
-
-  /**
-   * Baut den sichtbaren Inhalt der Menüszene auf.
-   * @returns {void}
+   * Creates the current state.
    */
   create() {
     this.isTouchLayout = InputDeviceDetector.isTouchLayout();
@@ -83,8 +62,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   /**
-   * Registriert globale Menüelemente und deren Aufräumroutine.
-   * @returns {void}
+   * Registers menu lifecycle.
    */
   registerMenuLifecycle() {
     document.body.classList.add("is-menu-scene");
@@ -94,35 +72,34 @@ export class MenuScene extends Phaser.Scene {
   }
 
   /**
-   * Entfernt szenenabhängige Klassen und externe Menüaktionen.
-   * @returns {void}
+   * Handles cleanup menu.
    */
   cleanupMenu() {
+    this.introController?.destroy();
+    this.introController = null;
+    this.menuInterface?.destroy();
+    this.menuInterface = null;
     document.body.classList.remove("is-menu-scene");
     this.setExternalMenuControlsVisibility(false);
   }
 
   /**
-   * Erstellt sämtliche sichtbaren Elemente des Hauptmenüs.
-   * @returns {void}
+   * Creates menu elements.
    */
   createMenuElements() {
     this.createBackground();
     this.createLogo();
-    this.createVersionInfo();
-    this.createMainMenu();
-    this.inputHint = new MenuInputHint(this, this.menuLayout.inputHint);
-    if (this.isTouchLayout) {
-      const { popupDurationMs, fadeDurationMs } = this.menuLayout.inputHint;
-      this.inputHint.setInputMode("touch");
-      this.inputHint.showTemporarily(popupDurationMs, fadeDurationMs);
-    }
-    this.createQuickActions();
+    this.menuInterface = new HtmlMenuInterface(this, {
+      onActivate: (button) => this.activateMenuButton(button),
+      onFocus: (button, pointer) => this.focusMenuButton(button, pointer),
+    });
+    this.menuButtons = this.menuInterface.buttons;
+    this.menuInterface.show();
+    this.menuInterface.showInitialHint(this.isTouchLayout);
   }
 
   /**
-   * Initialisiert Eingabe, Intro und vorbereitendes Laden für Level 1.
-   * @returns {void}
+   * Initializes menu systems.
    */
   initializeMenuSystems() {
     this.createMenuInput();
@@ -132,8 +109,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   /**
-   * Zeigt das Hintergrundbild über die vollständige Canvasgröße an.
-   * @returns {void}
+   * Creates background.
    */
   createBackground() {
     const { width, height } = this.scale;
@@ -143,20 +119,34 @@ export class MenuScene extends Phaser.Scene {
   }
 
   /**
-   * Positioniert das Logo proportional innerhalb des vorgesehenen Bereichs.
-   * @returns {void}
+   * Creates logo.
    */
   createLogo() {
     const area = this.menuLayout.areas.logo;
     const center = getAreaCenter(area);
     const source = this.textures.get(MENU_LOGO_KEY).getSourceImage();
-    const scale =
-      Math.min(area.width / source.width, area.height / source.height) *
-      this.menuLayout.logo.scale;
+    const scale = this.calculateLogoScale(area, source);
     const displayWidth = source.width * scale + this.menuLayout.logo.extraWidth;
     const displayHeight = displayWidth * (source.height / source.width);
+    this.logo = this.addLogoImage(center, displayWidth, displayHeight);
+  }
 
-    this.logo = this.add
+  /**
+   * Calculates logo scale.
+   */
+  calculateLogoScale(area, source) {
+    const containScale = Math.min(
+      area.width / source.width,
+      area.height / source.height,
+    );
+    return containScale * this.menuLayout.logo.scale;
+  }
+
+  /**
+   * Adds logo image.
+   */
+  addLogoImage(center, displayWidth, displayHeight) {
+    return this.add
       .image(
         center.x + this.menuLayout.logo.offsetX,
         center.y + this.menuLayout.logo.offsetY,
@@ -167,177 +157,59 @@ export class MenuScene extends Phaser.Scene {
   }
 
   /**
-   * Zeigt Versionsnummer und Projektband dezent am unteren linken Rand.
-   * @returns {Phaser.GameObjects.Text} Erstellte Versionsanzeige.
-   */
-  createVersionInfo() {
-    const { version, areas } = this.menuLayout;
-    this.versionInfo = this.add
-      .text(
-        areas.version.x,
-        areas.version.y + areas.version.height / 2,
-        version.text,
-        {
-          fontFamily: version.fontFamily,
-          fontSize: `${version.fontSize}px`,
-          color: version.color,
-        },
-      )
-      .setOrigin(0, 0.5);
-    return this.versionInfo;
-  }
-
-  /**
-   * Erzeugt sämtliche Hauptmenüpunkte aus derselben Buttonklasse.
-   * @returns {void}
-   */
-  createMainMenu() {
-    this.menuButtons = MENU_BUTTONS.map((button, index) =>
-      this.createMenuButton(button, index),
-    );
-    this.createUnavailableLabels();
-  }
-
-  /**
-   * Kennzeichnet vorläufig gesperrte Menüpunkte direkt im Menü.
-   * @returns {void}
-   */
-  createUnavailableLabels() {
-    this.unavailableLabels = [];
-    MENU_BUTTONS.forEach((config, index) => {
-      if (!config.disabled) return;
-      const style = this.menuLayout.unavailableLabel;
-      const position = this.getMenuButtonPosition(index);
-      const unavailableLabel = this.add
-        .text(
-          this.menuLayout.areas.mainMenu.x +
-            this.menuLayout.mainMenu.buttonWidth -
-            style.offsetX,
-          position.y - style.offsetY,
-          style.text,
-          {
-            fontFamily: style.fontFamily,
-            fontSize: `${style.fontSize}px`,
-            color: style.color,
-            backgroundColor: style.backgroundColor,
-            padding: { x: style.paddingX, y: style.paddingY },
-          },
-        )
-        .setOrigin(1, 0.5)
-        .setAlpha(style.idleAlpha);
-      this.unavailableLabels.push(unavailableLabel);
-      this.menuButtons[index]
-        .on("pointerover", () => unavailableLabel.setAlpha(style.hoverAlpha))
-        .on("pointerout", () => unavailableLabel.setAlpha(style.idleAlpha));
-    });
-  }
-
-  /**
-   * Erzeugt die Schnellzugriffe aus einer gemeinsamen Komponente.
-   * @returns {void}
-   */
-  createQuickActions() {
-    this.visibleQuickActions = this.isTouchLayout
-      ? QUICK_ACTIONS.filter(({ disabled }) => !disabled)
-      : QUICK_ACTIONS;
-    this.quickActionButtons = this.visibleQuickActions.map(
-      (action, index) =>
-        new QuickActionButton(this, {
-          ...this.getQuickActionPosition(action, index),
-          width: action.buttonDisplaySize.width,
-          height: action.buttonDisplaySize.height,
-          iconSize: this.menuLayout.quickActions.iconSize,
-          iconKey: action.iconKey,
-          iconCrop: action.iconCrop,
-          iconDisplaySize: action.iconDisplaySize,
-          iconOffsetY: action.iconOffsetY,
-          disabled: action.disabled,
-          unavailableLabel: action.unavailableLabel,
-        }),
-    );
-  }
-
-  /**
-   * Berechnet die Mittelpunktposition eines Schnellzugriffs.
-   * @param {Object} action - Konfiguration des Schnellzugriffs.
-   * @param {number} index - Position innerhalb der Schnellzugriffe.
-   * @returns {{x: number, y: number}} Mittelpunktposition.
-   */
-  getQuickActionPosition(action, index) {
-    const { areas, quickActions } = this.menuLayout;
-    const precedingWidth = this.visibleQuickActions.slice(0, index).reduce(
-      (width, precedingAction) =>
-        width +
-        precedingAction.buttonDisplaySize.width +
-        quickActions.buttonGap,
-      0,
-    );
-    return {
-      x:
-        areas.quickActions.x +
-        precedingWidth +
-        action.buttonDisplaySize.width / 2,
-      y: areas.quickActions.y + action.buttonDisplaySize.height / 2,
-    };
-  }
-
-  /**
-   * Erstellt einen konfigurierten Hauptmenübutton.
-   * @param {Object} buttonConfig - Inhalt und Anfangszustand des Buttons.
-   * @param {number} index - Position innerhalb des Hauptmenüs.
-   * @returns {MenuButton} Erstellter Menübutton.
-   */
-  createMenuButton(buttonConfig, index) {
-    const position = this.getMenuButtonPosition(index);
-    const menuButton = new MenuButton(this, {
-      ...position,
-      width: this.menuLayout.mainMenu.buttonWidth,
-      height: this.menuLayout.mainMenu.buttonHeight,
-      hitHeight: this.menuLayout.mainMenu.hitHeight,
-      iconSize: this.menuLayout.mainMenu.iconSize,
-      label: buttonConfig.label,
-      fontSize: this.menuLayout.mainMenu.fontSize ?? buttonConfig.fontSize,
-      iconKey: buttonConfig.iconKey,
-      iconCrop: buttonConfig.iconCrop,
-      iconOffsetY: buttonConfig.iconOffsetY,
-      selected: buttonConfig.selected,
-      disabled: buttonConfig.disabled,
-      onActivate: (button) => this.activateMenuButton(button),
-      onFocus: (button, pointer) =>
-        this.menuInput?.focusButton(
-          button,
-          pointer?.pointerType === "touch" ? "touch" : "mouse",
-        ),
-    });
-    menuButton.menuAction = buttonConfig.action;
-    return menuButton;
-  }
-
-  /**
-   * Erstellt die zentrale Eingabesteuerung des Hauptmenüs.
-   * @returns {void}
+   * Creates menu input.
    */
   createMenuInput() {
     this.isMenuActionLocked = false;
     this.menuInput = new MenuInputController(
       this,
       this.menuButtons,
-      (inputMode) => this.inputHint?.setInputMode(inputMode),
+      (inputMode) => this.menuInterface?.setInputMode(inputMode),
     );
+    this.createMenuNavigation();
+  }
+
+  /**
+   * Creates menu navigation.
+   */
+  createMenuNavigation() {
     this.menuNavigation = new MenuNavigationController(
       this,
       this.menuInput,
-      () => {
-        this.isMenuActionLocked = false;
-      },
-      (isOpen) => this.setExternalMenuControlsVisibility(!isOpen),
+      () => this.unlockMenuAction(),
+      (isOpen, hideInterface) =>
+        this.handleDialogStateChange(isOpen, hideInterface),
     );
   }
 
   /**
-   * Schaltet die außerhalb des Canvas liegenden Menüaktionen gemeinsam um.
-   * @param {boolean} isVisible - Ob Mute und GitHub bedienbar sein sollen.
-   * @returns {void}
+   * Handles focus menu button.
+   */
+  focusMenuButton(button, pointer) {
+    const inputMode = pointer?.pointerType === "touch" ? "touch" : "mouse";
+    this.menuInput?.focusButton(button, inputMode);
+  }
+
+  /**
+   * Handles unlock menu action.
+   */
+  unlockMenuAction() {
+    this.isMenuActionLocked = false;
+  }
+
+  /**
+   * Handles dialog state change.
+   * @param {boolean} isOpen - The is open value.
+   * @param {boolean} hideInterface - The hide interface value.
+   */
+  handleDialogStateChange(isOpen, hideInterface = true) {
+    this.setExternalMenuControlsVisibility(!isOpen);
+    if (isOpen && hideInterface) this.menuInterface?.hide();
+    if (!isOpen) this.menuInterface?.show();
+  }
+
+  /**
+   * Sets external menu controls visibility.
    */
   setExternalMenuControlsVisibility(isVisible) {
     setMuteButtonVisibility(isVisible);
@@ -346,51 +218,31 @@ export class MenuScene extends Phaser.Scene {
   }
 
   /**
-   * Berechnet die Mittelpunktposition eines Hauptmenübuttons.
-   * @param {number} index - Position innerhalb des Hauptmenüs.
-   * @returns {{x: number, y: number}} Mittelpunktposition des Buttons.
-   */
-  getMenuButtonPosition(index) {
-    const { mainMenu, areas } = this.menuLayout;
-    const step = mainMenu.buttonHeight + mainMenu.buttonGap;
-    return {
-      x: areas.mainMenu.x + mainMenu.buttonWidth / 2,
-      y: areas.mainMenu.y + mainMenu.buttonHeight / 2 + index * step,
-    };
-  }
-
-  /**
-   * Wählt einen Menübutton aus und aktualisiert den Eingabehinweis.
-   * @param {MenuButton} activeButton - Ausgewählter Menübutton.
-   * @returns {void}
+   * Handles activate menu button.
    */
   activateMenuButton(activeButton) {
-    if (this.isMenuActionLocked || this.menuNavigation.isTransitioning) {
-      return;
-    }
-
+    if (this.isMenuActionLocked || this.menuNavigation.isTransitioning) return;
     this.isMenuActionLocked = true;
     this.menuNavigation.run(activeButton.menuAction);
-
-    if (!this.menuNavigation.isTransitioning) {
-      this.time.delayedCall(MENU_ACTION_LOCK_MS, () => {
-        this.isMenuActionLocked = false;
-      });
-    }
+    if (!this.menuNavigation.isTransitioning) this.scheduleMenuUnlock();
   }
 
   /**
-   * Übergibt den Start des Vorspanns an den zuständigen Intro-Controller.
-   * @param {Function} onComplete - Aktion nach dem Ende der Intro-Sequenz.
-   * @returns {void}
+   * Handles schedule menu unlock.
+   */
+  scheduleMenuUnlock() {
+    this.time.delayedCall(MENU_ACTION_LOCK_MS, () => this.unlockMenuAction());
+  }
+
+  /**
+   * Plays start sequence.
    */
   playStartSequence(onComplete) {
     this.introController.play(onComplete);
   }
 
   /**
-   * Aktualisiert die vorbereitete Gamepad-Steuerung.
-   * @returns {void}
+   * Updates the current state.
    */
   update() {
     this.menuInput?.update();

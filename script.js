@@ -10,7 +10,7 @@ import { globalDisplaySystem } from
 import { GAME_CONFIG } from "./js/config/game-config.js";
 
 /**
- * Wartet auf die Menüschrift, bevor Phaser seine Texturen erzeugt.
+ * Waits for the menu font before Phaser creates its text textures.
  * @returns {Promise<void>}
  */
 async function startGame() {

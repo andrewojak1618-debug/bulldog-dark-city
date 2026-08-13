@@ -9,50 +9,57 @@ import { setMenuSocialLinkVisibility } from
   "./menu-social-link-controller.js";
 import { setMenuLegalNavigationVisibility } from
   "./menu-legal-navigation-controller.js";
+import { IntroVideoLifecycleController } from
+  "./intro-video-lifecycle-controller.class.js";
 import { MENU_START_TRANSITION } from "../../../js/config/menu-transition-settings.js";
 
 /**
- * Koordiniert Introvideo, Skip-Eingabe und den Übergang aus dem Hauptmenü.
+ * Manages menu intro controller behavior.
  */
 export class MenuIntroController {
   /**
-   * Speichert die Menüszene als gemeinsame Schnittstelle zu Phaser.
-   * @param {Phaser.Scene} scene - Aktive Menüszene.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
    */
   constructor(scene) {
     this.scene = scene;
   }
 
   /**
-   * Startet den vollständigen Vorspann und schließt ihn genau einmal ab.
-   * @param {Function} onComplete - Aktion nach Ende oder Überspringen.
-   * @returns {void}
+   * Plays the current state.
+   * @param {Function} onComplete - The callback invoked after completion.
+   * @returns {void} No value is returned.
    */
   play(onComplete) {
+    if (this.isPlayingIntro) return;
+    this.isPlayingIntro = true;
     this.finishIntro = this.createFinishHandler(onComplete);
     this.prepare();
-    this.bindVideoEvents();
     this.animateMenuExit();
-    this.scheduleSkip();
-    this.startVideo();
+    this.startVideoLifecycle();
   }
 
-  /** Erstellt das Video frühzeitig, damit der Browser es puffern kann. */
+  /**
+   * Handles prepare.
+   */
   prepare() {
     if (!this.video) this.createVideo();
   }
 
   /**
-   * Erzeugt einen gegen Mehrfachausführung geschützten Abschluss.
-   * @param {Function} onComplete - Aktion nach der Intro-Sequenz.
-   * @returns {Function} Einmalig ausführbarer Abschluss.
+   * Creates finish handler.
+   * @param {Function} onComplete - The callback invoked after completion.
+   * @returns {Function} The generated callback function.
    */
   createFinishHandler(onComplete) {
     let isFinished = false;
     return () => {
       if (isFinished) return;
       isFinished = true;
+      this.isPlayingIntro = false;
       this.disableSkip();
+      this.videoLifecycle?.destroy();
+      this.videoLifecycle = null;
       this.unregisterVideoMute?.();
       this.unregisterVideoMute = null;
       onComplete();
@@ -60,8 +67,8 @@ export class MenuIntroController {
   }
 
   /**
-   * Erstellt das zunächst unsichtbare Introvideo in Canvasgröße.
-   * @returns {void}
+   * Creates video.
+   * @returns {void} No value is returned.
    */
   createVideo() {
     const { width, height } = this.scene.scale;
@@ -76,35 +83,37 @@ export class MenuIntroController {
   }
 
   /**
-   * Verbindet Videozustände mit Skalierung und Abschluss.
-   * @returns {void}
+   * Starts video lifecycle.
    */
-  bindVideoEvents() {
-    const sizeVideo = () => this.sizeAndRevealVideo();
-    this.video.once("created", sizeVideo);
-    this.video.once("playing", sizeVideo);
-    this.video.once("complete", this.finishIntro);
-    this.video.once("error", this.finishIntro);
+  startVideoLifecycle() {
+    this.videoLifecycle = new IntroVideoLifecycleController(
+      this.scene,
+      this.video,
+      {
+        onActive: (isFirstFrame) => this.activateVideo(isFirstFrame),
+        onInactive: () => this.disableSkip(),
+        onFinish: () => this.finishIntro(),
+      },
+    );
+    this.videoLifecycle.start();
   }
 
   /**
-   * Startet das Video und beendet bei einem synchronen Fehler kontrolliert.
-   * @returns {void}
+   * Handles activate video.
+   * @param {boolean} isFirstFrame - The is first frame value.
    */
-  startVideo() {
-    try {
-      this.video.play(false);
-    } catch {
-      this.finishIntro();
-    }
+  activateVideo(isFirstFrame) {
+    if (isFirstFrame) this.sizeAndRevealVideo();
+    this.scheduleSkip();
   }
 
   /**
-   * Aktiviert die Skip-Taste zeitversetzt nach dem Start-Tastendruck.
-   * @returns {void}
+   * Handles schedule skip.
    */
   scheduleSkip() {
+    if (!this.videoLifecycle?.isActive()) return;
     this.isSkipping = false;
+    this.skipTimer?.remove(false);
     this.skipTimer = this.scene.time.delayedCall(
       MENU_START_TRANSITION.skip.activationDelay,
       () => this.enableSkip(),
@@ -112,12 +121,14 @@ export class MenuIntroController {
   }
 
   /**
-   * Bindet die Leertaste einmalig an das Überspringen des Vorspanns.
-   * @returns {void}
+   * Enables skip.
+   * @returns {void} No value is returned.
    */
   enableSkip() {
     const keyboard = this.scene.input.keyboard;
-    if (this.isSkipping) return;
+    if (this.isSkipping || this.skipHint || !this.videoLifecycle?.isActive()) {
+      return;
+    }
     this.createSkipHint();
     if (keyboard) {
       this.skipHandler = (event) => this.handleSkip(event);
@@ -130,17 +141,13 @@ export class MenuIntroController {
   }
 
   /**
-   * Erstellt und blendet den zentrierten Leertastenhinweis ein.
-   * @returns {void}
+   * Creates skip hint.
+   * @returns {void} No value is returned.
    */
   createSkipHint() {
     const { width, height } = this.scene.scale;
-    const { skip, depths, videoReveal } = MENU_START_TRANSITION;
-    const hintStyle = InputDeviceDetector.isTouchLayout() ? {
-      ...skip,
-      hint: skip.touchHint,
-      actionHint: skip.touchActionHint,
-    } : skip;
+    const { skip, depths } = MENU_START_TRANSITION;
+    const hintStyle = this.getSkipHintStyle(skip);
     this.skipHint = new IntroSkipHint(
       this.scene,
       width / 2,
@@ -149,6 +156,26 @@ export class MenuIntroController {
     )
       .setDepth(depths.skipHint)
       .setAlpha(0);
+    this.fadeInSkipHint();
+  }
+
+  /**
+   * Returns skip hint style.
+   */
+  getSkipHintStyle(skip) {
+    if (!InputDeviceDetector.isTouchLayout()) return skip;
+    return {
+      ...skip,
+      hint: skip.touchHint,
+      actionHint: skip.touchActionHint,
+    };
+  }
+
+  /**
+   * Fades in skip hint.
+   */
+  fadeInSkipHint() {
+    const { skip, videoReveal } = MENU_START_TRANSITION;
     this.scene.tweens.add({
       targets: this.skipHint,
       alpha: skip.hintAlpha,
@@ -158,9 +185,9 @@ export class MenuIntroController {
   }
 
   /**
-   * Reagiert auf einen neuen Leertastendruck genau einmal.
-   * @param {KeyboardEvent} event - Auslösendes Tastaturereignis.
-   * @returns {void}
+   * Handles skip.
+   * @param {KeyboardEvent} event - The triggering event.
+   * @returns {void} No value is returned.
    */
   handleSkip(event) {
     if (event.repeat || this.isSkipping) return;
@@ -169,8 +196,8 @@ export class MenuIntroController {
   }
 
   /**
-   * Überspringt das Video bei einer neuen Berührung genau einmal.
-   * @returns {void}
+   * Handles touch skip.
+   * @returns {void} No value is returned.
    */
   handleTouchSkip() {
     if (this.isSkipping) return;
@@ -178,10 +205,11 @@ export class MenuIntroController {
   }
 
   /**
-   * Blendet Video und Ton aus und schließt anschließend das Intro ab.
-   * @returns {void}
+   * Handles skip.
+   * @returns {void} No value is returned.
    */
   skip() {
+    if (!this.videoLifecycle?.isActive() || this.isSkipping) return;
     this.isSkipping = true;
     this.disableSkip();
     this.scene.tweens.killTweensOf(this.video);
@@ -198,8 +226,8 @@ export class MenuIntroController {
   }
 
   /**
-   * Entfernt Skip-Timer, Tastaturereignis und sichtbaren Hinweis.
-   * @returns {void}
+   * Handles disable skip.
+   * @returns {void} No value is returned.
    */
   disableSkip() {
     this.skipTimer?.remove(false);
@@ -214,8 +242,8 @@ export class MenuIntroController {
   }
 
   /**
-   * Entfernt den gebundenen Leertasten-Handler.
-   * @returns {void}
+   * Handles unbind skip key.
+   * @returns {void} No value is returned.
    */
   unbindSkipKey() {
     const keyboard = this.scene.input.keyboard;
@@ -226,8 +254,8 @@ export class MenuIntroController {
   }
 
   /**
-   * Entfernt den mobilen Klick-Handler beim Abschluss des Vorspanns.
-   * @returns {void}
+   * Handles unbind touch skip.
+   * @returns {void} No value is returned.
    */
   unbindTouchSkip() {
     if (this.touchSkipHandler) {
@@ -237,9 +265,8 @@ export class MenuIntroController {
   }
 
   /**
-   * Skaliert den sichtbaren Videoinhalt verzerrungsfrei über das Canvas.
-   * Eingebrannte schwarze Ränder liegen dadurch außerhalb der Ansicht.
-   * @returns {void}
+   * Handles size and reveal video.
+   * @returns {void} No value is returned.
    */
   sizeAndRevealVideo() {
     if (this.isVideoSized) return;
@@ -250,10 +277,10 @@ export class MenuIntroController {
   }
 
   /**
-   * Berechnet eine Cover-Skalierung anhand des tatsächlich sichtbaren Frames.
-   * @param {number} canvasWidth - Logische Breite des Canvas.
-   * @param {number} canvasHeight - Logische Höhe des Canvas.
-   * @returns {void}
+   * Handles cover canvas with visible video frame.
+   * @param {number} canvasWidth - The canvas width value.
+   * @param {number} canvasHeight - The canvas height value.
+   * @returns {void} No value is returned.
    */
   coverCanvasWithVisibleVideoFrame(canvasWidth, canvasHeight) {
     const { visibleFrame } = MENU_START_TRANSITION.video;
@@ -274,64 +301,25 @@ export class MenuIntroController {
   }
 
   /**
-   * Verteilt die Menüelemente auf drei zeitversetzte Flugrichtungen.
-   * @returns {void}
+   * Handles animate menu exit.
    */
   animateMenuExit() {
     setMuteButtonVisibility(false);
     setMenuSocialLinkVisibility(false);
     setMenuLegalNavigationVisibility(false);
-    const { leftObjects, rightObjects } = this.getExitGroups();
-    const interfaceObjects = [
-      ...leftObjects,
-      ...rightObjects,
-      this.scene.inputHint,
-    ];
-    interfaceObjects.forEach((gameObject) =>
-      gameObject?.setDepth(MENU_START_TRANSITION.depths.interface),
-    );
-    this.tweenExitGroups(leftObjects, rightObjects);
-  }
-
-  /**
-   * Ordnet die sichtbaren Menüelemente ihren Austrittsrichtungen zu.
-   * @returns {{leftObjects: Object[], rightObjects: Object[]}} UI-Gruppen.
-   */
-  getExitGroups() {
-    return {
-      leftObjects: [
-        this.scene.logo,
-        ...this.scene.menuButtons,
-        ...this.scene.unavailableLabels,
-        this.scene.versionInfo,
-      ],
-      rightObjects: [
-        ...this.scene.quickActionButtons,
-      ],
-    };
-  }
-
-  /**
-   * Startet die drei Austrittsanimationen mit zentralen Distanzen.
-   * @param {Object[]} leftObjects - Nach links fliegende Elemente.
-   * @param {Object[]} rightObjects - Nach rechts fliegende Elemente.
-   * @returns {void}
-   */
-  tweenExitGroups(leftObjects, rightObjects) {
     const { flyOut } = MENU_START_TRANSITION;
-    this.tweenExitGroup(leftObjects, { x: `-=${flyOut.leftDistance}` });
-    this.tweenExitGroup(rightObjects, { x: `+=${flyOut.rightDistance}` });
-    this.tweenExitGroup(
-      [this.scene.inputHint],
-      { y: `+=${flyOut.bottomDistance}` },
-    );
+    this.scene.menuInterface?.animateExit();
+    this.scene.logo?.setDepth(MENU_START_TRANSITION.depths.interface);
+    this.tweenExitGroup([this.scene.logo], {
+      x: `-=${flyOut.leftDistance}`,
+    });
   }
 
   /**
-   * Animiert eine UI-Gruppe zeitversetzt aus dem Canvas.
-   * @param {Object[]} targets - Zu animierende Elemente.
-   * @param {{x?: string, y?: string}} destination - Relative Zielposition.
-   * @returns {void}
+   * Handles tween exit group.
+   * @param {Object[]} targets - The targets value.
+   * @param {{x?: string, y?: string}} destination - The destination value.
+   * @returns {void} No value is returned.
    */
   tweenExitGroup(targets, destination) {
     targets.filter(Boolean).forEach((target, index) =>
@@ -347,8 +335,8 @@ export class MenuIntroController {
   }
 
   /**
-   * Blendet das gestartete Introvideo hinter der fliegenden Oberfläche ein.
-   * @returns {void}
+   * Handles reveal video.
+   * @returns {void} No value is returned.
    */
   revealVideo() {
     const { videoReveal } = MENU_START_TRANSITION;
@@ -359,5 +347,16 @@ export class MenuIntroController {
       duration: videoReveal.duration,
       ease: videoReveal.ease,
     });
+  }
+
+  /**
+   * Releases the current state.
+   */
+  destroy() {
+    this.disableSkip();
+    this.videoLifecycle?.destroy();
+    this.videoLifecycle = null;
+    this.unregisterVideoMute?.();
+    this.unregisterVideoMute = null;
   }
 }

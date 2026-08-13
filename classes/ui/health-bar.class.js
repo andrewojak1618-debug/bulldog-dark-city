@@ -2,13 +2,13 @@ import Phaser from "phaser";
 import { HUD } from "../../js/config/hud-settings.js";
 
 /**
- * Stellt den aktuellen Lebenspunktestand im HUD dar.
+ * Manages health bar behavior.
  */
 export class HealthBar extends Phaser.GameObjects.Container {
   /**
-   * Erstellt Rahmen, dynamische Füllung und numerische Lebenspunkte.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {import("../systems/health-system.class.js").HealthSystem} system - Lebenspunkte.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import("../systems/health-system.class.js").HealthSystem} system - The associated system instance.
    */
   constructor(scene, system) {
     const settings = HUD.health;
@@ -24,9 +24,9 @@ export class HealthBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt den grafischen Rahmen in den zentral konfigurierten Maßen.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {Phaser.GameObjects.Image} Rahmenbild.
+   * Creates frame.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.Image} The resulting data object.
    */
   createFrame(scene) {
     return scene.add
@@ -36,9 +36,9 @@ export class HealthBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt den mittig in der Füllfläche liegenden Zahlenwert.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {Phaser.GameObjects.Text} Textobjekt der Lebenspunkte.
+   * Creates value text.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createValueText(scene) {
     const { fillX, fillY, fillWidth, fillHeight } = this.settings;
@@ -51,9 +51,9 @@ export class HealthBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Verbindet die Anzeige mit den Lebenspunkten und räumt den Listener auf.
-   * @param {import("../systems/health-system.class.js").HealthSystem} system - Lebenspunkte.
-   * @returns {void}
+   * Binds system.
+   * @param {import("../systems/health-system.class.js").HealthSystem} system - The associated system instance.
+   * @returns {void} No value is returned.
    */
   bindSystem(system) {
     const unsubscribe = system.onChange((current, maximum) => {
@@ -63,27 +63,30 @@ export class HealthBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet den aktuellen Füllstand innerhalb des Bildrahmens neu.
-   * @param {number} current - Aktuelle Lebenspunkte.
-   * @param {number} maximum - Maximale Lebenspunkte.
-   * @returns {void}
+   * Updates value.
+   * @param {number} current - The current value.
+   * @param {number} maximum - The maximum value.
+   * @returns {void} No value is returned.
    */
   updateValue(current, maximum) {
     const ratio = maximum > 0 ? Phaser.Math.Clamp(current / maximum, 0, 1) : 0;
-    const settings = this.settings;
     this.fillGraphics.clear();
-    this.fillGraphics.fillStyle(
-      settings.fillBackgroundColor,
-      settings.fillBackgroundAlpha,
-    );
-    this.fillGraphics.fillRoundedRect(
-      settings.fillX,
-      settings.fillY,
-      settings.fillWidth,
-      settings.fillHeight,
-      settings.fillRadius,
-    );
-    this.fillGraphics.fillStyle(settings.fillColor, 1);
+    this.drawFill(this.settings.fillBackgroundColor,
+      this.settings.fillBackgroundAlpha, 1);
+    this.drawFill(this.settings.fillColor, 1, ratio);
+    this.valueText.setText(`${current} / ${maximum}`);
+  }
+
+  /**
+   * Draws one health fill layer.
+   * @param {number} color - The fill color.
+   * @param {number} alpha - The fill opacity.
+   * @param {number} ratio - The normalized fill ratio.
+   * @returns {void} No value is returned.
+   */
+  drawFill(color, alpha, ratio) {
+    const settings = this.settings;
+    this.fillGraphics.fillStyle(color, alpha);
     this.fillGraphics.fillRoundedRect(
       settings.fillX,
       settings.fillY,
@@ -91,6 +94,5 @@ export class HealthBar extends Phaser.GameObjects.Container {
       settings.fillHeight,
       settings.fillRadius,
     );
-    this.valueText.setText(`${current} / ${maximum}`);
   }
 }

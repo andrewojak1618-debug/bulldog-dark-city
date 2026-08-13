@@ -1,71 +1,19 @@
-/**
- * Beschreibt alle Hauptmenüpunkte und ihre zugehörigen Symbole.
- * @type {ReadonlyArray<{
- *   action: string,
- *   label: string,
- *   iconKey: string,
- *   iconFile: string,
- *   iconCrop: {x: number, y: number, width: number, height: number},
- *   fontSize?: string,
- *   iconOffsetY?: number,
- *   selected?: boolean,
- *   disabled?: boolean
- * }>}
- */
+/** @type {ReadonlyArray<{ action: string, label: string, label: string }>} */
 export const MENU_BUTTONS = Object.freeze([
   Object.freeze({
     action: "start",
     label: "START",
-    iconKey: "menu-start",
-    iconFile: "start-paw.png",
-    iconCrop: Object.freeze({
-      x: 303,
-      y: 252,
-      width: 660,
-      height: 618,
-    }),
-    iconOffsetY: 2,
   }),
   Object.freeze({
     action: "options",
     label: "OPTIONEN",
-    fontSize: "16px",
-    iconKey: "menu-options",
-    iconFile: "settings-gear.png",
-    iconCrop: Object.freeze({
-      x: 288,
-      y: 219,
-      width: 680,
-      height: 674,
-    }),
-    iconOffsetY: 2,
   }),
   Object.freeze({
     action: "upgrades",
     label: "UPGRADES",
-    fontSize: "16px",
-    iconKey: "menu-upgrades",
-    iconFile: "upgrades-arrow.png",
-    iconCrop: Object.freeze({
-      x: 302,
-      y: 244,
-      width: 651,
-      height: 729,
-    }),
-    disabled: true,
   }),
   Object.freeze({
     action: "extras",
     label: "EXTRAS",
-    fontSize: "16px",
-    iconKey: "menu-extras",
-    iconFile: "extras-star.png",
-    iconCrop: Object.freeze({
-      x: 274,
-      y: 269,
-      width: 708,
-      height: 653,
-    }),
-    disabled: true,
   }),
 ]);

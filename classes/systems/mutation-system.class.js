@@ -6,18 +6,17 @@ import {
 import { BulldogMutationStateSystem } from
   "./bulldog-mutation-state-system.class.js";
 
-/** Steuert Freischaltung und HUD-Wechsel der vorbereiteten Mutation. */
+/**
+ * Manages mutation system behavior.
+ */
 export class MutationSystem {
   /**
-   * Verknüpft Eingabevoraussetzung und beide HUD-Zustände.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {import("./collectible-system.class.js").CollectibleSystem}
-   * collectibles - Aktuelle Sammelstände.
-   * @param {Phaser.GameObjects.Container[]} normalHud - Normale Anzeigen.
-   * @param {import("../ui/mutation-bar.class.js").MutationBar} mutationBar -
-   * Vorbereiteter Mutationsrahmen.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog|null}
-   * player - Verwandelbare Spielfigur.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
+   * @param {Phaser.GameObjects.Container[]} normalHud - The normal hud value.
+   * @param {import("../ui/mutation-bar.class.js").MutationBar} mutationBar - The mutation bar value.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog|null} player - The player-controlled bulldog.
    */
   constructor(scene, collectibles, normalHud, mutationBar, player) {
     this.scene = scene;
@@ -31,10 +30,9 @@ export class MutationSystem {
   }
 
   /**
-   * Prüft die Mutationsaktion einmal pro Szenenupdate.
-   * @param {import("../input/input-system.class.js").InputSystem} input -
-   * Aktuelle Spielereingaben.
-   * @returns {boolean} `true`, wenn die Mutation neu aktiviert wurde.
+   * Updates the current state.
+   * @param {import("../input/input-system.class.js").InputSystem} input - The active input system.
+   * @returns {boolean} Whether the requested condition is met.
    */
   update(input) {
     if (!input.consumeMutation()) return false;
@@ -44,8 +42,8 @@ export class MutationSystem {
   }
 
   /**
-   * Aktiviert den HUD-Wechsel nur bei vollständig gefülltem Serumrahmen.
-   * @returns {boolean} `true`, wenn der Zustand neu aktiviert wurde.
+   * Handles activate.
+   * @returns {boolean} Whether the requested condition is met.
    */
   activate() {
     if (this.isActive || !this.hasFullSerum()) return false;
@@ -62,7 +60,9 @@ export class MutationSystem {
     return true;
   }
 
-  /** Hält die vollständig gefüllte Energie nach der Verwandlung sichtbar. */
+  /**
+   * Starts energy hold.
+   */
   beginEnergyHold() {
     this.mutationBar.fill();
     this.holdEvent = this.scene.time.delayedCall(
@@ -71,7 +71,9 @@ export class MutationSystem {
     );
   }
 
-  /** Leert die Mutationsenergie während der acht aktiven Sekunden. */
+  /**
+   * Starts energy drain.
+   */
   beginEnergyDrain() {
     this.holdEvent = null;
     this.mutationBar.drain(
@@ -81,8 +83,8 @@ export class MutationSystem {
   }
 
   /**
-   * Startet Rückverwandlung und Rückkehr des normalen HUDs.
-   * @returns {boolean} `true`, wenn die Rückverwandlung gestartet wurde.
+   * Handles deactivate.
+   * @returns {boolean} Whether the requested condition is met.
    */
   deactivate() {
     if (!this.isActive) return false;
@@ -96,14 +98,16 @@ export class MutationSystem {
     return true;
   }
 
-  /** Gibt die Mutation nach vollständig beendeter Rückverwandlung frei. */
+  /**
+   * Completes deactivation.
+   */
   finishDeactivation() {
     this.isActive = false;
   }
 
   /**
-   * Prüft den Serumzähler gegen dessen zentral konfiguriertes Maximum.
-   * @returns {boolean} `true`, wenn zwei Serum-Items gesammelt wurden.
+   * Checks the full serum condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   hasFullSerum() {
     return this.collectibles.getCount(COLLECTIBLE_KEYS.serum) >=
@@ -111,8 +115,8 @@ export class MutationSystem {
   }
 
   /**
-   * Lässt Lebens-, Coin- und Serumanzeige gemeinsam nach links ausfliegen.
-   * @returns {Phaser.Tweens.Tween} Laufender Ausblendtween.
+   * Hides normal hud.
+   * @returns {Phaser.Tweens.Tween} The resulting value.
    */
   hideNormalHud() {
     const settings = HUD.mutation;
@@ -127,14 +131,16 @@ export class MutationSystem {
   }
 
   /**
-   * Verbirgt die vollständig aus dem Canvas bewegten Normalanzeigen.
-   * @returns {void}
+   * Hides normal hud containers.
+   * @returns {void} No value is returned.
    */
   hideNormalHudContainers() {
     this.normalHud.forEach((item) => item.setVisible(false));
   }
 
-  /** Lässt alle normalen HUD-Elemente an ihre Ausgangsposition zurückkehren. */
+  /**
+   * Shows normal hud.
+   */
   showNormalHud() {
     const settings = HUD.mutation;
     this.normalHud.forEach((item, index) => {
@@ -150,9 +156,9 @@ export class MutationSystem {
   }
 
   /**
-   * Stellt die fachlich erlaubte Sichtbarkeit eines HUD-Elements wieder her.
-   * @param {Phaser.GameObjects.GameObject} item - Wiederherzustellendes HUD-Element.
-   * @returns {void}
+   * Restores hud item visibility.
+   * @param {Phaser.GameObjects.GameObject} item - The collectible item instance.
+   * @returns {void} No value is returned.
    */
   restoreHudItemVisibility(item) {
     if (typeof item.restoreVisibility === "function") {

@@ -1,6 +1,8 @@
 import { getAssetPath } from "./asset-paths.js";
 
-/** Textur und Laufanimation der Roboterkatze in Level 3. */
+/**
+ * Defines the robot cat walk texture configuration.
+ */
 export const ROBOT_CAT_WALK_TEXTURE = Object.freeze({
   key: "robot-cat-walk-side",
   animationKey: "robot-cat-walk",
@@ -10,7 +12,9 @@ export const ROBOT_CAT_WALK_TEXTURE = Object.freeze({
   frameCount: 3,
 });
 
-/** Eindeutige Zustände der Roboterkatzen-Bewegung. */
+/**
+ * Defines the robot cat states configuration.
+ */
 export const ROBOT_CAT_STATES = Object.freeze({
   walking: "walking",
   takingOff: "takingOff",
@@ -18,7 +22,9 @@ export const ROBOT_CAT_STATES = Object.freeze({
   landing: "landing",
 });
 
-/** Textur und gerichtete Start-/Landeanimation der Roboterkatze. */
+/**
+ * Defines the robot cat flight texture configuration.
+ */
 export const ROBOT_CAT_FLIGHT_TEXTURE = Object.freeze({
   key: "robot-cat-flight-side",
   takeoffAnimationKey: "robot-cat-takeoff",
@@ -34,7 +40,9 @@ export const ROBOT_CAT_FLIGHT_TEXTURE = Object.freeze({
   landingFrameDurations: Object.freeze([140, 180, 140, 250]),
 });
 
-/** Freigestellte Trefferreaktion mit gemeinsamem Fußanker aller Frames. */
+/**
+ * Defines the robot cat hit texture configuration.
+ */
 export const ROBOT_CAT_HIT_TEXTURE = Object.freeze({
   key: "robot-cat-hit-side",
   animationKey: "robot-cat-hit",
@@ -45,7 +53,9 @@ export const ROBOT_CAT_HIT_TEXTURE = Object.freeze({
   frameRate: 8,
 });
 
-/** Finale K.-o.-Sequenz der besiegten Roboterkatze. */
+/**
+ * Defines the robot cat dead texture configuration.
+ */
 export const ROBOT_CAT_DEAD_TEXTURE = Object.freeze({
   key: "robot-cat-dead-side",
   animationKey: "robot-cat-dead",
@@ -56,7 +66,9 @@ export const ROBOT_CAT_DEAD_TEXTURE = Object.freeze({
   frameRate: 5,
 });
 
-/** Bodengebundene Angriffssequenz der Roboterkatze. */
+/**
+ * Defines the robot cat attack texture configuration.
+ */
 export const ROBOT_CAT_ATTACK_TEXTURE = Object.freeze({
   key: "robot-cat-attack-side",
   animationKey: "robot-cat-attack",
@@ -71,7 +83,9 @@ export const ROBOT_CAT_ATTACK_TEXTURE = Object.freeze({
   launchFrame: 2,
 });
 
-/** Animierter Klaueneffekt, der beim Bossangriff abgefeuert wird. */
+/**
+ * Defines the robot cat claws texture configuration.
+ */
 export const ROBOT_CAT_CLAWS_TEXTURE = Object.freeze({
   key: "robot-cat-claws-attack-side",
   animationKey: "robot-cat-claws-attack",
@@ -85,7 +99,9 @@ export const ROBOT_CAT_CLAWS_TEXTURE = Object.freeze({
   frameRate: 8,
 });
 
-/** Zentrale Darstellungs- und Bewegungswerte der Roboterkatze. */
+/**
+ * Defines the robot cat configuration.
+ */
 export const ROBOT_CAT = Object.freeze({
   spawnX: 2_100,
   patrolMinX: 150,
@@ -114,7 +130,9 @@ export const ROBOT_CAT = Object.freeze({
   depth: 1,
 });
 
-/** Reichweite, Schaden und Projektilbewegung des Roboterkatzen-Angriffs. */
+/**
+ * Defines the robot cat attack configuration.
+ */
 export const ROBOT_CAT_ATTACK = Object.freeze({
   triggerRangeX: 400,
   triggerRangeY: 180,
@@ -132,7 +150,9 @@ export const ROBOT_CAT_ATTACK = Object.freeze({
   depth: 3,
 });
 
-/** Trefferwerte der Roboterkatze und Reichweite der Bulldoggen-Attacken. */
+/**
+ * Defines the robot cat combat configuration.
+ */
 export const ROBOT_CAT_COMBAT = Object.freeze({
   maximumHealth: 9,
   damagePerHit: 1,
@@ -140,7 +160,9 @@ export const ROBOT_CAT_COMBAT = Object.freeze({
   attackHitRangeY: 165,
 });
 
-/** Kamerafeste Darstellung der dreiphasigen Boss-Lebensanzeige. */
+/**
+ * Defines the robot cat health bar configuration.
+ */
 export const ROBOT_CAT_HEALTH_BAR = Object.freeze({
   x: 360,
   y: 50,

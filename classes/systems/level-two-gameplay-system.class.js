@@ -4,14 +4,16 @@ import { LevelTwoDroneCombatSystem } from
   "./level-two-drone-combat-system.class.js";
 import { MutantCatSystem } from "./mutant-cat-system.class.js";
 
-/** Koordiniert den laufenden Gameplay-Ablauf des zweiten Levels. */
+/**
+ * Manages level two gameplay system behavior.
+ */
 export class LevelTwoGameplaySystem {
   /**
-   * Aktualisiert Spieler, Gegner und vorbereiteten Levelabschluss.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @param {number} delta - Zeit seit dem letzten Frame.
-   * @returns {void}
+   * Updates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} time - The current scene time in milliseconds.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static update(scene, time, delta) {
     if (this.shouldPauseGameplay(scene)) return;
@@ -24,9 +26,9 @@ export class LevelTwoGameplaySystem {
   }
 
   /**
-   * Führt den automatischen Auslauf aus und startet anschließend Level drei.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {boolean} Ob der Levelausgang den Ablauf übernommen hat.
+   * Resolves level exit.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static resolveLevelExit(scene) {
     if (scene.levelExit?.update(scene.player)) {
@@ -37,9 +39,9 @@ export class LevelTwoGameplaySystem {
   }
 
   /**
-   * Stoppt den normalen Ablauf während Einstieg oder Gefangennahme.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {boolean} Ob das normale Gameplay pausieren soll.
+   * Checks the pause gameplay condition.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static shouldPauseGameplay(scene) {
     if (scene.captureSystem?.isActive) {
@@ -50,11 +52,11 @@ export class LevelTwoGameplaySystem {
   }
 
   /**
-   * Aktualisiert Plattformkontakt, Spielfigur und beide Drohnensysteme.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @param {number} delta - Zeit seit dem letzten Frame.
-   * @returns {void}
+   * Updates player and drones.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} time - The current scene time in milliseconds.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static updatePlayerAndDrones(scene, time, delta) {
     LevelTwoObstacleSystem.updatePlayerPlatformContact(
@@ -67,10 +69,10 @@ export class LevelTwoGameplaySystem {
   }
 
   /**
-   * Startet nach einem tödlichen Raketentreffer die Fangsequenz.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} Ob die Fangsequenz gestartet wurde.
+   * Resolves rocket attack.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static resolveRocketAttack(scene, time) {
     if (!scene.rocketSystem.update(time)) return false;
@@ -79,10 +81,10 @@ export class LevelTwoGameplaySystem {
   }
 
   /**
-   * Startet nach einem tödlichen Katzenangriff die Fangsequenz.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} Ob die Fangsequenz gestartet wurde.
+   * Resolves cat attack.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static resolveCatAttack(scene, time) {
     const wasKnockedOut = MutantCatSystem.update(
@@ -97,9 +99,9 @@ export class LevelTwoGameplaySystem {
   }
 
   /**
-   * Öffnet den Level-3-Ausgang erst nach allen Level-2-Gegnern.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {boolean} Ob der Ausgang bereits oder jetzt geöffnet ist.
+   * Handles unlock exit.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static unlockExit(scene) {
     if (scene.levelExit?.isUnlocked) return true;

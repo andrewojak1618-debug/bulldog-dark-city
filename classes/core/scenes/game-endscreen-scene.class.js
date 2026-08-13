@@ -8,18 +8,20 @@ import {
 import { SCENES } from "../../../js/config/game-settings.js";
 
 /**
- * Zeigt nach jeder Abschlusssequenz dieselbe bewusste Spielerauswahl.
+ * Manages game endscreen scene behavior.
  */
 export class GameEndscreenScene extends Phaser.Scene {
-  /** Erstellt die Szene mit ihrem zentralen Szenenschlüssel. */
+  /**
+   * Creates a new instance.
+   */
   constructor() {
     super(SCENES.endscreen);
   }
 
   /**
-   * Übernimmt die gewünschte Abschlussvariante und setzt Aktionssperren zurück.
-   * @param {{result?: string}} [data={}] - Daten der vorherigen Videosequenz.
-   * @returns {void}
+   * Handles init.
+   * @param {{result?: string}} [data={}] - The data value.
+   * @returns {void} No value is returned.
    */
   init(data = {}) {
     this.result = resolveEndscreenResult(data.result);
@@ -27,8 +29,8 @@ export class GameEndscreenScene extends Phaser.Scene {
   }
 
   /**
-   * Beendet verbliebenes Audio und erstellt die gemeinsame Auswahloberfläche.
-   * @returns {void}
+   * Creates the current state.
+   * @returns {void} No value is returned.
    */
   create() {
     this.stopAllAudio();
@@ -42,25 +44,25 @@ export class GameEndscreenScene extends Phaser.Scene {
   }
 
   /**
-   * Startet Level eins mit dessen vollständigen Standardwerten neu.
-   * @returns {void}
+   * Starts new run.
+   * @returns {void} No value is returned.
    */
   startNewRun() {
     this.resolveAction(SCENES.levelOne);
   }
 
   /**
-   * Kehrt ohne Browser-Reload zuverlässig zum Hauptmenü zurück.
-   * @returns {void}
+   * Handles return to menu.
+   * @returns {void} No value is returned.
    */
   returnToMenu() {
     this.resolveAction(SCENES.menu);
   }
 
   /**
-   * Führt höchstens eine Auswahl aus und sperrt weitere Eingaben sofort.
-   * @param {string} targetScene - Zielszene der gewählten Aktion.
-   * @returns {void}
+   * Resolves action.
+   * @param {string} targetScene - The target scene value.
+   * @returns {void} No value is returned.
    */
   resolveAction(targetScene) {
     if (this.isResolvingAction) return;
@@ -71,16 +73,16 @@ export class GameEndscreenScene extends Phaser.Scene {
   }
 
   /**
-   * Stoppt sicher alle noch aktiven Phaser-Musik- und Effektinstanzen.
-   * @returns {void}
+   * Stops all audio.
+   * @returns {void} No value is returned.
    */
   stopAllAudio() {
     this.sound.stopAll();
   }
 
   /**
-   * Aktualisiert ausschließlich die Gamepadbedienung des Endscreens.
-   * @returns {void}
+   * Updates the current state.
+   * @returns {void} No value is returned.
    */
   update() {
     this.endscreen?.updateInput();

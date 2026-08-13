@@ -1,17 +1,20 @@
-import Phaser from "phaser";
 import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
 import {
   BULLDOG_ANIMATION_KEYS,
   BULLDOG_TEXTURES,
 } from "../../js/config/bulldog-animation-settings.js";
 
-/** Verarbeitet Treffer der mutierten Bulldogge gegen die Level-2-Drohnen. */
+const ANIMATION_COMPLETE_PREFIX = "animationcomplete-";
+
+/**
+ * Manages level two drone combat system behavior.
+ */
 export class LevelTwoDroneCombatSystem {
   /**
-   * Prüft den aktiven Schlag und beschädigt höchstens eine erreichbare Drohne.
-   * @param {Phaser.GameObjects.Sprite[]} drones - Aktive Leveldrohnen.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Spielfigur.
-   * @returns {boolean} `true`, wenn eine Drohne getroffen wurde.
+   * Updates the current state.
+   * @param {Phaser.GameObjects.Sprite[]} drones - The drones value.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static update(drones = [], player) {
     if (!this.isImpactFrameReady(player)) return false;
@@ -23,12 +26,12 @@ export class LevelTwoDroneCombatSystem {
   }
 
   /**
-   * Prüft, ob gerade der Trefferframe eines mutierten Schlages aktiv ist.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Spielfigur.
-   * @returns {boolean} `true` im noch nicht verbrauchten Trefferframe.
+   * Checks the impact frame ready condition.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isImpactFrameReady(player) {
-    if (!player?.isMutated || !player.isAttacking || player.attackHitConsumed) {
+    if (!player?.isAttacking || player.attackHitConsumed) {
       return false;
     }
     const animationKey = player.anims.currentAnim?.key;
@@ -40,11 +43,14 @@ export class LevelTwoDroneCombatSystem {
   }
 
   /**
-   * Liefert die Texturdaten der beiden mutierten Schlagvarianten.
-   * @param {string} animationKey - Aktueller Animationsschlüssel.
-   * @returns {object|null} Passende Texturkonfiguration oder `null`.
+   * Returns attack texture.
+   * @param {string} animationKey - The animation key value.
+   * @returns {object|null} The resulting data object.
    */
   static getAttackTexture(animationKey) {
+    if (animationKey === BULLDOG_ANIMATION_KEYS.biteAttack) {
+      return BULLDOG_TEXTURES.biteAttack;
+    }
     if (animationKey === BULLDOG_ANIMATION_KEYS.mutationAttackLeft) {
       return BULLDOG_TEXTURES.mutationAttackLeft;
     }
@@ -55,10 +61,10 @@ export class LevelTwoDroneCombatSystem {
   }
 
   /**
-   * Sucht die nächste Drohne innerhalb von Blickrichtung und Schlagreichweite.
-   * @param {Phaser.GameObjects.Sprite[]} drones - Aktive Leveldrohnen.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Spielfigur.
-   * @returns {Phaser.GameObjects.Sprite|null} Nächstes erreichbares Ziel.
+   * Finds nearest target.
+   * @param {Phaser.GameObjects.Sprite[]} drones - The drones value.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {Phaser.GameObjects.Sprite|null} The resulting data object.
    */
   static findNearestTarget(drones, player) {
     const settings = LEVEL_TWO.drones;
@@ -76,12 +82,12 @@ export class LevelTwoDroneCombatSystem {
   }
 
   /**
-   * Prüft Zustand, horizontale Richtung und vertikale Erreichbarkeit.
-   * @param {Phaser.GameObjects.Sprite} drone - Zu prüfende Drohne.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Angreifende Bulldogge.
-   * @param {number} facingDirection - Blickrichtung der Bulldogge.
-   * @param {object} settings - Reichweitenwerte des Angriffs.
-   * @returns {boolean} Ob die Drohne getroffen werden kann.
+   * Checks the target in range condition.
+   * @param {Phaser.GameObjects.Sprite} drone - The drone value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} facingDirection - The facing direction value.
+   * @param {object} settings - The configuration values to use.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isTargetInRange(drone, player, facingDirection, settings) {
     if (!drone?.active || drone.getData("isDestroyed")) return false;
@@ -94,9 +100,9 @@ export class LevelTwoDroneCombatSystem {
   }
 
   /**
-   * Zählt einen Treffer und startet beim letzten Treffer die Explosion.
-   * @param {Phaser.GameObjects.Sprite} drone - Getroffene Drohne.
-   * @returns {boolean} `true` nach der erfolgreichen Trefferverarbeitung.
+   * Applies hit.
+   * @param {Phaser.GameObjects.Sprite} drone - The drone value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static applyHit(drone) {
     const remainingHitPoints = Math.max(
@@ -113,9 +119,9 @@ export class LevelTwoDroneCombatSystem {
   }
 
   /**
-   * Blendet die getroffene Drohne für einen kurzen Moment sichtbar ab.
-   * @param {Phaser.GameObjects.Sprite} drone - Getroffene Drohne.
-   * @returns {void}
+   * Shows hit feedback.
+   * @param {Phaser.GameObjects.Sprite} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static showHitFeedback(drone) {
     drone.scene.tweens.add({
@@ -127,9 +133,9 @@ export class LevelTwoDroneCombatSystem {
   }
 
   /**
-   * Stoppt alle Drohnensysteme und spielt die Zerstörung vollständig ab.
-   * @param {Phaser.GameObjects.Sprite} drone - Zerstörte Drohne.
-   * @returns {void}
+   * Releases drone.
+   * @param {Phaser.GameObjects.Sprite} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static destroyDrone(drone) {
     const settings = drone.getData("drone");
@@ -141,8 +147,7 @@ export class LevelTwoDroneCombatSystem {
     drone.setOrigin(0.5).setFlipX(false).setAlpha(1);
     drone.play(settings.destructionAnimationKey);
     drone.once(
-      Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
-        settings.destructionAnimationKey,
+      ANIMATION_COMPLETE_PREFIX + settings.destructionAnimationKey,
       () => drone.disableInteractive().setActive(false).setVisible(false),
     );
   }

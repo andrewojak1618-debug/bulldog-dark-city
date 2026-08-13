@@ -7,11 +7,13 @@ import {
 import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
 import { SCENES } from "../../js/config/game-settings.js";
 
-/** Steuert die Gefangennahme nach einem K. o. durch die mutierte Katze. */
+/**
+ * Manages level two capture system behavior.
+ */
 export class LevelTwoCaptureSystem {
   /**
-   * Erstellt eine noch inaktive Gefangennahme-Sequenz.
-   * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
    */
   constructor(scene) {
     this.scene = scene;
@@ -22,10 +24,10 @@ export class LevelTwoCaptureSystem {
   }
 
   /**
-   * Lässt den Hundefänger unmittelbar am rechten Bildrand erscheinen.
-   * @param {Phaser.Physics.Arcade.Sprite} player - K. o. gegangene Bulldogge.
-   * @param {Phaser.Physics.Arcade.Sprite[]} cats - Katzen des Levels.
-   * @returns {void}
+   * Starts the current state.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {Phaser.Physics.Arcade.Sprite[]} cats - The cats value.
+   * @returns {void} No value is returned.
    */
   start(player, cats) {
     if (this.isActive) return;
@@ -35,9 +37,9 @@ export class LevelTwoCaptureSystem {
   }
 
   /**
-   * Erstellt und positioniert den Hundefänger für die Abschlusssequenz.
-   * @param {Phaser.Physics.Arcade.Sprite} player - K. o. gegangene Bulldogge.
-   * @returns {void}
+   * Creates dog catcher.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   createDogCatcher(player) {
     const settings = LEVEL_TWO.captureSequence;
@@ -56,9 +58,9 @@ export class LevelTwoCaptureSystem {
   }
 
   /**
-   * Berechnet eine sichtbare, aber innerhalb der Welt liegende Startposition.
-   * @param {object} settings - Konfiguration der Gefangennahme-Sequenz.
-   * @returns {number} Horizontale Startposition des Hundefängers.
+   * Returns dog catcher spawn x.
+   * @param {object} settings - The configuration values to use.
+   * @returns {number} The resulting numeric value.
    */
   getDogCatcherSpawnX(settings) {
     const halfWidth = DOG_CATCHER.displayWidth / 2;
@@ -70,8 +72,8 @@ export class LevelTwoCaptureSystem {
   }
 
   /**
-   * Bewegt den Hundefänger bis zur Bulldogge und startet dort den Abschluss.
-   * @returns {void}
+   * Updates the current state.
+   * @returns {void} No value is returned.
    */
   update() {
     if (!this.isActive || this.hasFinished || !this.dogCatcher?.body) return;
@@ -86,8 +88,8 @@ export class LevelTwoCaptureSystem {
   }
 
   /**
-   * Zeigt den letzten Netzangriff einmal und wechselt danach zu Game Over.
-   * @returns {void}
+   * Shows final attack frame.
+   * @returns {void} No value is returned.
    */
   showFinalAttackFrame() {
     this.hasFinished = true;
@@ -104,9 +106,9 @@ export class LevelTwoCaptureSystem {
   }
 
   /**
-   * Friert alle Katzen ein, damit sie die Sequenz nicht erneut auslösen.
-   * @param {Phaser.Physics.Arcade.Sprite[]} cats - Katzen des Levels.
-   * @returns {void}
+   * Stops cats.
+   * @param {Phaser.Physics.Arcade.Sprite[]} cats - The cats value.
+   * @returns {void} No value is returned.
    */
   stopCats(cats) {
     cats.forEach((cat) => {
@@ -117,9 +119,9 @@ export class LevelTwoCaptureSystem {
   }
 
   /**
-   * Richtet die Fußkante des Hundefängers an der Bulldogge aus.
-   * @param {Phaser.Physics.Arcade.Sprite} player - K. o. gegangene Bulldogge.
-   * @returns {void}
+   * Handles align feet with player.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   alignFeetWithPlayer(player) {
     const playerFeetY = player.body?.bottom;

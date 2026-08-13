@@ -1,11 +1,13 @@
 import { InputDeviceDetector } from
   "../../input/input-device-detector.class.js";
 
-/** Steuert Canvas-Aktualisierung und Hochformatsperre auf Touchgeräten. */
+/**
+ * Manages viewport controller behavior.
+ */
 export class ViewportController {
   /**
-   * Verknüpft das Phaser-Spiel mit den Änderungen des Browserfensters.
-   * @param {Phaser.Game} game - Laufende Phaser-Spielinstanz.
+   * Creates a new instance.
+   * @param {Phaser.Game} game - The game value.
    */
   constructor(game) {
     this.game = game;
@@ -18,8 +20,8 @@ export class ViewportController {
   }
 
   /**
-   * Bindet Orientierungs- und Größenänderungen an eine gemeinsame Aktion.
-   * @returns {void}
+   * Binds events.
+   * @returns {void} No value is returned.
    */
   bindEvents() {
     this.query.addEventListener("change", this.handleChange);
@@ -28,8 +30,8 @@ export class ViewportController {
   }
 
   /**
-   * Aktualisiert Sperre, Barrierefreiheitsstatus und Canvas-Skalierung.
-   * @returns {void}
+   * Updates the current state.
+   * @returns {void} No value is returned.
    */
   update() {
     const isTouchLayout = InputDeviceDetector.isTouchLayout();
@@ -43,9 +45,9 @@ export class ViewportController {
   }
 
   /**
-   * Pausiert das gesamte Spiel nur während der mobilen Hochformatsperre.
-   * @param {boolean} shouldLock - Ob das Touchgerät hochkant steht.
-   * @returns {void}
+   * Updates game loop.
+   * @param {boolean} shouldLock - The should lock value.
+   * @returns {void} No value is returned.
    */
   updateGameLoop(shouldLock) {
     if (shouldLock === this.isLocked) return;

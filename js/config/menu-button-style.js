@@ -1,7 +1,4 @@
-/**
- * Enthält die möglichen Darstellungszustände eines Menübuttons.
- * @type {{normal: string, hover: string, selected: string, pressed: string, disabled: string}}
- */
+/** @type {{normal: string, hover: string, selected: string, pressed: string, disabled: string}} */
 export const MENU_BUTTON_STATE = Object.freeze({
   normal: "normal",
   hover: "hover",
@@ -10,10 +7,7 @@ export const MENU_BUTTON_STATE = Object.freeze({
   disabled: "disabled",
 });
 
-/**
- * Enthält Farben und Skalierung für sämtliche Buttonzustände.
- * @type {Object<string, Object>}
- */
+/** @type {Object<string, Object>} */
 export const MENU_BUTTON_STYLE = Object.freeze({
   [MENU_BUTTON_STATE.normal]: Object.freeze({
     fillColor: 0x08060d,
@@ -62,10 +56,7 @@ export const MENU_BUTTON_STYLE = Object.freeze({
   }),
 });
 
-/**
- * Enthält gemeinsame Maße und Schrifteinstellungen der Menübuttons.
- * @type {Object}
- */
+/** @type {Object} */
 export const MENU_BUTTON_CONTENT = Object.freeze({
   edgeDepth: 7,
   strokeWidth: 1,

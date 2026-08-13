@@ -1,12 +1,14 @@
 import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
 
-/** Zeichnet ausschließlich den dynamischen Lichtkegel der großen Drohne. */
+/**
+ * Manages level two drone beam system behavior.
+ */
 export class LevelTwoDroneBeamSystem {
   /**
-   * Erstellt den Lichtkegel nur für die dafür konfigurierte Drohne.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {Phaser.GameObjects.Graphics|null} Lichtkegel oder `null`.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} drone - The drone value.
+   * @returns {Phaser.GameObjects.Graphics|null} The resulting data object.
    */
   static create(scene, drone) {
     if (!drone.tracksPlayerWithBeam) return null;
@@ -14,10 +16,10 @@ export class LevelTwoDroneBeamSystem {
   }
 
   /**
-   * Berechnet und zeichnet den aktuellen Lichtkegel zur Bulldogge.
-   * @param {Phaser.GameObjects.Sprite} sprite - Lichtquelle.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Verfolgtes Ziel.
-   * @returns {void}
+   * Updates the current state.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static update(sprite, player) {
     const beam = sprite.getData("beam");
@@ -28,10 +30,10 @@ export class LevelTwoDroneBeamSystem {
   }
 
   /**
-   * Berechnet Startpunkt, Zielpunkt und seitliche Zielkanten.
-   * @param {Phaser.GameObjects.Sprite} sprite - Lichtquelle.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Verfolgtes Ziel.
-   * @returns {object|null} Geometrie des Lichtkegels oder `null`.
+   * Calculates geometry.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {object|null} The resulting data object.
    */
   static calculateGeometry(sprite, player) {
     const targetY = player.body?.center.y ?? player.y;
@@ -49,13 +51,13 @@ export class LevelTwoDroneBeamSystem {
   }
 
   /**
-   * Formt aus normierter Richtung die drei Eckpunkte des Lichtkegels.
-   * @param {Phaser.GameObjects.Sprite} sprite - Lichtquelle.
-   * @param {number} targetX - Horizontale Zielposition.
-   * @param {number} targetY - Vertikale Zielposition.
-   * @param {number} normalX - Normierte horizontale Richtung.
-   * @param {number} normalY - Normierte vertikale Richtung.
-   * @returns {object} Vollständige Zeichengeometrie.
+   * Creates geometry.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {number} targetX - The target x value.
+   * @param {number} targetY - The target y value.
+   * @param {number} normalX - The normal x value.
+   * @param {number} normalY - The normal y value.
+   * @returns {object} The resulting data object.
    */
   static createGeometry(sprite, targetX, targetY, normalX, normalY) {
     const settings = LEVEL_TWO.drones;
@@ -71,10 +73,10 @@ export class LevelTwoDroneBeamSystem {
   }
 
   /**
-   * Zeichnet Fläche und Mittellinie anhand der vorbereiteten Geometrie.
-   * @param {Phaser.GameObjects.Graphics} beam - Zeichenfläche.
-   * @param {object} geometry - Vorbereitete Lichtkegel-Geometrie.
-   * @returns {void}
+   * Draws the current state.
+   * @param {Phaser.GameObjects.Graphics} beam - The beam value.
+   * @param {object} geometry - The geometry value.
+   * @returns {void} No value is returned.
    */
   static draw(beam, geometry) {
     const settings = LEVEL_TWO.drones;

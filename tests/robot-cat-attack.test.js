@@ -12,7 +12,9 @@ import {
   ROBOT_CAT_CLAWS_TEXTURE,
 } from "../js/config/robot-cat-settings.js";
 
-/** Erstellt ein minimales erreichbares Angriffsziel. */
+/**
+ * Creates target.
+ */
 function createTarget(options = {}) {
   return {
     active: true,

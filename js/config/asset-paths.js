@@ -11,10 +11,10 @@ export const ASSET_PATHS = Object.freeze({
 });
 
 /**
- * Erstellt einen vollständigen Pfad innerhalb einer Assetgruppe.
- * @param {keyof typeof ASSET_PATHS} group - Name der registrierten Assetgruppe.
- * @param {string} fileName - Dateiname oder relativer Pfad in der Gruppe.
- * @returns {string} Vollständiger öffentlicher Assetpfad.
+ * Defines the get asset path configuration.
+ * @param {keyof typeof ASSET_PATHS} group - The Phaser group to process.
+ * @param {string} fileName - The file name or relative path.
+ * @returns {string} The resulting string value.
  */
 export const getAssetPath = (group, fileName) =>
   `${import.meta.env?.BASE_URL ?? "/"}${ASSET_PATHS[group]}/${fileName}`;

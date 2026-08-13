@@ -4,15 +4,15 @@ import {
 } from "../../js/config/dog-catcher-settings.js";
 
 /**
- * Visualisiert die Hundefänger-Reichweiten ausschließlich lokal im DEV-Modus.
+ * Manages dog catcher range debug system behavior.
  */
 export class DogCatcherRangeDebugSystem {
   /**
-   * Erstellt die Diagnose nur für den expliziten Entwicklungsparameter.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {Phaser.GameObjects.Group} dogCatchers - Gegnergruppe.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Kontrollierte Bulldogge.
-   * @returns {DogCatcherRangeDebugSystem|null} Aktive Diagnose oder null.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Group} dogCatchers - The dog catchers value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {DogCatcherRangeDebugSystem|null} The created instance.
    */
   static create(scene, dogCatchers, player) {
     if (!this.isEnabled()) return null;
@@ -20,8 +20,8 @@ export class DogCatcherRangeDebugSystem {
   }
 
   /**
-   * Prüft Entwicklungsmodus und URL-Schalter ohne Produktionsausgaben.
-   * @returns {boolean} Ob die Diagnose aktiv sein darf.
+   * Checks the enabled condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isEnabled() {
     if (import.meta.env?.DEV !== true || typeof window === "undefined") {
@@ -33,10 +33,10 @@ export class DogCatcherRangeDebugSystem {
   }
 
   /**
-   * Baut Grafik, Legende und eine direkt prüfbare Startposition auf.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {Phaser.GameObjects.Group} dogCatchers - Gegnergruppe.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Kontrollierte Bulldogge.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Group} dogCatchers - The dog catchers value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
    */
   constructor(scene, dogCatchers, player) {
     this.scene = scene;
@@ -49,8 +49,8 @@ export class DogCatcherRangeDebugSystem {
   }
 
   /**
-   * Erstellt die feste Farblegende außerhalb der Spielweltbewegung.
-   * @returns {Phaser.GameObjects.Text} Erzeugte Legende.
+   * Creates legend.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createLegend() {
     const settings = DOG_CATCHER_RANGE_DEBUG;
@@ -72,9 +72,9 @@ export class DogCatcherRangeDebugSystem {
   }
 
   /**
-   * Positioniert die Bulldogge knapp außerhalb der vorderen Sichtgrenze.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Kontrollierte Bulldogge.
-   * @returns {void}
+   * Handles place player at detection boundary.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   placePlayerAtDetectionBoundary(player) {
     const dogCatcher = this.dogCatchers?.getFirstAlive();
@@ -86,8 +86,8 @@ export class DogCatcherRangeDebugSystem {
   }
 
   /**
-   * Zeichnet die aktuellen Reichweiten aller aktiven Hundefänger neu.
-   * @returns {void}
+   * Updates the current state.
+   * @returns {void} No value is returned.
    */
   update() {
     this.graphics.clear();
@@ -98,70 +98,70 @@ export class DogCatcherRangeDebugSystem {
   }
 
   /**
-   * Zeichnet Sicht-, Rückraum- und Angriffsbereich eines Gegners.
-   * @param {import("../entities/enemies/dog-catcher.class.js").DogCatcher}
-   * dogCatcher - Zu prüfender Gegner.
-   * @returns {void}
+   * Draws ranges.
+   * @param {import("../entities/enemies/dog-catcher.class.js").DogCatcher} dogCatcher - The dog catcher instance.
+   * @returns {void} No value is returned.
    */
   drawRanges(dogCatcher) {
     const settings = DOG_CATCHER_RANGE_DEBUG;
     const direction = dogCatcher.getFacingDirection();
     const groundY = dogCatcher.body?.bottom ?? dogCatcher.y;
-    this.drawRange(
-      dogCatcher.x,
-      direction * DOG_CATCHER.detectionRange,
-      groundY - settings.frontOffsetY,
-      settings.frontColor,
-    );
-    this.drawRange(
-      dogCatcher.x,
-      -direction * DOG_CATCHER.rearDetectionRange,
-      groundY - settings.rearOffsetY,
-      settings.rearColor,
-    );
-    this.drawRange(
-      dogCatcher.x,
-      direction * DOG_CATCHER.attackHitRange,
-      groundY - settings.attackOffsetY,
-      settings.attackColor,
-      true,
-    );
+    this.getRangeDefinitions(direction, groundY, settings)
+      .forEach((range) => this.drawRange(dogCatcher.x, range));
   }
 
   /**
-   * Zeichnet einen halbtransparenten Bereich und optional dessen Endmarker.
-   * @param {number} startX - Startposition am Gegnerzentrum.
-   * @param {number} signedWidth - Gerichtete Breite in Pixeln.
-   * @param {number} y - Vertikale Position der Markierung.
-   * @param {number} color - Phaser-Farbwert.
-   * @param {boolean} [showEndMarker=false] - Ob die Grenze markiert wird.
-   * @returns {void}
+   * Returns the debug range definitions.
+   * @param {number} direction - The facing direction.
+   * @param {number} groundY - The enemy ground position.
+   * @param {object} settings - The debug settings.
+   * @returns {object[]} The debug range definitions.
    */
-  drawRange(startX, signedWidth, y, color, showEndMarker = false) {
-    const settings = DOG_CATCHER_RANGE_DEBUG;
-    const endX = startX + signedWidth;
-    const left = Math.min(startX, endX);
-    this.graphics.fillStyle(color, settings.areaAlpha);
-    this.graphics.fillRect(
-      left,
-      y - settings.rangeHeight,
-      Math.abs(signedWidth),
-      settings.rangeHeight,
-    );
-    this.graphics.lineStyle(2, color, settings.lineAlpha);
-    this.graphics.lineBetween(startX, y, endX, y);
-    if (!showEndMarker) return;
-    this.graphics.lineBetween(
-      endX,
-      y - settings.markerHeight / 2,
-      endX,
-      y + settings.markerHeight / 2,
-    );
+  getRangeDefinitions(direction, groundY, settings) {
+    return [
+      { width: direction * DOG_CATCHER.detectionRange,
+        y: groundY - settings.frontOffsetY, color: settings.frontColor },
+      { width: -direction * DOG_CATCHER.rearDetectionRange,
+        y: groundY - settings.rearOffsetY, color: settings.rearColor },
+      { width: direction * DOG_CATCHER.attackHitRange,
+        y: groundY - settings.attackOffsetY, color: settings.attackColor,
+        showEndMarker: true },
+    ];
   }
 
   /**
-   * Entfernt alle Diagnoseobjekte beim Szenenwechsel.
-   * @returns {void}
+   * Draws range.
+   * @param {number} startX - The start x value.
+   * @param {object} range - The range definition.
+   * @returns {void} No value is returned.
+   */
+  drawRange(startX, range) {
+    const settings = DOG_CATCHER_RANGE_DEBUG;
+    const endX = startX + range.width;
+    const left = Math.min(startX, endX);
+    this.graphics.fillStyle(range.color, settings.areaAlpha);
+    this.graphics.fillRect(left, range.y - settings.rangeHeight,
+      Math.abs(range.width), settings.rangeHeight);
+    this.graphics.lineStyle(2, range.color, settings.lineAlpha);
+    this.graphics.lineBetween(startX, range.y, endX, range.y);
+    if (range.showEndMarker) this.drawEndMarker(endX, range.y, settings);
+  }
+
+  /**
+   * Draws an attack range end marker.
+   * @param {number} x - The horizontal marker position.
+   * @param {number} y - The vertical marker position.
+   * @param {object} settings - The debug settings.
+   * @returns {void} No value is returned.
+   */
+  drawEndMarker(x, y, settings) {
+    this.graphics.lineBetween(x, y - settings.markerHeight / 2,
+      x, y + settings.markerHeight / 2);
+  }
+
+  /**
+   * Releases the current state.
+   * @returns {void} No value is returned.
    */
   destroy() {
     this.graphics?.destroy();

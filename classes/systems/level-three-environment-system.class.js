@@ -1,12 +1,14 @@
 import { LEVEL_THREE } from "../../js/config/level-three-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
-/** Lädt und erstellt die gestaffelten Umgebungsebenen des dritten Levels. */
+/**
+ * Manages level three environment system behavior.
+ */
 export class LevelThreeEnvironmentSystem {
   /**
-   * Lädt den Haupthintergrund und alle konfigurierten Parallax-Ebenen.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     const background = LEVEL_THREE.background;
@@ -17,9 +19,9 @@ export class LevelThreeEnvironmentSystem {
   }
 
   /**
-   * Erstellt die Umgebung in ihrer festgelegten Tiefenreihenfolge.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {object} Referenzen auf Hintergrund und Parallax-Ebenen.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {object} The resulting data object.
    */
   static create(scene) {
     return {
@@ -31,8 +33,8 @@ export class LevelThreeEnvironmentSystem {
   }
 
   /**
-   * Gibt die Parallax-Ebenen von hinten nach vorne zurück.
-   * @returns {object[]} Konfigurierte Level-3-Umgebungsebenen.
+   * Returns parallax layers.
+   * @returns {object[]} The resulting collection.
    */
   static getParallaxLayers() {
     return [
@@ -45,9 +47,9 @@ export class LevelThreeEnvironmentSystem {
   }
 
   /**
-   * Erstellt den orangefarbenen Haupthintergrund in Canvas-Höhe.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {Phaser.GameObjects.Image} Erstellter Haupthintergrund.
+   * Creates main background.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.Image} The resulting data object.
    */
   static createMainBackground(scene) {
     const background = LEVEL_THREE.background;
@@ -63,10 +65,10 @@ export class LevelThreeEnvironmentSystem {
   }
 
   /**
-   * Füllt die Welt mit leicht überlappenden, unverzerrten Frames.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {object} layer - Konfiguration der Umgebungsebene.
-   * @returns {Phaser.GameObjects.Image[]} Erstellte Ebenensegmente.
+   * Creates parallax segments.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} layer - The layer value.
+   * @returns {Phaser.GameObjects.Image[]} The resulting collection.
    */
   static createParallaxSegments(scene, layer) {
     const width = layer.frameWidth *
@@ -82,13 +84,13 @@ export class LevelThreeEnvironmentSystem {
   }
 
   /**
-   * Erstellt ein einzelnes Segment einer konfigurierten Parallax-Ebene.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {object} layer - Konfiguration der Umgebungsebene.
-   * @param {number} width - Proportionale Darstellungsbreite.
-   * @param {number} step - Horizontaler Abstand zum nächsten Segment.
-   * @param {number} index - Laufender Segmentindex.
-   * @returns {Phaser.GameObjects.Image} Erstelltes Ebenensegment.
+   * Creates parallax segment.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} layer - The layer value.
+   * @param {number} width - The width in pixels.
+   * @param {number} step - The step value.
+   * @param {number} index - The zero-based item index.
+   * @returns {Phaser.GameObjects.Image} The resulting data object.
    */
   static createParallaxSegment(scene, layer, width, step, index) {
     const frame = layer.frameSequence[index % layer.frameSequence.length];

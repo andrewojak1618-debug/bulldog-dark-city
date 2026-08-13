@@ -5,12 +5,14 @@ import { ThrowBoneInventory } from "./throw-bone-inventory.class.js";
 import { ThrowBoneHud } from "../ui/throw-bone-hud.class.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
-/** Lädt, sammelt und wirft die beiden Knochenarten in Level drei. */
+/**
+ * Manages throw bone system behavior.
+ */
 export class ThrowBoneSystem {
   /**
-   * Lädt beide vorbereiteten Wurfknochen-Spritesheets.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     Object.values(THROW_BONES.types).forEach((type) => {
@@ -19,13 +21,13 @@ export class ThrowBoneSystem {
   }
 
   /**
-   * Erstellt Pickups, Inventar, Eingaben und Projektilgruppe.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Ziel der Wurfknochen.
-   * @param {import("./health-system.class.js").HealthSystem} robotCatHealth - Bossleben.
-   * @param {import("../input/input-system.class.js").InputSystem} input - Spielereingaben.
-   * @returns {ThrowBoneSystem} Vollständig erstelltes Wurfknochensystem.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {import("./health-system.class.js").HealthSystem} robotCatHealth - The robot cat health value.
+   * @param {import("../input/input-system.class.js").InputSystem} input - The active input system.
+   * @returns {ThrowBoneSystem} The created instance.
    */
   static create(scene, player, robotCat, robotCatHealth, input) {
     this.registerAnimations(scene);
@@ -41,9 +43,9 @@ export class ThrowBoneSystem {
   }
 
   /**
-   * Registriert die vier Frames jeder Knochenart als Endlosschleife.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Registers animations.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static registerAnimations(scene) {
     Object.values(THROW_BONES.types).forEach((type) => {
@@ -61,12 +63,12 @@ export class ThrowBoneSystem {
   }
 
   /**
-   * Speichert Szenenreferenzen und bindet die beiden Wurftasten.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Ziel der Wurfknochen.
-   * @param {import("./health-system.class.js").HealthSystem} robotCatHealth - Bossleben.
-   * @param {import("../input/input-system.class.js").InputSystem} input - Spielereingaben.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {import("./health-system.class.js").HealthSystem} robotCatHealth - The robot cat health value.
+   * @param {import("../input/input-system.class.js").InputSystem} input - The active input system.
    */
   constructor(scene, player, robotCat, robotCatHealth, input) {
     this.scene = scene;
@@ -82,22 +84,11 @@ export class ThrowBoneSystem {
   }
 
   /**
-   * Setzt alle konfigurierten Knochen als animierte Pickups ins Level.
-   * @returns {void}
+   * Creates pickups.
+   * @returns {void} No value is returned.
    */
   createPickups() {
-    THROW_BONES.placements.forEach((placement) => {
-      const settings = THROW_BONES.types[placement.type];
-      const pickup = this.pickups.create(
-        placement.x,
-        placement.y,
-        settings.key,
-      ).setDisplaySize(THROW_BONES.pickupSize, THROW_BONES.pickupSize)
-        .setDepth(THROW_BONES.depth)
-        .setData("boneType", placement.type)
-        .play(settings.animationKey);
-      pickup.body.setAllowGravity(false).setImmovable(true);
-    });
+    THROW_BONES.placements.forEach((placement) => this.createPickup(placement));
     this.scene.physics.add.overlap(
       this.player,
       this.pickups,
@@ -106,9 +97,23 @@ export class ThrowBoneSystem {
   }
 
   /**
-   * Überträgt ein berührtes Pickup genau einmal in den Vorrat.
-   * @param {Phaser.Physics.Arcade.Sprite} pickup - Berührter Wurfknochen.
-   * @returns {boolean} Ob das Pickup eingesammelt wurde.
+   * Creates one collectible throwing bone.
+   * @param {object} placement - The pickup placement.
+   * @returns {void} No value is returned.
+   */
+  createPickup(placement) {
+    const settings = THROW_BONES.types[placement.type];
+    const pickup = this.pickups.create(placement.x, placement.y, settings.key)
+      .setDisplaySize(THROW_BONES.pickupSize, THROW_BONES.pickupSize)
+      .setDepth(THROW_BONES.depth).setData("boneType", placement.type)
+      .play(settings.animationKey);
+    pickup.body.setAllowGravity(false).setImmovable(true);
+  }
+
+  /**
+   * Collects the current state.
+   * @param {Phaser.Physics.Arcade.Sprite} pickup - The pickup value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   collect(pickup) {
     if (!pickup.active) return false;
@@ -119,8 +124,8 @@ export class ThrowBoneSystem {
   }
 
   /**
-   * Verarbeitet neue Wurfeingaben und aktualisiert aktive Projektile.
-   * @returns {void}
+   * Updates the current state.
+   * @returns {void} No value is returned.
    */
   update() {
     if (this.shouldThrow("normal")) this.throw("normal");
@@ -129,9 +134,9 @@ export class ThrowBoneSystem {
   }
 
   /**
-   * Vereint Tastatur- und Touchimpulse einer Knochenart.
-   * @param {"normal"|"nuclear"} type - Gewählte Knochenart.
-   * @returns {boolean} Ob ein neuer Wurf ausgelöst wurde.
+   * Checks the throw condition.
+   * @param {"normal"|"nuclear"} type - The requested item type.
+   * @returns {boolean} Whether the requested condition is met.
    */
   shouldThrow(type) {
     const touchTriggered = this.input?.consumeThrow(type) ?? false;
@@ -141,19 +146,30 @@ export class ThrowBoneSystem {
   }
 
   /**
-   * Erzeugt nach erfolgreichem Verbrauch einen gerichteten Wurfknochen.
-   * @param {string} type - Zu werfende Knochenart.
-   * @returns {boolean} Ob ein Projektil erzeugt wurde.
+   * Handles throw.
+   * @param {string} type - The requested item type.
+   * @returns {boolean} Whether the requested condition is met.
    */
   throw(type) {
     if (!this.inventory.consume(type)) return false;
     const settings = THROW_BONES.types[type];
     const direction = this.player.flipX ? -1 : 1;
-    const projectile = this.projectiles.create(
-      this.player.x + direction * 36,
-      this.player.y - 28,
-      settings.key,
-    ).setDisplaySize(THROW_BONES.projectileSize, THROW_BONES.projectileSize)
+    const projectile = this.createProjectile(type, settings, direction);
+    projectile.body.setAllowGravity(false);
+    return true;
+  }
+
+  /**
+   * Creates and launches one throwing bone projectile.
+   * @param {string} type - The requested bone type.
+   * @param {object} settings - The bone settings.
+   * @param {number} direction - The horizontal throw direction.
+   * @returns {Phaser.Physics.Arcade.Sprite} The projectile.
+   */
+  createProjectile(type, settings, direction) {
+    return this.projectiles.create(this.player.x + direction * 36,
+      this.player.y - 28, settings.key)
+      .setDisplaySize(THROW_BONES.projectileSize, THROW_BONES.projectileSize)
       .setDepth(THROW_BONES.depth)
       .setVelocityX(direction * THROW_BONES.projectileSpeed)
       .setData({
@@ -162,13 +178,11 @@ export class ThrowBoneSystem {
         expiresAt: this.scene.time.now + THROW_BONES.projectileLifetimeMs,
       })
       .play(settings.animationKey);
-    projectile.body.setAllowGravity(false);
-    return true;
   }
 
   /**
-   * Entfernt abgelaufene Würfe oder leitet Boss-Treffer weiter.
-   * @returns {void}
+   * Updates projectiles.
+   * @returns {void} No value is returned.
    */
   updateProjectiles() {
     this.projectiles.getChildren().forEach((projectile) => {
@@ -188,9 +202,9 @@ export class ThrowBoneSystem {
   }
 
   /**
-   * Prüft die rechteckige Treffernähe zwischen Projektil und Roboterkatze.
-   * @param {Phaser.Physics.Arcade.Sprite} projectile - Aktiver Wurfknochen.
-   * @returns {boolean} Ob das Projektil den Boss berührt.
+   * Handles hits robot cat.
+   * @param {Phaser.Physics.Arcade.Sprite} projectile - The projectile value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   hitsRobotCat(projectile) {
     if (!this.robotCat?.active) return false;

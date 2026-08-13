@@ -4,26 +4,27 @@ import { MUTANT_CAT_EVENTS } from
 import { isFastMutantCatDefeat, MUTANT_CAT_REWARD } from
   "../../js/config/mutant-cat-reward-settings.js";
 
-/** Wählt und erzeugt die zeitabhängige Belohnung der mutierten Katze. */
+/**
+ * Manages mutant cat reward system behavior.
+ */
 export class MutantCatRewardSystem {
   /**
-   * Lädt Golden Coin, Aufnahmeeffekt und wiederverwendete Health-Items.
-   * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     LevelItemSystem.load(scene);
   }
 
   /**
-   * Erstellt das Belohnungssystem und bindet es an die besiegte Katze.
-   * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Sammelnde Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat[]} cats -
-   * Besiegbare Gegner.
-   * @returns {MutantCatRewardSystem} Aktives Belohnungssystem.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat[]} cats - The cats value.
+   * @returns {MutantCatRewardSystem} The created instance.
    */
   static create(scene, player, health, collectibles, cats) {
     LevelItemSystem.registerAnimations(scene);
@@ -38,11 +39,11 @@ export class MutantCatRewardSystem {
   }
 
   /**
-   * Speichert die gemeinsamen Abhängigkeiten und richtet die Itemgruppe ein.
-   * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Sammelnde Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - Itemzähler.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {import("./collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
    */
   constructor(scene, player, health, collectibles) {
     this.scene = scene;
@@ -58,19 +59,18 @@ export class MutantCatRewardSystem {
   }
 
   /**
-   * Bindet die Belohnungslogik an jede Katze des Levels.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat[]} cats -
-   * Besiegbare Katzen.
-   * @returns {void}
+   * Binds defeats.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat[]} cats - The cats value.
+   * @returns {void} No value is returned.
    */
   bindDefeats(cats) {
     cats.forEach((cat) => this.bindDefeat(cat));
   }
 
   /**
-   * Wartet einmalig auf das vollständige Ende der Katzen-Todesanimation.
-   * @param {Phaser.GameObjects.Sprite} cat - Besiegbarer Katzengegner.
-   * @returns {void}
+   * Binds defeat.
+   * @param {Phaser.GameObjects.Sprite} cat - The mutant cat instance.
+   * @returns {void} No value is returned.
    */
   bindDefeat(cat) {
     cat.once(MUTANT_CAT_EVENTS.defeated, (result) => {
@@ -79,11 +79,10 @@ export class MutantCatRewardSystem {
   }
 
   /**
-   * Erzeugt abhängig von der Kampfzeit Golden Coin oder zwei Health-Items.
-   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat -
-   * Besiegte Katze.
-   * @param {{x: number, y: number, elapsedMs: number}} result - Kampfergebnis.
-   * @returns {void}
+   * Handles spawn reward.
+   * @param {import("../entities/enemies/mutant-cat.class.js").MutantCat} cat - The mutant cat instance.
+   * @param {{x: number, y: number, elapsedMs: number}} result - The result value.
+   * @returns {void} No value is returned.
    */
   spawnReward(cat, result) {
     if (this.rewardedCats.has(cat)) return;
@@ -97,9 +96,9 @@ export class MutantCatRewardSystem {
   }
 
   /**
-   * Erzeugt den Goldenen Coin für einen schnellen Sieg.
-   * @param {{x: number, y: number}} result - Position der besiegten Katze.
-   * @returns {void}
+   * Handles spawn golden coin.
+   * @param {{x: number, y: number}} result - The result value.
+   * @returns {void} No value is returned.
    */
   spawnGoldenCoin(result) {
     this.addItem(
@@ -111,9 +110,9 @@ export class MutantCatRewardSystem {
   }
 
   /**
-   * Erzeugt zwei getrennt erreichbare Health-Items für einen langsamen Sieg.
-   * @param {{x: number, y: number}} result - Position der besiegten Katze.
-   * @returns {void}
+   * Handles spawn health items.
+   * @param {{x: number, y: number}} result - The result value.
+   * @returns {void} No value is returned.
    */
   spawnHealthItems(result) {
     const offsetX = MUTANT_CAT_REWARD.healthItemOffsetX;
@@ -124,12 +123,12 @@ export class MutantCatRewardSystem {
   }
 
   /**
-   * Fügt ein animiertes Item oberhalb der besiegten Katze zur Gruppe hinzu.
-   * @param {string} type - Registrierter Itemtyp.
-   * @param {number} x - Horizontale Drop-Position.
-   * @param {number} y - Vertikale Katzenposition.
-   * @param {number} size - Sichtbare quadratische Darstellungsgröße.
-   * @returns {Phaser.Physics.Arcade.Sprite} Erzeugtes Sammelobjekt.
+   * Adds item.
+   * @param {string} type - The requested item type.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {number} size - The size value.
+   * @returns {Phaser.Physics.Arcade.Sprite} The resulting value.
    */
   addItem(type, x, y, size) {
     const item = LevelItemSystem.createItem(this.scene, {

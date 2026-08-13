@@ -1,12 +1,14 @@
 import { DOG_CATCHER_AUDIO } from
   "../../js/config/dog-catcher-audio-settings.js";
 
-/** Lädt und spielt die kurzen Soundeffekte des Hundefängers. */
+/**
+ * Manages dog catcher audio system behavior.
+ */
 export class DogCatcherAudioSystem {
   /**
-   * Lädt alle Hundefängersounds genau einmal in den Phaser-Audiocache.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     Object.values(DOG_CATCHER_AUDIO).forEach((audio) => {
@@ -16,9 +18,9 @@ export class DogCatcherAudioSystem {
   }
 
   /**
-   * Spielt den einmaligen Ruf beim Entdecken der Bulldogge.
-   * @param {Phaser.Scene} scene - Aktive Spielszene.
-   * @returns {void}
+   * Plays alert.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static playAlert(scene) {
     const audio = DOG_CATCHER_AUDIO.alert;

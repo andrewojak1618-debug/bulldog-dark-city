@@ -34,25 +34,29 @@ import { ROBOT_CAT_COMBAT, ROBOT_CAT_DEAD_TEXTURE } from
   "../../../js/config/robot-cat-settings.js";
 import { ENDING } from "../../../js/config/ending-settings.js";
 
-/** Stellt das technische Grundgerüst des dritten Levels bereit. */
+/**
+ * Manages level three scene behavior.
+ */
 export class LevelThreeScene extends Phaser.Scene {
-  /** Erstellt die Szene mit ihrem zentralen Szenenschlüssel. */
+  /**
+   * Creates a new instance.
+   */
   constructor() {
     super(SCENES.levelThree);
   }
 
   /**
-   * Übernimmt Lebens- und Sammelstände aus Level zwei.
-   * @param {object} data - Optionale Zustandsdaten des vorherigen Levels.
-   * @returns {void}
+   * Handles init.
+   * @param {object} data - The data value.
+   * @returns {void} No value is returned.
    */
   init(data = {}) {
     LevelSceneSystem.initialize(this, data);
   }
 
   /**
-   * Lädt Bulldogge, HUD und die vollständige Level-3-Umgebung.
-   * @returns {void}
+   * Preloads the current state.
+   * @returns {void} No value is returned.
    */
   preload() {
     if (!LevelThreePreloadSystem.isReady(this)) {
@@ -61,8 +65,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Baut das testbare Level-3-Grundgerüst auf.
-   * @returns {void}
+   * Creates the current state.
+   * @returns {void} No value is returned.
    */
   create() {
     setMuteButtonGameMode(true);
@@ -74,8 +78,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt Welt, Umgebung, Boden und Hindernisse des Arena-Levels.
-   * @returns {void}
+   * Creates level world.
+   * @returns {void} No value is returned.
    */
   createLevelWorld() {
     this.configureWorld();
@@ -89,19 +93,40 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt Boss, Spieler, HUD und sämtliche Kampfsysteme.
-   * @returns {void}
+   * Creates boss gameplay.
+   * @returns {void} No value is returned.
    */
   createBossGameplay() {
-    this.robotCat = RobotCatSystem.create(
-      this,
-      this.getGroundSurfaceY(),
-    );
+    this.createBossCharacter();
+    this.createPlayerGameplay();
+    this.createBossCombat();
+  }
+
+  /**
+   * Creates the robot cat and its health system.
+   * @returns {void} No value is returned.
+   */
+  createBossCharacter() {
+    this.robotCat = RobotCatSystem.create(this, this.getGroundSurfaceY());
     this.createRobotCatHealth();
+  }
+
+  /**
+   * Creates the player and level HUD.
+   * @returns {void} No value is returned.
+   */
+  createPlayerGameplay() {
     BulldogAnimationSystem.register(this);
     this.createPlayer();
     this.createBackgroundMusic();
     LevelSceneSystem.createHud(this);
+  }
+
+  /**
+   * Creates robot cat attacks and player throwing bones.
+   * @returns {void} No value is returned.
+   */
+  createBossCombat() {
     this.robotCatAttackSystem = RobotCatAttackSystem.create(
       this,
       this.robotCat,
@@ -112,8 +137,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt Wurfknochen-System und verbindet die Touchanzeige.
-   * @returns {void}
+   * Creates throw bone system.
+   * @returns {void} No value is returned.
    */
   createThrowBoneSystem() {
     this.createItems();
@@ -130,8 +155,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt Kamera, Szenenhinweis und globale Bedienung.
-   * @returns {void}
+   * Creates level interface.
+   * @returns {void} No value is returned.
    */
   createLevelInterface() {
     LevelSceneSystem.configureCamera(this);
@@ -140,8 +165,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Startet den Endübergang erst nach dem vollständigen Todesablauf.
-   * @returns {void}
+   * Binds victory transition.
+   * @returns {void} No value is returned.
    */
   bindVictoryTransition() {
     const eventName = Phaser.Animations.Events.ANIMATION_COMPLETE_KEY +
@@ -150,8 +175,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Friert den Kampf ein, blendet Musik und Bild aus und öffnet das Ende.
-   * @returns {void}
+   * Starts victory transition.
+   * @returns {void} No value is returned.
    */
   startVictoryTransition() {
     if (this.isVictoryStarting) return;
@@ -172,8 +197,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt Bulldogge, Steuerung und Bodenverbindung.
-   * @returns {void}
+   * Creates player.
+   * @returns {void} No value is returned.
    */
   createPlayer() {
     const spawn = LEVEL_THREE.playerSpawn;
@@ -191,8 +216,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt Tastatur-, Maus- und optionale Touchsteuerung.
-   * @returns {void}
+   * Creates player controls.
+   * @returns {void} No value is returned.
    */
   createPlayerControls() {
     this.inputSystem = new InputSystem(this);
@@ -205,8 +230,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Verbindet Spieler, Boden, Bossblockade und K.-o.-Übergang.
-   * @returns {void}
+   * Binds player physics.
+   * @returns {void} No value is returned.
    */
   bindPlayerPhysics() {
     this.physics.add.collider(this.player, this.platforms);
@@ -226,8 +251,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Startet die Bossmusik und blendet sie bei einem Spieler-K.-o. aus.
-   * @returns {void}
+   * Creates background music.
+   * @returns {void} No value is returned.
    */
   createBackgroundMusic() {
     this.backgroundMusic = new BackgroundMusicSystem(this);
@@ -240,8 +265,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Setzt die Fußkante ohne sichtbaren Fall auf die Level-3-Laufebene.
-   * @returns {void}
+   * Handles align player with ground.
+   * @returns {void} No value is returned.
    */
   alignPlayerWithGround() {
     const body = this.player.body;
@@ -255,8 +280,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt die unsichtbare technische Bodenfläche des Grundgerüsts.
-   * @returns {void}
+   * Creates ground collision.
+   * @returns {void} No value is returned.
    */
   createGroundCollision() {
     const { width } = LEVEL_THREE.world;
@@ -273,16 +298,16 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Gibt die von der sichtbaren Bodenposition unabhängige Laufkante zurück.
-   * @returns {number} Vertikale Position der technischen Laufkante.
+   * Returns ground surface y.
+   * @returns {number} The resulting numeric value.
    */
   getGroundSurfaceY() {
     return LEVEL_THREE.groundPlatform.collisionSurfaceY;
   }
 
   /**
-   * Erstellt das Bossleben und die dreiphasige Anzeige oben im Canvas.
-   * @returns {void}
+   * Creates robot cat health.
+   * @returns {void} No value is returned.
    */
   createRobotCatHealth() {
     this.robotCatHealth = new HealthSystem(ROBOT_CAT_COMBAT.maximumHealth);
@@ -290,8 +315,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt die zentral positionierten Coins und Seren von Level drei.
-   * @returns {void}
+   * Creates items.
+   * @returns {void} No value is returned.
    */
   createItems() {
     this.levelItems = LevelItemSystem.create(
@@ -304,8 +329,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Konfiguriert identische Welt- und Kameragrenzen zu Level zwei.
-   * @returns {void}
+   * Configures world.
+   * @returns {void} No value is returned.
    */
   configureWorld() {
     const world = LEVEL_THREE.world;
@@ -315,8 +340,8 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Lässt die Bulldogge automatisch vom linken Rand ins Level laufen.
-   * @returns {boolean} Ob die normale Steuerung in diesem Frame pausiert.
+   * Updates level entry.
+   * @returns {boolean} Whether the requested condition is met.
    */
   updateLevelEntry() {
     if (!this.isEnteringLevel) return false;
@@ -330,10 +355,10 @@ export class LevelThreeScene extends Phaser.Scene {
   }
 
   /**
-   * Aktualisiert Einlauf, Gegnerpatrouille, Mutation und Spielerbewegung.
-   * @param {number} time - Vergangene Spielzeit in Millisekunden.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates the current state.
+   * @param {number} time - The current scene time in milliseconds.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   update(time, delta) {
     if (this.isVictoryStarting) return;

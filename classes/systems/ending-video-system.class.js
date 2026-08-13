@@ -1,9 +1,11 @@
-/** Gemeinsame, fehlertolerante Wiedergabe für Abschlussvideos. */
+/**
+ * Manages ending video system behavior.
+ */
 export class EndingVideoSystem {
   /**
-   * Startet ein Szenenvideo und aktiviert bei einem synchronen Fehler den Fallback.
-   * @param {Phaser.Scene} scene - Game-Over- oder Victory-Szene.
-   * @returns {void}
+   * Starts the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static start(scene) {
     try {
@@ -14,9 +16,9 @@ export class EndingVideoSystem {
   }
 
   /**
-   * Skaliert den ersten verfügbaren Videoframe exakt auf das Canvas.
-   * @param {Phaser.Scene} scene - Szene mit Video und Skalierungszustand.
-   * @returns {void}
+   * Handles size and reveal.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static sizeAndReveal(scene) {
     if (scene.isVideoSized || !scene.video) return;

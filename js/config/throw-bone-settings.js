@@ -1,6 +1,8 @@
 import { getAssetPath } from "./asset-paths.js";
 
-/** Konfiguration der einsammelbaren und werfbaren Knochen. */
+/**
+ * Defines the throw bones configuration.
+ */
 export const THROW_BONES = Object.freeze({
   depth: 12,
   projectileSpeed: 430,

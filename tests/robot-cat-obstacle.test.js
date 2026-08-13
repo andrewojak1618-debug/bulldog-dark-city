@@ -4,7 +4,9 @@ import { RobotCatSystem } from
   "../classes/systems/robot-cat-system.class.js";
 import { ROBOT_CAT } from "../js/config/robot-cat-settings.js";
 
-/** Erstellt eine minimale Roboterkatze für die Hinderniserkennung. */
+/**
+ * Creates robot cat.
+ */
 function createRobotCat(options = {}) {
   const data = new Map([
     ["groundY", options.groundY ?? 400],
@@ -18,7 +20,9 @@ function createRobotCat(options = {}) {
   };
 }
 
-/** Erstellt eine minimale Bulldogge mit steuerbarer Fußposition. */
+/**
+ * Creates player.
+ */
 function createPlayer(options = {}) {
   return {
     x: options.x ?? 920,

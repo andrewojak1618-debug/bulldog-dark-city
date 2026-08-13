@@ -14,29 +14,28 @@ import { RobotCatAudioSystem } from
 const ANIMATION_COMPLETE_PREFIX = "animationcomplete-";
 const MILLISECONDS_PER_SECOND = 1_000;
 
-/** Steuert Angriffsanimation, Klauenflug und Schaden des Level-3-Bosses. */
+/**
+ * Manages robot cat attack system behavior.
+ */
 export class RobotCatAttackSystem {
   /**
-   * Erstellt das Angriffssystem mit einer kurzen Startverzögerung.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Angreifender Boss.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player
-   * Steuerbare Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health
-   * Lebenspunkte der Bulldogge.
-   * @returns {RobotCatAttackSystem} Erstelltes Angriffssystem.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @returns {RobotCatAttackSystem} The created instance.
    */
   static create(scene, robotCat, player, health) {
     return new RobotCatAttackSystem(scene, robotCat, player, health);
   }
 
   /**
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Angreifender Boss.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player
-   * Steuerbare Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health
-   * Lebenspunkte der Bulldogge.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
    */
   constructor(scene, robotCat, player, health) {
     this.scene = scene;
@@ -49,10 +48,10 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Startet mögliche Angriffe und bewegt alle aktiven Klaueneffekte.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates the current state.
+   * @param {number} time - The current scene time in milliseconds.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   update(time, delta) {
     this.updateProjectiles(time, delta);
@@ -70,9 +69,9 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Prüft Zeitfenster, Bodenzustand und Reichweite vor einem neuen Angriff.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} Ob die Roboterkatze jetzt angreifen darf.
+   * Checks the start attack condition.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   canStartAttack(time) {
     return (
@@ -86,10 +85,10 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Prüft die für den 400-Pixel-Klauenangriff gültige Zieldistanz.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Angreifende Roboterkatze.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Anvisierte Bulldogge.
-   * @returns {boolean} Ob die Bulldogge im Angriffsbereich steht.
+   * Checks the target in range condition.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isTargetInRange(robotCat, player) {
     if (!robotCat?.active || !player?.active || !player.body?.enable) {
@@ -103,8 +102,8 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Friert die Patrouille ein und richtet die Attacke zur Bulldogge aus.
-   * @returns {void}
+   * Starts attack.
+   * @returns {void} No value is returned.
    */
   startAttack() {
     const texture = ROBOT_CAT_ATTACK_TEXTURE;
@@ -119,10 +118,10 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Startet den Klauenflug exakt beim ausgestreckten Angriffsframe.
-   * @param {object} texture - Konfiguration der Angriffsanimation.
-   * @param {-1|1} direction - Blickrichtung der Roboterkatze.
-   * @returns {void}
+   * Handles schedule claw launch.
+   * @param {object} texture - The texture configuration to use.
+   * @param {-1|1} direction - The horizontal movement direction.
+   * @returns {void} No value is returned.
    */
   scheduleClawLaunch(texture, direction) {
     const delay = texture.launchFrame / texture.frameRate *
@@ -138,8 +137,8 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Beendet den Angriff nach dem letzten sichtbaren Frame genau einmal.
-   * @returns {void}
+   * Binds attack completion.
+   * @returns {void} No value is returned.
    */
   bindAttackCompletion() {
     this.robotCat.once(
@@ -149,9 +148,9 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Erzeugt einen animierten Klaueneffekt mit festem 400-Pixel-Flugweg.
-   * @param {-1|1} direction - Horizontale Angriffsrichtung.
-   * @returns {void}
+   * Handles launch claws.
+   * @param {-1|1} direction - The horizontal movement direction.
+   * @returns {void} No value is returned.
    */
   launchClaws(direction) {
     const settings = ROBOT_CAT_ATTACK;
@@ -169,11 +168,11 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Erstellt den sichtbaren Klaueneffekt an seiner Startposition.
-   * @param {number} startX - Horizontale Startposition.
-   * @param {number} startY - Vertikale Startposition.
-   * @param {-1|1} direction - Horizontale Angriffsrichtung.
-   * @returns {Phaser.GameObjects.Sprite} Erstellter Klaueneffekt.
+   * Creates claw sprite.
+   * @param {number} startX - The start x value.
+   * @param {number} startY - The start y value.
+   * @param {-1|1} direction - The horizontal movement direction.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   createClawSprite(startX, startY, direction) {
     const settings = ROBOT_CAT_ATTACK;
@@ -191,10 +190,10 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Registriert Bewegungsdaten eines neuen Klauenprojektils.
-   * @param {Phaser.GameObjects.Sprite} sprite - Sichtbarer Klaueneffekt.
-   * @param {{x: number, y: number}} aim - Normierte Flugrichtung.
-   * @returns {void}
+   * Adds projectile.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {{x: number, y: number}} aim - The aim value.
+   * @returns {void} No value is returned.
    */
   addProjectile(sprite, aim) {
     const speed = ROBOT_CAT_ATTACK.projectileSpeed;
@@ -207,12 +206,12 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Berechnet eine normierte Flugrichtung zum aktuellen Mittelpunkt des Ziels.
-   * @param {number} startX - Horizontale Startposition.
-   * @param {number} startY - Vertikale Startposition.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Anvisierte Bulldogge.
-   * @param {-1|1} fallbackDirection - Richtung bei identischen Positionen.
-   * @returns {{x: number, y: number}} Normierter Richtungsvektor.
+   * Returns aim vector.
+   * @param {number} startX - The start x value.
+   * @param {number} startY - The start y value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {-1|1} fallbackDirection - The fallback direction value.
+   * @returns {{x: number, y: number}} The resulting numeric value.
    */
   static getAimVector(startX, startY, player, fallbackDirection) {
     const targetX = player?.body?.center?.x ?? player?.x ?? startX;
@@ -225,10 +224,10 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Bewegt Klauen, löst Treffer aus und entfernt Fehlschüsse nach 400 Pixeln.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates projectiles.
+   * @param {number} time - The current scene time in milliseconds.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   updateProjectiles(time, delta) {
     [...this.projectiles].forEach((projectile) => {
@@ -237,11 +236,11 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Bewegt ein Projektil und wertet Treffer oder maximale Flugdistanz aus.
-   * @param {object} projectile - Bewegungsdaten des Klaueneffekts.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates projectile.
+   * @param {object} projectile - The projectile value.
+   * @param {number} time - The current scene time in milliseconds.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   updateProjectile(projectile, time, delta) {
     this.moveProjectile(projectile, delta);
@@ -256,10 +255,10 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Verschiebt ein Projektil anhand seiner Geschwindigkeit und Framezeit.
-   * @param {object} projectile - Bewegungsdaten des Klaueneffekts.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Moves projectile.
+   * @param {object} projectile - The projectile value.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   moveProjectile(projectile, delta) {
     const factor = delta / MILLISECONDS_PER_SECOND;
@@ -271,9 +270,9 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Prüft einen verkleinerten Effektbereich gegen die echte Bulldog-Hitbox.
-   * @param {Phaser.GameObjects.Sprite} sprite - Sichtbarer Klaueneffekt.
-   * @returns {boolean} Ob der Effekt die Bulldogge berührt.
+   * Handles hits player.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   hitsPlayer(sprite) {
     const body = this.player?.body;
@@ -289,9 +288,9 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Zieht einmalig Klauenschaden ab und startet Treffer- oder K.-o.-Reaktion.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Resolves player hit.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   resolvePlayerHit(time) {
     if (
@@ -308,9 +307,9 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Blendet einen Treffer oder Fehlschuss weich aus und zerstört ihn danach.
-   * @param {{sprite: Phaser.GameObjects.Sprite}} projectile - Klauenprojektil.
-   * @returns {void}
+   * Handles dissolve projectile.
+   * @param {{sprite: Phaser.GameObjects.Sprite}} projectile - The projectile value.
+   * @returns {void} No value is returned.
    */
   dissolveProjectile(projectile) {
     if (!this.projectiles.delete(projectile)) return;
@@ -326,8 +325,8 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Setzt nach der Attacke Laufanimation und Abklingzeit wieder ein.
-   * @returns {void}
+   * Completes attack.
+   * @returns {void} No value is returned.
    */
   finishAttack() {
     this.launchEvent?.remove(false);
@@ -343,9 +342,9 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Bricht einen unterbrochenen Angriff ab und entfernt optional alle Klauen.
-   * @param {boolean} removeProjectiles - Ob fliegende Klauen ausblenden sollen.
-   * @returns {void}
+   * Handles cancel attack.
+   * @param {boolean} removeProjectiles - The remove projectiles value.
+   * @returns {void} No value is returned.
    */
   cancelAttack(removeProjectiles) {
     if (this.robotCat.getData("isAttacking")) {
@@ -363,8 +362,8 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Liefert den eindeutigen Phaser-Ereignisnamen dieser Angriffsanimation.
-   * @returns {string} Ereignisname für das Animationsende.
+   * Returns attack complete event name.
+   * @returns {string} The resulting string value.
    */
   getAttackCompleteEventName() {
     return ANIMATION_COMPLETE_PREFIX + ROBOT_CAT_ATTACK_TEXTURE.animationKey;

@@ -1,11 +1,11 @@
 /**
- * Verwaltet die Zähler aller eingesammelten Objektarten.
+ * Manages collectible system behavior.
  */
 export class CollectibleSystem {
   /**
-   * Erstellt für jeden bekannten Schlüssel einen Zähler mit dem Wert null.
-   * @param {ReadonlyArray<string>} keys - Unterstützte Sammelobjektschlüssel.
-   * @param {Readonly<Record<string, number>>} [initialCounts={}] - Startwerte.
+   * Creates a new instance.
+   * @param {ReadonlyArray<string>} keys - The keys value.
+   * @param {Readonly<Record<string, number>>} [initialCounts={}] - The initial counts value.
    */
   constructor(keys, initialCounts = {}) {
     this.counts = new Map(keys.map((key) => [
@@ -16,20 +16,20 @@ export class CollectibleSystem {
   }
 
   /**
-   * Bereinigt einen übernommenen Zählerstand.
-   * @param {number} count - Zu prüfender Startwert.
-   * @returns {number} Nicht negativer, endlicher Zählerstand.
+   * Returns safe initial count.
+   * @param {number} count - The count value.
+   * @returns {number} The resulting numeric value.
    */
   getSafeInitialCount(count) {
     return Number.isFinite(count) ? Math.max(0, count) : 0;
   }
 
   /**
-   * Erhöht einen registrierten Sammelzähler.
-   * @param {string} key - Schlüssel der Objektart.
-   * @param {number} [amount=1] - Hinzuzufügende Anzahl.
-   * @param {number} [maximum=Number.POSITIVE_INFINITY] - Höchstwert.
-   * @returns {number} Neuer Zählerstand.
+   * Collects the current state.
+   * @param {string} key - The lookup key.
+   * @param {number} [amount=1] - The amount value.
+   * @param {number} [maximum=Number.POSITIVE_INFINITY] - The maximum value.
+   * @returns {number} The resulting numeric value.
    */
   collect(key, amount = 1, maximum = Number.POSITIVE_INFINITY) {
     if (!this.counts.has(key)) {
@@ -46,19 +46,19 @@ export class CollectibleSystem {
   }
 
   /**
-   * Liest den aktuellen Wert eines Sammelobjekts.
-   * @param {string} key - Schlüssel der Objektart.
-   * @returns {number} Aktueller Zählerstand.
+   * Returns count.
+   * @param {string} key - The lookup key.
+   * @returns {number} The resulting numeric value.
    */
   getCount(key) {
     return this.counts.get(key) ?? 0;
   }
 
   /**
-   * Setzt einen bekannten Sammelstand auf einen bereinigten Wert.
-   * @param {string} key - Schlüssel der Objektart.
-   * @param {number} count - Neuer Zählerstand.
-   * @returns {number} Gespeicherter Zählerstand.
+   * Sets count.
+   * @param {string} key - The lookup key.
+   * @param {number} count - The count value.
+   * @returns {number} The resulting numeric value.
    */
   setCount(key, count) {
     if (!this.counts.has(key)) {
@@ -71,17 +71,17 @@ export class CollectibleSystem {
   }
 
   /**
-   * Erstellt eine serialisierbare Kopie aller Sammelstände.
-   * @returns {Record<string, number>} Aktuelle Sammelstände.
+   * Returns snapshot.
+   * @returns {Record<string, number>} The resulting string value.
    */
   getSnapshot() {
     return Object.fromEntries(this.counts);
   }
 
   /**
-   * Registriert eine Anzeige für Zähleränderungen.
-   * @param {(key: string, count: number) => void} listener - Callback.
-   * @returns {() => void} Funktion zum Entfernen des Callbacks.
+   * Handles on change.
+   * @param {(key: string, count: number) => void} listener - The listener value.
+   * @returns {() => void} No value is returned.
    */
   onChange(listener) {
     this.listeners.add(listener);
@@ -89,10 +89,10 @@ export class CollectibleSystem {
   }
 
   /**
-   * Informiert alle registrierten Anzeigen über einen neuen Zählerstand.
-   * @param {string} key - Geänderter Schlüssel.
-   * @param {number} count - Neuer Zählerstand.
-   * @returns {void}
+   * Handles emit change.
+   * @param {string} key - The lookup key.
+   * @param {number} count - The count value.
+   * @returns {void} No value is returned.
    */
   emitChange(key, count) {
     this.listeners.forEach((listener) => listener(key, count));

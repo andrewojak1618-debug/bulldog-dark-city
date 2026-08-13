@@ -9,12 +9,14 @@ import {
 } from "../../js/config/robot-cat-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
-/** Lädt und registriert ausschließlich die Animationen der Roboterkatze. */
+/**
+ * Manages robot cat animation system behavior.
+ */
 export class RobotCatAnimationSystem {
   /**
-   * Lädt alle vorbereiteten Spritesheets der Roboterkatze.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     this.getTextures().forEach((texture) => {
@@ -23,8 +25,8 @@ export class RobotCatAnimationSystem {
   }
 
   /**
-   * Gibt alle zu ladenden Texturkonfigurationen zurück.
-   * @returns {Object[]} Texturen für Bewegung, Treffer und K.-o.
+   * Returns textures.
+   * @returns {Object[]} The resulting collection.
    */
   static getTextures() {
     return [
@@ -38,9 +40,9 @@ export class RobotCatAnimationSystem {
   }
 
   /**
-   * Registriert alle Animationen jeweils höchstens einmal.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Registers the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static register(scene) {
     this.registerWalk(scene);
@@ -52,9 +54,9 @@ export class RobotCatAnimationSystem {
   }
 
   /**
-   * Registriert die endlose Laufanimation.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Registers walk.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static registerWalk(scene) {
     const texture = ROBOT_CAT_WALK_TEXTURE;
@@ -72,9 +74,9 @@ export class RobotCatAnimationSystem {
   }
 
   /**
-   * Registriert die einmalige Abhebeanimation in festgelegter Reihenfolge.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Registers takeoff.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static registerTakeoff(scene) {
     const texture = ROBOT_CAT_FLIGHT_TEXTURE;
@@ -91,10 +93,10 @@ export class RobotCatAnimationSystem {
   }
 
   /**
-   * Registriert eine einmalige Animation in der Reihenfolge ihrer Frames.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Object} texture - Konfiguration der einmaligen Animation.
-   * @returns {void}
+   * Registers sequence.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Object} texture - The texture configuration to use.
+   * @returns {void} No value is returned.
    */
   static registerSequence(scene, texture) {
     if (scene.anims.exists(texture.animationKey)) return;
@@ -110,9 +112,9 @@ export class RobotCatAnimationSystem {
   }
 
   /**
-   * Registriert den pulsierenden Klaueneffekt für die gesamte Flugphase.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Registers claws.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static registerClaws(scene) {
     const texture = ROBOT_CAT_CLAWS_TEXTURE;

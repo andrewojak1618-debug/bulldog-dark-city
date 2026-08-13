@@ -1,37 +1,67 @@
 import Phaser from "phaser";
 import { TOUCH_CONTROLS } from "../../js/config/touch-control-settings.js";
 
-/** Stellt einen gedrückt haltbaren, kamerafesten Touchbutton dar. */
+/**
+ * Manages touch control button behavior.
+ */
 export class TouchControlButton extends Phaser.GameObjects.Container {
   /**
-   * Erstellt Darstellung, Trefferfläche und Pointerereignisse.
-   * @param {Phaser.Scene} scene - Aktive Spielszene.
-   * @param {Object} settings - Position, Größe, Text und Aktionsschlüssel.
-   * @param {Function} onStateChange - Empfänger des gedrückten Zustands.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Object} settings - The configuration values to use.
+   * @param {Function} onStateChange - The on state change value.
    */
   constructor(scene, settings, onStateChange) {
     super(scene, settings.x, settings.y);
     scene.add.existing(this);
+    this.initializeState(settings, onStateChange);
+    this.createContent(scene);
+    this.configureInteraction();
+    this.draw();
+  }
+
+  /**
+   * Initializes touch button state.
+   * @param {object} settings - The button settings.
+   * @param {Function} onStateChange - The state callback.
+   * @returns {void} No value is returned.
+   */
+  initializeState(settings, onStateChange) {
     this.settings = settings;
     this.onStateChange = onStateChange;
     this.isPressed = false;
     this.isEnabled = true;
     this.isControlVisible = true;
+  }
+
+  /**
+   * Creates the touch button display content.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
+   */
+  createContent(scene) {
     this.background = scene.add.graphics();
     this.label = this.createLabel(scene);
     this.add([this.background, this.label]);
-    this.setSize(settings.size, settings.size)
+  }
+
+  /**
+   * Configures touch button interaction.
+   * @returns {void} No value is returned.
+   */
+  configureInteraction() {
+    const size = this.settings.size;
+    this.setSize(size, size)
       .setScrollFactor(0)
       .setDepth(TOUCH_CONTROLS.depth)
       .setInteractive({ useHandCursor: false });
     this.bindPointerEvents();
-    this.draw();
   }
 
   /**
-   * Erstellt die mittig ausgerichtete Beschriftung des Buttons.
-   * @param {Phaser.Scene} scene - Aktive Spielszene.
-   * @returns {Phaser.GameObjects.Text} Erstellte Beschriftung.
+   * Creates label.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createLabel(scene) {
     return scene.add.text(0, 0, this.settings.label, {
@@ -44,8 +74,8 @@ export class TouchControlButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Bindet Drücken, Loslassen und Verlassen an den Buttonzustand.
-   * @returns {void}
+   * Binds pointer events.
+   * @returns {void} No value is returned.
    */
   bindPointerEvents() {
     this.on("pointerdown", (_pointer, _localX, _localY, event) => {
@@ -57,8 +87,8 @@ export class TouchControlButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Aktiviert den Button genau einmal pro neuer Berührung.
-   * @returns {void}
+   * Handles press.
+   * @returns {void} No value is returned.
    */
   press() {
     if (!this.isEnabled || this.isPressed) return;
@@ -68,8 +98,8 @@ export class TouchControlButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Löst einen gehaltenen Button und informiert das InputSystem.
-   * @returns {void}
+   * Handles release.
+   * @returns {void} No value is returned.
    */
   release() {
     if (!this.isPressed) return;
@@ -79,9 +109,9 @@ export class TouchControlButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Aktiviert oder sperrt den Button und beendet gehaltene Eingaben.
-   * @param {boolean} enabled - Neuer Aktivierungszustand.
-   * @returns {void}
+   * Sets control enabled.
+   * @param {boolean} enabled - The enabled value.
+   * @returns {void} No value is returned.
    */
   setControlEnabled(enabled) {
     if (!enabled) this.release();
@@ -93,9 +123,9 @@ export class TouchControlButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Blendet den Button ein oder aus und sperrt unsichtbare Trefferflächen.
-   * @param {boolean} visible - Ob der Touchbutton verwendet werden darf.
-   * @returns {void}
+   * Sets control visible.
+   * @param {boolean} visible - The visible value.
+   * @returns {void} No value is returned.
    */
   setControlVisible(visible) {
     if (!visible) this.release();
@@ -107,8 +137,8 @@ export class TouchControlButton extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet Zustand, Neonrahmen und Transparenz des Touchbuttons.
-   * @returns {void}
+   * Draws the current state.
+   * @returns {void} No value is returned.
    */
   draw() {
     const style = TOUCH_CONTROLS;

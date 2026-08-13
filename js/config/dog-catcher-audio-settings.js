@@ -1,6 +1,8 @@
 import { getAssetPath } from "./asset-paths.js";
 
-/** Zentrale Audiodaten des Hundefängers. */
+/**
+ * Defines the dog catcher audio configuration.
+ */
 export const DOG_CATCHER_AUDIO = Object.freeze({
   alert: Object.freeze({
     key: "dog-catcher-alert-sound",

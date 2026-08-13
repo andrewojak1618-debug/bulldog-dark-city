@@ -8,18 +8,15 @@ import { LevelOnePreloadSystem } from
 import { SCENES } from "../../../js/config/game-settings.js";
 
 /**
- * Bündelt Menüaktionen, Dialoge und den Übergang zur Spielszene.
+ * Manages menu navigation controller behavior.
  */
 export class MenuNavigationController {
   /**
-   * Erstellt die Navigation für eine Menüszene.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {import(
-   * "../../input/menu-input-controller.class.js"
-   * ).MenuInputController} menuInput - Zentrale Eingabesteuerung.
-   * @param {(() => void)|null} [onDialogClosed=null] - Aktion nach dem Schließen eines Dialogs.
-   * @param {((isOpen: boolean) => void)|null} [onDialogStateChange=null] -
-   * Aktion beim Öffnen und Schließen eines Dialogs.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import( "../../input/menu-input-controller.class.js" ).MenuInputController} menuInput - The menu input value.
+   * @param {(() => void)|null} [onDialogClosed=null] - The on dialog closed value.
+   * @param {((isOpen: boolean, hideInterface?: boolean) => void)|null} [onDialogStateChange=null] - The on dialog state change value.
    */
   constructor(
     scene,
@@ -36,21 +33,23 @@ export class MenuNavigationController {
   }
 
   /**
-   * Ordnet einem Hauptmenüpunkt seine definierte Aktion zu.
-   * @param {string} action - Zentraler Aktionsschlüssel.
-   * @returns {void}
+   * Handles run.
+   * @param {string} action - The requested action.
+   * @returns {void} No value is returned.
    */
   run(action) {
     const actions = {
       start: () => this.startLevelOne(),
       options: () => this.openOptionsDialog(),
+      upgrades: () => this.openLockedFeatureDialog("upgrades"),
+      extras: () => this.openLockedFeatureDialog("extras"),
     };
     actions[action]?.();
   }
 
   /**
-   * Spielt die Intro-Sequenz ab und wechselt anschließend in Level eins.
-   * @returns {void}
+   * Starts level one.
+   * @returns {void} No value is returned.
    */
   startLevelOne() {
     if (this.isTransitioning) return;
@@ -66,11 +65,13 @@ export class MenuNavigationController {
     });
   }
 
-  /** Öffnet Spielerklärung, Tastenbelegung und Toneinstellung. */
+  /**
+   * Opens options dialog.
+   */
   openOptionsDialog() {
     if (this.activeDialog || this.isTransitioning) return;
     this.menuInput.setEnabled(false);
-    this.onDialogStateChange?.(true);
+    this.onDialogStateChange?.(true, true);
     this.activeDialog = new OptionsDialog(this.scene, {
       muteSystem: globalMuteSystem,
       displaySystem: globalDisplaySystem,
@@ -78,11 +79,26 @@ export class MenuNavigationController {
     });
   }
 
-  /** Reaktiviert die Menüsteuerung nach einem geschlossenen Dialog. */
+  /**
+   * Opens locked feature dialog.
+   */
+  openLockedFeatureDialog(action) {
+    if (this.activeDialog || this.isTransitioning) return;
+    this.menuInput.setEnabled(false);
+    this.onDialogStateChange?.(true, false);
+    this.activeDialog = this.scene.menuInterface.openFeatureDialog(
+      action,
+      () => this.restoreMenu(),
+    );
+  }
+
+  /**
+   * Restores menu.
+   */
   restoreMenu() {
     this.activeDialog = null;
     this.menuInput.setEnabled(true);
-    this.onDialogStateChange?.(false);
+    this.onDialogStateChange?.(false, false);
     this.onDialogClosed?.();
   }
 

@@ -1,6 +1,8 @@
 import { getAssetPath } from "./asset-paths.js";
 
-/** Zentrale Konfiguration des eigenständigen ersten Levels. */
+/**
+ * Defines the test level configuration.
+ */
 export const TEST_LEVEL = Object.freeze({
   world: Object.freeze({
     width: 2400,
@@ -19,7 +21,7 @@ export const TEST_LEVEL = Object.freeze({
     text:
       "LEVEL 1 · BEWEGUNGSINFO\nA/D oder ←/→ · Bewegung\n" +
       "W, ↑ oder Leertaste · Sprung\n" +
-      "F, J, Linksklick oder Gamepad-X · Biss\n" +
+      "F · Biss (J optional, Linksklick, Gamepad-X)\n" +
       "M · Mutation bei vollem Serum\nESC · Menü",
     fontFamily: "Arial",
     fontSize: 13,

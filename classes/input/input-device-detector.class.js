@@ -1,9 +1,15 @@
-/** Erkennt zentral, ob die Oberfläche für Touch oder Desktop aufgebaut wird. */
+/**
+ * Manages input device detector behavior.
+ */
 export class InputDeviceDetector {
-  /** Ab dieser Breite wird verbindlich das Desktoplayout verwendet. */
+  /**
+   * Handles freeze.
+   */
   static desktopMinWidth = 1024;
 
-  /** Touchprofile, die trotz Laptopbreite bewusst mobil bedient werden. */
+  /**
+   * Handles freeze.
+   */
   static tabletViewports = Object.freeze([
     [1024, 768],
     [1180, 820],
@@ -14,12 +20,14 @@ export class InputDeviceDetector {
     [1280, 800],
   ]);
 
-  /** Erlaubte Abweichung der Browser-Geräteprofile in CSS-Pixeln. */
+  /**
+   * Checks the touch layout condition.
+   */
   static viewportTolerance = 4;
 
   /**
-   * Unterscheidet primäre Touchbedienung von Laptops mit zusätzlichem Touch.
-   * @returns {boolean} Ob die mobile Touchoberfläche verwendet werden soll.
+   * Checks the touch layout condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isTouchLayout() {
     const hasPrimaryTouch = window.matchMedia(
@@ -33,8 +41,8 @@ export class InputDeviceDetector {
   }
 
   /**
-   * Trennt echte Mobilprofile von Touchsimulationen auf Desktop-Viewports.
-   * @returns {boolean} Ob Browserkennung oder Maße zu einem Tablet gehören.
+   * Checks the recognized tablet condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isRecognizedTablet() {
     const longSide = Math.max(window.innerWidth, window.innerHeight);
@@ -46,8 +54,8 @@ export class InputDeviceDetector {
   }
 
   /**
-   * Erkennt nur kompakte Mobilbrowser; breite Ansichten brauchen Tabletmaße.
-   * @returns {boolean} Ob ein echter Mobilbrowser unter Laptopbreite vorliegt.
+   * Checks the compact mobile browser condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isCompactMobileBrowser() {
     const browser = globalThis.navigator;
@@ -61,8 +69,8 @@ export class InputDeviceDetector {
   }
 
   /**
-   * Erkennt den lokalen URL-Schalter für responsive Touchtests.
-   * @returns {boolean} Ob der lokale Touch-Testmodus aktiv ist.
+   * Checks the local touch test condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isLocalTouchTest() {
     if (!import.meta.env?.DEV) return false;
@@ -71,8 +79,8 @@ export class InputDeviceDetector {
   }
 
   /**
-   * Aktiviert lokal eine große Touchansicht, ohne Desktopregeln zu verändern.
-   * @returns {boolean} Ob das gesonderte Tablet-Testprofil aktiv ist.
+   * Checks the local tablet test condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isLocalTabletTest() {
     if (!import.meta.env?.DEV) return false;
@@ -81,8 +89,8 @@ export class InputDeviceDetector {
   }
 
   /**
-   * Prüft, ob ein Touchlayout aktuell im Hochformat dargestellt wird.
-   * @returns {boolean} Ob der Querformat-Hinweis angezeigt werden muss.
+   * Checks the portrait touch layout condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isPortraitTouchLayout() {
     return this.isTouchLayout() &&

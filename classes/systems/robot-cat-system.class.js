@@ -12,12 +12,14 @@ import { RobotCatCollisionSystem } from
 import { RobotCatFlightSystem } from
   "./robot-cat-flight-system.class.js";
 
-/** Lädt, erstellt und steuert die Bodenpatrouille der Roboterkatze. */
+/**
+ * Manages robot cat system behavior.
+ */
 export class RobotCatSystem {
   /**
-   * Lädt alle Bild- und Audioressourcen der Roboterkatze.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     RobotCatAnimationSystem.load(scene);
@@ -25,10 +27,10 @@ export class RobotCatSystem {
   }
 
   /**
-   * Erstellt die patrouillierende Roboterkatze auf der Laufebene.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {number} surfaceY - Gemeinsame Laufkante des Levels.
-   * @returns {Phaser.GameObjects.Sprite} Erstellte Roboterkatze.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} surfaceY - The surface y value.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   static create(scene, surfaceY) {
     const groundY = surfaceY + ROBOT_CAT.groundOffsetY;
@@ -43,10 +45,10 @@ export class RobotCatSystem {
   }
 
   /**
-   * Erstellt die sichtbare Roboterkatze mit ihrer Laufanimation.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {number} groundY - Gemeinsame Bodenlinie der Figur.
-   * @returns {Phaser.GameObjects.Sprite} Sichtbare Roboterkatze.
+   * Creates sprite.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} groundY - The ground y value.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   static createSprite(scene, groundY) {
     return scene.add.sprite(
@@ -61,14 +63,26 @@ export class RobotCatSystem {
   }
 
   /**
-   * Hinterlegt alle veränderlichen Bewegungswerte an der Spielfigur.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {Phaser.GameObjects.Rectangle} collision - Blockierfläche.
-   * @param {number} groundY - Gemeinsame Bodenlinie der Figur.
-   * @returns {void}
+   * Initializes movement data.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.GameObjects.Rectangle} collision - The collision value.
+   * @param {number} groundY - The ground y value.
+   * @returns {void} No value is returned.
    */
   static initializeMovementData(robotCat, collision, groundY) {
-    const movementData = {
+    robotCat.setDataEnabled();
+    Object.entries(this.createMovementData(collision, groundY))
+      .forEach(([key, value]) => robotCat.setData(key, value));
+  }
+
+  /**
+   * Creates the initial robot cat movement data.
+   * @param {Phaser.GameObjects.Rectangle} collision - The collision object.
+   * @param {number} groundY - The ground position.
+   * @returns {object} The movement data.
+   */
+  static createMovementData(collision, groundY) {
+    return {
       direction: -1,
       collision,
       groundY,
@@ -80,18 +94,14 @@ export class RobotCatSystem {
       thrustFlightSound: null,
       thrustFlightFadeTween: null,
     };
-    robotCat.setDataEnabled();
-    Object.entries(movementData).forEach(([key, value]) => {
-      robotCat.setData(key, value);
-    });
   }
 
   /**
-   * Erlaubt die seitliche Blockade nur auf der gemeinsamen Laufebene.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatze mit Hitbox.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
-   * @param {number} surfaceY - Technische Laufkante des Levels.
-   * @returns {boolean} Ob Phaser die seitliche Kollision auflösen darf.
+   * Checks the block grounded player condition.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} surfaceY - The surface y value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static canBlockGroundedPlayer(robotCat, player, surfaceY) {
     return RobotCatCollisionSystem.canBlockGroundedPlayer(
@@ -102,11 +112,11 @@ export class RobotCatSystem {
   }
 
   /**
-   * Leitet die Aktualisierung an Bodenpatrouille oder Flugzustand weiter.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @param {Phaser.Physics.Arcade.Sprite|null} [player=null] - Bulldogge.
-   * @returns {void}
+   * Updates the current state.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @param {Phaser.Physics.Arcade.Sprite|null} [player=null] - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static update(robotCat, delta, player = null) {
     if (!this.canUpdateMovement(robotCat, player)) return;
@@ -119,10 +129,10 @@ export class RobotCatSystem {
   }
 
   /**
-   * Prüft alle Sperrzustände vor einer Bewegungsaktualisierung.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
-   * @returns {boolean} Ob die Bewegung aktualisiert werden darf.
+   * Checks the update movement condition.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite|null} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static canUpdateMovement(robotCat, player) {
     return Boolean(
@@ -135,11 +145,11 @@ export class RobotCatSystem {
   }
 
   /**
-   * Bewegt die Roboterkatze am Boden und startet nötige Überflüge.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} delta - Zeit seit dem letzten Frame.
-   * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
-   * @returns {void}
+   * Updates walking.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @param {Phaser.Physics.Arcade.Sprite|null} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static updateWalking(robotCat, delta, player) {
     const movement = this.getGroundMovement(robotCat, delta);
@@ -158,10 +168,10 @@ export class RobotCatSystem {
   }
 
   /**
-   * Berechnet Position und Richtung des nächsten Bodenschritts.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} delta - Zeit seit dem letzten Frame.
-   * @returns {{x: number, direction: number}} Nächster Bodenschritt.
+   * Returns ground movement.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {{x: number, direction: number}} The resulting numeric value.
    */
   static getGroundMovement(robotCat, delta) {
     let direction = robotCat.getData("direction") ?? -1;
@@ -174,19 +184,19 @@ export class RobotCatSystem {
   }
 
   /**
-   * Begrenzt eine Position auf den Patrouillenbereich.
-   * @param {number} x - Zu begrenzende Weltposition.
-   * @returns {number} Position innerhalb der Patrouillengrenzen.
+   * Clamps patrol x.
+   * @param {number} x - The horizontal position.
+   * @returns {number} The resulting numeric value.
    */
   static clampPatrolX(x) {
     return Math.min(ROBOT_CAT.patrolMaxX, Math.max(ROBOT_CAT.patrolMinX, x));
   }
 
   /**
-   * Übernimmt berechnete Position, Richtung und Blickrichtung.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {{x: number, direction: number}} movement - Bodenschritt.
-   * @returns {void}
+   * Applies ground movement.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {{x: number, direction: number}} movement - The movement value.
+   * @returns {void} No value is returned.
    */
   static applyGroundMovement(robotCat, movement) {
     robotCat.setData("direction", movement.direction);
@@ -194,11 +204,11 @@ export class RobotCatSystem {
   }
 
   /**
-   * Findet das nächste noch nicht überflogene Hindernis vor der Figur.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {number} direction - Aktuelle Bewegungsrichtung (-1 oder 1).
-   * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
-   * @returns {{id: string, x: number}|null} Hindernis oder null.
+   * Finds obstacle ahead.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} direction - The horizontal movement direction.
+   * @param {Phaser.Physics.Arcade.Sprite|null} player - The player-controlled bulldog.
+   * @returns {{id: string, x: number}|null} The resulting string value.
    */
   static findObstacleAhead(robotCat, direction, player = null) {
     const lastObstacleId = robotCat.getData("lastObstacleId");
@@ -214,13 +224,11 @@ export class RobotCatSystem {
   }
 
   /**
-   * Ergänzt ein Hindernis um seinen gerichteten Abstand.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {{id: string, x: number, triggerDistance: number}} obstacle
-   * Hindernisdefinition.
-   * @param {number} direction - Aktuelle Bewegungsrichtung.
-   * @returns {{id: string, x: number, triggerDistance: number,
-   * distance: number}} Hindernis mit gerichtetem Abstand.
+   * Returns obstacle distance.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {{id: string, x: number, triggerDistance: number}} obstacle - The obstacle value.
+   * @param {number} direction - The horizontal movement direction.
+   * @returns {{id: string, x: number, triggerDistance: number, distance: number}} The resulting string value.
    */
   static getObstacleDistance(robotCat, obstacle, direction) {
     return {
@@ -230,11 +238,10 @@ export class RobotCatSystem {
   }
 
   /**
-   * Verbindet statische Boxen mit der Bulldogge als dynamischem Hindernis.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
-   * @returns {{id: string, x: number, triggerDistance: number}[]}
-   * Relevante Hindernisse.
+   * Returns flight obstacles.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite|null} player - The player-controlled bulldog.
+   * @returns {{id: string, x: number, triggerDistance: number}[]} The resulting string value.
    */
   static getFlightObstacles(robotCat, player) {
     const obstacles = ROBOT_CAT.flightObstaclesX.map((x, index) => ({
@@ -249,9 +256,9 @@ export class RobotCatSystem {
   }
 
   /**
-   * Erstellt den Hinderniseintrag für die Bulldogge.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Bulldogge.
-   * @returns {{id: string, x: number, triggerDistance: number}} Hindernis.
+   * Creates player obstacle.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {{id: string, x: number, triggerDistance: number}} The resulting string value.
    */
   static createPlayerObstacle(player) {
     return {
@@ -262,10 +269,10 @@ export class RobotCatSystem {
   }
 
   /**
-   * Berücksichtigt die Bulldogge nur aktiv auf derselben Laufebene.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {Phaser.Physics.Arcade.Sprite|null} player - Bulldogge.
-   * @returns {boolean} Ob die Bulldogge ein Bodenhindernis ist.
+   * Checks the player ground obstacle condition.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite|null} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isPlayerGroundObstacle(robotCat, player) {
     if (!player?.active || !player.body?.enable || player.isKnockedOut) {
@@ -277,9 +284,9 @@ export class RobotCatSystem {
   }
 
   /**
-   * Gibt ein Hindernis nach ausreichendem Abstand wieder frei.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @returns {void}
+   * Resets passed obstacle.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
    */
   static resetPassedObstacle(robotCat) {
     const obstacleX = robotCat.getData("lastObstacleX");

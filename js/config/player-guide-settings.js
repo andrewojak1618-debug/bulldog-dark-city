@@ -1,4 +1,6 @@
-/** Zentrale Inhalte und Darstellungswerte der Spielerklärung. */
+/**
+ * Defines the player guide configuration.
+ */
 export const PLAYER_GUIDE = Object.freeze({
   title: "OPTIONEN & STEUERUNG",
   goal: Object.freeze({
@@ -12,7 +14,10 @@ export const PLAYER_GUIDE = Object.freeze({
     controls: Object.freeze([
       Object.freeze({ input: "A / D oder Pfeiltasten", action: "Laufen" }),
       Object.freeze({ input: "W / Pfeil hoch / Leertaste", action: "Springen" }),
-      Object.freeze({ input: "F / J / Linksklick", action: "Angreifen" }),
+      Object.freeze({
+        input: "F / Linksklick",
+        action: "Angreifen (J optional)",
+      }),
       Object.freeze({ input: "M", action: "Mutation bei vollem Serum" }),
       Object.freeze({ input: "K / L", action: "Wurfknochen verwenden" }),
       Object.freeze({ input: "ESC", action: "Zurück zum Hauptmenü" }),
@@ -23,7 +28,7 @@ export const PLAYER_GUIDE = Object.freeze({
     controls: Object.freeze([
       Object.freeze({ input: "Links / Rechts", action: "Laufen" }),
       Object.freeze({ input: "Pfeil hoch", action: "Springen" }),
-      Object.freeze({ input: "J", action: "Angreifen" }),
+      Object.freeze({ input: "F", action: "Angreifen" }),
       Object.freeze({ input: "M", action: "Mutation bei vollem Serum" }),
       Object.freeze({ input: "K / L", action: "Wurfknochen verwenden" }),
     ]),

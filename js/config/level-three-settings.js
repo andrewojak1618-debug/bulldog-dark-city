@@ -1,6 +1,8 @@
 import { getAssetPath } from "./asset-paths.js";
 
-/** Zentrale Grundwerte des vorbereiteten dritten Levels. */
+/**
+ * Defines the level three configuration.
+ */
 export const LEVEL_THREE = Object.freeze({
   preloadDelayMs: 2_000,
   world: Object.freeze({

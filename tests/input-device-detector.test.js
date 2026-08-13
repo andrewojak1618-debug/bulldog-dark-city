@@ -4,13 +4,13 @@ import { InputDeviceDetector } from
   "../classes/input/input-device-detector.class.js";
 
 /**
- * Führt eine Geräteprüfung mit kontrollierten Media-Query-Werten aus.
- * @param {Record<string, boolean>} queries - Ergebnisse je Media Query.
- * @param {Function} assertion - Auszuführende Prüfung.
- * @param {number} width - Simulierte Breite in CSS-Pixeln.
- * @param {number} height - Simulierte Höhe in CSS-Pixeln.
- * @param {object} browser - Simulierte Browser- und Gerätekennung.
- * @returns {void}
+ * Handles with window stub.
+ * @param {Record<string, boolean>} queries - The queries value.
+ * @param {Function} assertion - The assertion value.
+ * @param {number} width - The width in pixels.
+ * @param {number} height - The height in pixels.
+ * @param {object} browser - The browser value.
+ * @returns {void} No value is returned.
  */
 function withWindowStub(
   queries,

@@ -1,14 +1,16 @@
 import { ENEMY_HEALTH_BAR } from
   "../../js/config/enemy-health-bar-settings.js";
 
-/** Zeigt eine kompakte, weltgebundene Lebensanzeige über einem Gegner. */
+/**
+ * Manages enemy health bar behavior.
+ */
 export class EnemyHealthBar {
   /**
-   * Erstellt und bindet eine Lebensanzeige an ein bewegliches Ziel.
-   * @param {Phaser.Scene} scene - Szene des Gegners.
-   * @param {Phaser.GameObjects.GameObject} target - Verfolgter Gegner.
-   * @param {number} maximum - Maximale Trefferpunkte.
-   * @param {() => number} getCurrent - Liefert aktuelle Trefferpunkte.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.GameObject} target - The target game object.
+   * @param {number} maximum - The maximum value.
+   * @param {() => number} getCurrent - The get current value.
    */
   constructor(scene, target, maximum, getCurrent) {
     this.scene = scene;
@@ -23,8 +25,8 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Erstellt die Zeichenfläche direkt hinter dem verfolgten Gegner.
-   * @returns {Phaser.GameObjects.Graphics} Konfigurierte Zeichenfläche.
+   * Creates graphics.
+   * @returns {Phaser.GameObjects.Graphics} The resulting data object.
    */
   createGraphics() {
     const depth = (this.target.depth ?? 0) +
@@ -33,8 +35,8 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Verbindet Aktualisierung und Bereinigung mit dem Szenenlebenszyklus.
-   * @returns {void}
+   * Binds lifecycle.
+   * @returns {void} No value is returned.
    */
   bindLifecycle() {
     const { scene, target } = this;
@@ -44,9 +46,9 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Begrenzt die Balkenbreite passend zur sichtbaren Gegnergröße.
-   * @param {number} targetWidth - Aktuelle Darstellungsbreite des Gegners.
-   * @returns {number} Begrenzte Balkenbreite.
+   * Calculates width.
+   * @param {number} targetWidth - The target width value.
+   * @returns {number} The resulting numeric value.
    */
   calculateWidth(targetWidth) {
     return Math.min(
@@ -59,8 +61,8 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Aktualisiert Sichtbarkeit, Füllung und Position über dem Gegner.
-   * @returns {void}
+   * Updates the current state.
+   * @returns {void} No value is returned.
    */
   update() {
     const current = Math.max(0, this.getCurrent());
@@ -78,9 +80,9 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Zeichnet den Rahmen und den aktuellen grünen Füllstand neu.
-   * @param {number} current - Aktuelle Trefferpunkte.
-   * @returns {void}
+   * Draws the current state.
+   * @param {number} current - The current value.
+   * @returns {void} No value is returned.
    */
   draw(current) {
     const layout = this.getLayout(current);
@@ -92,9 +94,9 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Berechnet die gemeinsamen Zeichenmaße für den aktuellen Füllstand.
-   * @param {number} current - Aktuelle Trefferpunkte.
-   * @returns {{x: number, y: number, fillWidth: number}} Zeichenmaße.
+   * Returns layout.
+   * @param {number} current - The current value.
+   * @returns {{x: number, y: number, fillWidth: number}} The resulting numeric value.
    */
   getLayout(current) {
     const settings = ENEMY_HEALTH_BAR;
@@ -107,9 +109,9 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Zeichnet den dunklen Untergrund des Balkens.
-   * @param {{x: number, y: number}} layout - Gemeinsame Zeichenmaße.
-   * @returns {void}
+   * Draws background.
+   * @param {{x: number, y: number}} layout - The layout value.
+   * @returns {void} No value is returned.
    */
   drawBackground(layout) {
     const settings = ENEMY_HEALTH_BAR;
@@ -127,9 +129,9 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Zeichnet die von rechts nach links sinkende grüne Füllung.
-   * @param {{x: number, y: number, fillWidth: number}} layout - Zeichenmaße.
-   * @returns {void}
+   * Draws fill.
+   * @param {{x: number, y: number, fillWidth: number}} layout - The layout value.
+   * @returns {void} No value is returned.
    */
   drawFill(layout) {
     const settings = ENEMY_HEALTH_BAR;
@@ -144,9 +146,9 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Zeichnet den kontrastreichen äußeren Rahmen.
-   * @param {{x: number, y: number}} layout - Gemeinsame Zeichenmaße.
-   * @returns {void}
+   * Draws border.
+   * @param {{x: number, y: number}} layout - The layout value.
+   * @returns {void} No value is returned.
    */
   drawBorder(layout) {
     const settings = ENEMY_HEALTH_BAR;
@@ -165,8 +167,8 @@ export class EnemyHealthBar {
   }
 
   /**
-   * Entfernt Anzeige und Ereignisbindungen beim Szenenende.
-   * @returns {void}
+   * Releases the current state.
+   * @returns {void} No value is returned.
    */
   destroy() {
     this.scene?.events.off("update", this.update, this);

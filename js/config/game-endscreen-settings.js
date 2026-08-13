@@ -1,11 +1,13 @@
-/** Unterstützte Abschlussvarianten des gemeinsamen Endscreens. */
+/**
+ * Defines the endscreen result configuration.
+ */
 export const ENDSCREEN_RESULT = Object.freeze({
   gameOver: "gameOver",
   victory: "victory",
 });
 
 /**
- * Bündelt Texte, Farben und Positionen des gemeinsamen Spielendes.
+ * Defines the game endscreen configuration.
  */
 export const GAME_ENDSCREEN = Object.freeze({
   defaultResult: ENDSCREEN_RESULT.gameOver,
@@ -67,9 +69,9 @@ export const GAME_ENDSCREEN = Object.freeze({
 });
 
 /**
- * Bereinigt unbekannte Szenendaten auf eine sichere Endscreen-Variante.
- * @param {string|undefined} result - Von der Videosequenz übergebener Wert.
- * @returns {string} Gültige Abschlussvariante.
+ * Resolves endscreen result.
+ * @param {string|undefined} result - The result value.
+ * @returns {string} The resulting string value.
  */
 export function resolveEndscreenResult(result) {
   return Object.hasOwn(GAME_ENDSCREEN.variants, result)

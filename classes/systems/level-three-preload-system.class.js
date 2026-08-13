@@ -16,12 +16,14 @@ import { LEVEL_MUSIC } from "../../js/config/level-music-settings.js";
 const READY_KEY = "level-three-assets-ready";
 const PROMISE_KEY = "level-three-assets-promise";
 
-/** Laedt Level 3 bereits waehrend des laufenden zweiten Levels vor. */
+/**
+ * Manages level three preload system behavior.
+ */
 export class LevelThreePreloadSystem {
   /**
-   * Stellt gemeinsame und Level-3-exklusive Dateien in den Loader.
-   * @param {Phaser.Scene} scene - Aktive Szene mit Phaser-Loader.
-   * @returns {void}
+   * Queues the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static queue(scene) {
     BulldogAnimationSystem.load(scene);
@@ -35,9 +37,9 @@ export class LevelThreePreloadSystem {
   }
 
   /**
-   * Beginnt das Vorladen nach der ruhigen Einstiegsphase von Level 2.
-   * @param {Phaser.Scene} scene - Aktives Level 2.
-   * @returns {Promise<boolean>} Erfolgsstatus des Hintergrundladens.
+   * Preloads after entry.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Promise<boolean>} Whether the requested condition is met.
    */
   static preloadAfterEntry(scene) {
     return new Promise((resolve) => {
@@ -48,9 +50,9 @@ export class LevelThreePreloadSystem {
   }
 
   /**
-   * Startet den Level-3-Ladevorgang hoechstens einmal pro Spielsitzung.
-   * @param {Phaser.Scene} scene - Aktive Szene.
-   * @returns {Promise<boolean>} Erfolgsstatus des Hintergrundladens.
+   * Preloads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Promise<boolean>} Whether the requested condition is met.
    */
   static preload(scene) {
     return LevelPreloadSystem.preload(scene, {
@@ -61,11 +63,11 @@ export class LevelThreePreloadSystem {
   }
 
   /**
-   * Zeigt bei Bedarf den Ladebildschirm und startet danach Level 3.
-   * @param {Phaser.Scene} scene - Aktives Level 2.
-   * @param {Promise<boolean>} readyPromise - Laufender Ladevorgang.
-   * @param {() => void} onReady - Wechsel in Level 3.
-   * @returns {void}
+   * Handles enter when ready.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Promise<boolean>} readyPromise - The ready promise value.
+   * @param {() => void} onReady - The on ready value.
+   * @returns {void} No value is returned.
    */
   static enterWhenReady(scene, readyPromise, onReady) {
     LevelPreloadSystem.enterWhenReady(
@@ -77,18 +79,18 @@ export class LevelThreePreloadSystem {
   }
 
   /**
-   * Prueft, ob alle Dateien des dritten Levels im Cache liegen.
-   * @param {Phaser.Scene} scene - Beliebige aktive Szene.
-   * @returns {boolean} Ob Level 3 vorbereitet ist.
+   * Checks the ready condition.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isReady(scene) {
     return LevelPreloadSystem.isReady(scene, READY_KEY);
   }
 
   /**
-   * Entfernt die Ladeanzeige nach dem ersten sichtbaren Level-3-Frame.
-   * @param {Phaser.Scene} scene - Vollstaendig aufgebaute Level-3-Szene.
-   * @returns {void}
+   * Completes entry.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static completeEntry(scene) {
     LevelPreloadSystem.hideLoadingOverlayAfterRender(scene);

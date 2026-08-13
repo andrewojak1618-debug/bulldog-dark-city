@@ -18,12 +18,14 @@ import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
 const READY_KEY = "level-two-assets-ready";
 const PROMISE_KEY = "level-two-assets-promise";
 
-/** Lädt Level 2 während des Spielverlaufs von Level 1 vor. */
+/**
+ * Manages level two preload system behavior.
+ */
 export class LevelTwoPreloadSystem {
   /**
-   * Stellt alle gemeinsam und exklusiv benötigten Assets in den Loader.
-   * @param {Phaser.Scene} scene - Szene mit aktivem Loader.
-   * @returns {void}
+   * Queues the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static queue(scene) {
     BulldogAnimationSystem.load(scene);
@@ -41,9 +43,9 @@ export class LevelTwoPreloadSystem {
   }
 
   /**
-   * Startet das Hintergrundladen nach der ruhigen Level-Einstiegsphase.
-   * @param {Phaser.Scene} scene - Aktives Level 1.
-   * @returns {Promise<boolean>} Erfolgsstatus des Hintergrundladens.
+   * Preloads after entry.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Promise<boolean>} Whether the requested condition is met.
    */
   static preloadAfterEntry(scene) {
     return new Promise((resolve) => {
@@ -54,9 +56,9 @@ export class LevelTwoPreloadSystem {
   }
 
   /**
-   * Startet das Hintergrundladen genau einmal pro Spielsitzung.
-   * @param {Phaser.Scene} scene - Aktive Szene.
-   * @returns {Promise<boolean>} Erfolgsstatus des Hintergrundladens.
+   * Preloads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Promise<boolean>} Whether the requested condition is met.
    */
   static preload(scene) {
     return LevelPreloadSystem.preload(scene, {
@@ -67,11 +69,11 @@ export class LevelTwoPreloadSystem {
   }
 
   /**
-   * Wartet bei Bedarf sichtbar auf das Ziellevel und wechselt dann weiter.
-   * @param {Phaser.Scene} scene - Aktives Level 1.
-   * @param {Promise<boolean>} readyPromise - Laufender Ladevorgang.
-   * @param {() => void} onReady - Wechsel in Level 2.
-   * @returns {void}
+   * Handles enter when ready.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Promise<boolean>} readyPromise - The ready promise value.
+   * @param {() => void} onReady - The on ready value.
+   * @returns {void} No value is returned.
    */
   static enterWhenReady(scene, readyPromise, onReady) {
     LevelPreloadSystem.enterWhenReady(
@@ -80,18 +82,18 @@ export class LevelTwoPreloadSystem {
   }
 
   /**
-   * Prüft, ob alle Dateien von Level 2 bereits im Cache liegen.
-   * @param {Phaser.Scene} scene - Beliebige aktive Szene.
-   * @returns {boolean} Ob Level 2 bereit ist.
+   * Checks the ready condition.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isReady(scene) {
     return LevelPreloadSystem.isReady(scene, READY_KEY);
   }
 
   /**
-   * Entfernt die Ladeanzeige erst nach dem ersten sichtbaren Level-2-Frame.
-   * @param {Phaser.Scene} scene - Vollstaendig aufgebaute Level-2-Szene.
-   * @returns {void}
+   * Completes entry.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static completeEntry(scene) {
     LevelPreloadSystem.hideLoadingOverlayAfterRender(scene);

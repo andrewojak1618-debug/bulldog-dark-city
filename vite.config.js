@@ -5,36 +5,37 @@ import { defineConfig } from "vite";
 const STATIC_ASSET_DIRECTORIES = Object.freeze(["img", "data", "audio"]);
 
 /**
- * Kopiert statische Phaser-Assets nach dem Vite-Build in den dist-Ordner.
- * Dadurch enthält der FTP-Upload neben dem Bundle auch alle Laufzeitdateien.
- * @returns {import("vite").Plugin} Vite-Plugin für statische Spielassets.
+ * Copies one existing static asset directory.
+ * @param {string} directory - The asset directory name.
+ * @returns {Promise<void>} Resolves after the copy attempt.
+ */
+async function copyAssetDirectory(directory) {
+  const source = resolve(directory);
+  try {
+    await access(source);
+  } catch {
+    return;
+  }
+  await cp(source, resolve("dist", directory), {
+    recursive: true,
+    force: true,
+  });
+}
+
+/**
+ * Copies static Phaser assets into the distribution directory after a build.
+ * @returns {import("vite").Plugin} The static game asset plugin.
  */
 function copyStaticAssets() {
   return {
     name: "copy-static-game-assets",
     apply: "build",
-
     /**
-     * Ergänzt den fertigen Produktionsordner um unverarbeitete Assetordner.
+     * Adds the unprocessed asset directories to the production output.
      * @returns {Promise<void>}
      */
     async closeBundle() {
-      await Promise.all(
-        STATIC_ASSET_DIRECTORIES.map(async (directory) => {
-          const source = resolve(directory);
-
-          try {
-            await access(source);
-          } catch {
-            return;
-          }
-
-          await cp(source, resolve("dist", directory), {
-            recursive: true,
-            force: true,
-          });
-        }),
-      );
+      await Promise.all(STATIC_ASSET_DIRECTORIES.map(copyAssetDirectory));
     },
   };
 }

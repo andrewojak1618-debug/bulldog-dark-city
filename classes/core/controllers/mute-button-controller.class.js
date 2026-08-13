@@ -1,33 +1,31 @@
 let activeMuteButtonController = null;
 
 /**
- * Blendet den globalen Mute-Button bei Szenen- und Videowechseln ein oder aus.
- * @param {boolean} isVisible - Gewünschte Sichtbarkeit des Buttons.
- * @returns {void}
+ * Sets mute button visibility.
+ * @param {boolean} isVisible - The is visible value.
+ * @returns {void} No value is returned.
  */
 export function setMuteButtonVisibility(isVisible) {
   activeMuteButtonController?.setVisible(isVisible);
 }
 
 /**
- * Wechselt zwischen der Menü- und Spielposition des globalen Mute-Buttons.
- * @param {boolean} isGameMode - Ob die Position oberhalb des HUDs aktiv ist.
- * @returns {void}
+ * Sets mute button game mode.
+ * @param {boolean} isGameMode - The is game mode value.
+ * @returns {void} No value is returned.
  */
 export function setMuteButtonGameMode(isGameMode) {
   activeMuteButtonController?.setGameMode(isGameMode);
 }
 
-/** Steuert den globalen, barrierearmen Mute-Button außerhalb des Canvas. */
+/**
+ * Manages mute button controller behavior.
+ */
 export class MuteButtonController {
   /**
-   * Verknüpft den sichtbaren Button mit dem globalen Audiozustand.
-   * @param {import(
-   * "../../systems/global-mute-system.class.js"
-   * ).GlobalMuteSystem} muteSystem - Zentrale Audiosteuerung.
-   * @param {HTMLButtonElement|null} [button=document.getElementById(
-   * "mute-toggle"
-   * )] - Globaler Mute-Button.
+   * Creates a new instance.
+   * @param {import( "../../systems/global-mute-system.class.js" ).GlobalMuteSystem} muteSystem - The mute system value.
+   * @param {HTMLButtonElement|null} [button=document.getElementById( "mute-toggle" )] - The button value.
    */
   constructor(
     muteSystem,
@@ -44,9 +42,9 @@ export class MuteButtonController {
   }
 
   /**
-   * Aktualisiert Symbol, Tooltip und Screenreader-Information gemeinsam.
-   * @param {boolean} muted - Aktueller globaler Mute-Zustand.
-   * @returns {void}
+   * Renders the current state.
+   * @param {boolean} muted - The muted value.
+   * @returns {void} No value is returned.
    */
   render(muted) {
     if (!this.button) return;
@@ -60,9 +58,9 @@ export class MuteButtonController {
   }
 
   /**
-   * Schaltet Sichtbarkeit und Bedienbarkeit gemeinsam um.
-   * @param {boolean} isVisible - Ob der Button angezeigt werden soll.
-   * @returns {void}
+   * Sets visible.
+   * @param {boolean} isVisible - The is visible value.
+   * @returns {void} No value is returned.
    */
   setVisible(isVisible) {
     if (!this.button) return;
@@ -74,9 +72,9 @@ export class MuteButtonController {
   }
 
   /**
-   * Positioniert den Button passend zum Menü oder zum Level-HUD.
-   * @param {boolean} isGameMode - Ob die Spielposition verwendet wird.
-   * @returns {void}
+   * Sets game mode.
+   * @param {boolean} isGameMode - The is game mode value.
+   * @returns {void} No value is returned.
    */
   setGameMode(isGameMode) {
     this.button?.classList.toggle("mute-toggle--game", isGameMode);

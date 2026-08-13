@@ -1,10 +1,12 @@
-/** Steuert ausschließlich die stufenweise Bewegung der Aufklärungsdrohne. */
+/**
+ * Manages level two scout drone system behavior.
+ */
 export class LevelTwoScoutDroneSystem {
   /**
-   * Aktualisiert Pause, vertikale Bewegung und nächsten Bewegungsschritt.
-   * @param {Phaser.GameObjects.Sprite} sprite - Alarmierte Drohne.
-   * @param {number} delta - Zeit seit dem letzten Frame in Millisekunden.
-   * @returns {void}
+   * Updates the current state.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static update(sprite, delta) {
     const drone = sprite.getData("drone");
@@ -15,10 +17,10 @@ export class LevelTwoScoutDroneSystem {
   }
 
   /**
-   * Reduziert die Pause zwischen zwei sichtbaren Stufen.
-   * @param {Phaser.GameObjects.Sprite} sprite - Aufklärungsdrohne.
-   * @param {number} delta - Vergangene Zeit in Millisekunden.
-   * @returns {boolean} `true`, solange die Pause noch läuft.
+   * Updates pause.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static updatePause(sprite, delta) {
     const remaining = Math.max(
@@ -30,11 +32,11 @@ export class LevelTwoScoutDroneSystem {
   }
 
   /**
-   * Bewegt die Drohne ohne Überschwingen zur aktuellen Stufe.
-   * @param {Phaser.GameObjects.Sprite} sprite - Aufklärungsdrohne.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @param {number} delta - Vergangene Zeit in Millisekunden.
-   * @returns {boolean} `true`, wenn die Stufe erreicht wurde.
+   * Moves to current step.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {object} drone - The drone value.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static moveToCurrentStep(sprite, drone, delta) {
     const step = sprite.getData("scoutStep");
@@ -48,10 +50,10 @@ export class LevelTwoScoutDroneSystem {
   }
 
   /**
-   * Kehrt an den Endpunkten um und legt die nächste Stufe fest.
-   * @param {Phaser.GameObjects.Sprite} sprite - Aufklärungsdrohne.
-   * @param {object} drone - Konfiguration der Drohnenvariante.
-   * @returns {void}
+   * Handles advance step.
+   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
+   * @param {object} drone - The drone value.
+   * @returns {void} No value is returned.
    */
   static advanceStep(sprite, drone) {
     const step = sprite.getData("scoutStep");

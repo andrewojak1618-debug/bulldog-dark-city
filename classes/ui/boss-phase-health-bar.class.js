@@ -2,12 +2,14 @@ import Phaser from "phaser";
 import { ROBOT_CAT_HEALTH_BAR } from
   "../../js/config/robot-cat-settings.js";
 
-/** Zeigt neun Boss-Lebenspunkte in drei farbigen Phasen an. */
+/**
+ * Manages boss phase health bar behavior.
+ */
 export class BossPhaseHealthBar extends Phaser.GameObjects.Container {
   /**
-   * Erstellt die kamerafeste Bossanzeige und verbindet sie mit dem Lebenssystem.
-   * @param {Phaser.Scene} scene - Aktive Boss-Szene.
-   * @param {import("../systems/health-system.class.js").HealthSystem} health - Bossleben.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import("../systems/health-system.class.js").HealthSystem} health - The associated health system.
    */
   constructor(scene, health) {
     const settings = ROBOT_CAT_HEALTH_BAR;
@@ -21,9 +23,9 @@ export class BossPhaseHealthBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Verbindet die Anzeige mit dem Bossleben und entfernt den Listener sauber.
-   * @param {import("../systems/health-system.class.js").HealthSystem} health - Bossleben.
-   * @returns {void}
+   * Binds health.
+   * @param {import("../systems/health-system.class.js").HealthSystem} health - The associated health system.
+   * @returns {void} No value is returned.
    */
   bindHealth(health) {
     const unsubscribe = health.onChange((current, maximum) => {
@@ -33,10 +35,10 @@ export class BossPhaseHealthBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet Rahmen, leere Slots und die noch aktiven Farbsegmente neu.
-   * @param {number} current - Aktuell vorhandene Lebenspunkte.
-   * @param {number} maximum - Maximale Anzahl der Lebenspunkte.
-   * @returns {void}
+   * Draws the current state.
+   * @param {number} current - The current value.
+   * @param {number} maximum - The maximum value.
+   * @returns {void} No value is returned.
    */
   draw(current, maximum) {
     const settings = this.settings;
@@ -49,8 +51,8 @@ export class BossPhaseHealthBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet den dezenten gemeinsamen Hintergrund der Bossanzeige.
-   * @returns {void}
+   * Draws background.
+   * @returns {void} No value is returned.
    */
   drawBackground() {
     const settings = this.settings;
@@ -62,9 +64,9 @@ export class BossPhaseHealthBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Berechnet eine einheitliche Breite für alle neun Lebenssegmente.
-   * @param {number} maximum - Anzahl der anzuzeigenden Segmente.
-   * @returns {number} Breite eines einzelnen Segments.
+   * Returns segment width.
+   * @param {number} maximum - The maximum value.
+   * @returns {number} The resulting numeric value.
    */
   getSegmentWidth(maximum) {
     const settings = this.settings;
@@ -74,29 +76,34 @@ export class BossPhaseHealthBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet ein einzelnes Segment in Phasenfarbe oder als leeren Slot.
-   * @param {number} index - Nullbasierter Segmentindex.
-   * @param {boolean} isActive - Ob der Lebenspunkt noch vorhanden ist.
-   * @param {number} segmentWidth - Berechnete Segmentbreite.
-   * @returns {void}
+   * Draws segment.
+   * @param {number} index - The zero-based item index.
+   * @param {boolean} isActive - The is active value.
+   * @param {number} segmentWidth - The segment width value.
+   * @returns {void} No value is returned.
    */
   drawSegment(index, isActive, segmentWidth) {
     const settings = this.settings;
     const groupIndex = Math.floor(index / 3);
-    const gapCount = index - groupIndex;
-    const x = -settings.width / 2 + settings.padding +
-      index * segmentWidth + gapCount * settings.segmentGap +
-      groupIndex * settings.groupGap;
-    const y = settings.padding;
+    const x = this.getSegmentX(index, groupIndex, segmentWidth);
     const color = isActive ? settings.phaseColors[groupIndex] :
       settings.emptyColor;
     const alpha = isActive ? 1 : settings.emptyAlpha;
-    this.graphics.fillStyle(color, alpha).fillRoundedRect(
-      x,
-      y,
-      segmentWidth,
-      settings.height - settings.padding * 2,
-      2,
-    );
+    this.graphics.fillStyle(color, alpha).fillRoundedRect(x, settings.padding,
+      segmentWidth, settings.height - settings.padding * 2, 2);
+  }
+
+  /**
+   * Returns a boss health segment's horizontal position.
+   * @param {number} index - The segment index.
+   * @param {number} groupIndex - The phase group index.
+   * @param {number} segmentWidth - The segment width.
+   * @returns {number} The horizontal position.
+   */
+  getSegmentX(index, groupIndex, segmentWidth) {
+    const settings = this.settings;
+    const gapCount = index - groupIndex;
+    return -settings.width / 2 + settings.padding + index * segmentWidth +
+      gapCount * settings.segmentGap + groupIndex * settings.groupGap;
   }
 }

@@ -1,13 +1,12 @@
 const MUTE_STORAGE_KEY = "bulldog-dark-city.audio-muted";
 
 /**
- * Verwaltet den globalen Tonzustand für Phaser-Audio und HTML-Videos.
+ * Manages global mute system behavior.
  */
 export class GlobalMuteSystem {
   /**
-   * Liest die gespeicherte Einstellung aus einem sicheren Storage-Zugriff.
-   * @param {Storage|null} [storage=GlobalMuteSystem.getDefaultStorage()]
-   * Persistenter Browserspeicher oder ein Testersatz.
+   * Creates a new instance.
+   * @param {Storage|null} [storage=GlobalMuteSystem.getDefaultStorage()] - The storage implementation to use.
    */
   constructor(storage = GlobalMuteSystem.getDefaultStorage()) {
     this.storage = storage;
@@ -18,8 +17,8 @@ export class GlobalMuteSystem {
   }
 
   /**
-   * Ermittelt LocalStorage, ohne bei blockierten Browserdaten abzubrechen.
-   * @returns {Storage|null} Verfügbarer Browserspeicher oder null.
+   * Returns default storage.
+   * @returns {Storage|null} The resulting value.
    */
   static getDefaultStorage() {
     try {
@@ -30,9 +29,9 @@ export class GlobalMuteSystem {
   }
 
   /**
-   * Verknüpft den Zustand mit Phasers globalem Sound-Manager.
-   * @param {Phaser.Game} game - Laufende Spielinstanz.
-   * @returns {void}
+   * Handles attach game.
+   * @param {Phaser.Game} game - The game value.
+   * @returns {void} No value is returned.
    */
   attachGame(game) {
     this.game = game;
@@ -40,16 +39,16 @@ export class GlobalMuteSystem {
   }
 
   /**
-   * Gibt zurück, ob sämtliche Spieltöne aktuell stummgeschaltet sind.
-   * @returns {boolean} Aktueller globaler Mute-Zustand.
+   * Checks the muted condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isMuted() {
     return this.muted;
   }
 
   /**
-   * Wechselt den Zustand und speichert ihn dauerhaft im Browser.
-   * @returns {boolean} Neuer Mute-Zustand.
+   * Toggles the current state.
+   * @returns {boolean} Whether the requested condition is met.
    */
   toggle() {
     this.setMuted(!this.muted);
@@ -57,9 +56,9 @@ export class GlobalMuteSystem {
   }
 
   /**
-   * Setzt den Zustand für Audio, Videos, UI und LocalStorage gemeinsam.
-   * @param {boolean} muted - Gewünschter Mute-Zustand.
-   * @returns {void}
+   * Sets muted.
+   * @param {boolean} muted - The muted value.
+   * @returns {void} No value is returned.
    */
   setMuted(muted) {
     const nextState = Boolean(muted);
@@ -77,9 +76,9 @@ export class GlobalMuteSystem {
   }
 
   /**
-   * Meldet ein Phaser-Video beim globalen Mute-System an.
-   * @param {Phaser.GameObjects.Video} video - Zu synchronisierendes Video.
-   * @returns {Function} Funktion zum sicheren Abmelden des Videos.
+   * Registers video.
+   * @param {Phaser.GameObjects.Video} video - The video value.
+   * @returns {Function} The generated callback function.
    */
   registerVideo(video) {
     if (!video) return () => {};
@@ -89,9 +88,9 @@ export class GlobalMuteSystem {
   }
 
   /**
-   * Informiert eine Oberfläche sofort und bei jeder Zustandsänderung.
-   * @param {Function} listener - Empfänger des aktuellen Boolean-Werts.
-   * @returns {Function} Funktion zum Abmelden des Empfängers.
+   * Handles on change.
+   * @param {Function} listener - The listener value.
+   * @returns {Function} The generated callback function.
    */
   onChange(listener) {
     this.listeners.add(listener);
@@ -100,8 +99,8 @@ export class GlobalMuteSystem {
   }
 
   /**
-   * Liest ausschließlich einen explizit gespeicherten Wahrheitswert.
-   * @returns {boolean} Persistierter Zustand oder false als sicherer Standard.
+   * Reads stored state.
+   * @returns {boolean} Whether the requested condition is met.
    */
   readStoredState() {
     try {
@@ -112,8 +111,8 @@ export class GlobalMuteSystem {
   }
 
   /**
-   * Speichert den aktuellen Zustand, sofern Browserdaten erlaubt sind.
-   * @returns {void}
+   * Handles store state.
+   * @returns {void} No value is returned.
    */
   storeState() {
     try {
@@ -124,30 +123,32 @@ export class GlobalMuteSystem {
   }
 
   /**
-   * Übergibt den Zustand an alle Musik- und Effektinstanzen von Phaser.
-   * @returns {void}
+   * Applies to game.
+   * @returns {void} No value is returned.
    */
   applyToGame() {
     if (this.game?.sound) this.game.sound.mute = this.muted;
   }
 
   /**
-   * Synchronisiert alle derzeit laufenden Videosequenzen.
-   * @returns {void}
+   * Applies to videos.
+   * @returns {void} No value is returned.
    */
   applyToVideos() {
     this.videos.forEach((video) => this.applyToVideo(video));
   }
 
   /**
-   * Wendet den globalen Zustand auf eine einzelne Videoinstanz an.
-   * @param {Phaser.GameObjects.Video} video - Zu aktualisierendes Video.
-   * @returns {void}
+   * Applies to video.
+   * @param {Phaser.GameObjects.Video} video - The video value.
+   * @returns {void} No value is returned.
    */
   applyToVideo(video) {
     if (video?.setMute) video.setMute(this.muted);
   }
 }
 
-/** Gemeinsame Instanz für alle Szenen und Browser-Steuerelemente. */
+/**
+ * Defines the global mute system configuration.
+ */
 export const globalMuteSystem = new GlobalMuteSystem();

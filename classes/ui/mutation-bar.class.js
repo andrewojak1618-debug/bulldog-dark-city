@@ -1,11 +1,13 @@
 import Phaser from "phaser";
 import { HUD } from "../../js/config/hud-settings.js";
 
-/** Stellt nach der Freischaltung den alleinigen Mutationsrahmen dar. */
+/**
+ * Manages mutation bar behavior.
+ */
 export class MutationBar extends Phaser.GameObjects.Container {
   /**
-   * Erstellt den zunächst außerhalb des Canvas verborgenen Mutationsrahmen.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
    */
   constructor(scene) {
     const settings = HUD.mutation;
@@ -23,8 +25,8 @@ export class MutationBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Lässt den Mutationsrahmen nach dem normalen HUD ins Canvas gleiten.
-   * @returns {Phaser.Tweens.Tween} Laufender Einblendtween.
+   * Shows the current state.
+   * @returns {Phaser.Tweens.Tween} The resulting value.
    */
   show() {
     const settings = HUD.mutation;
@@ -40,9 +42,9 @@ export class MutationBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet den aktuellen grünen Energiefüllstand.
-   * @param {number} value - Normalisierter Energiewert zwischen null und eins.
-   * @returns {void}
+   * Draws energy.
+   * @param {number} value - The value to process.
+   * @returns {void} No value is returned.
    */
   drawEnergy(value) {
     const settings = HUD.mutation;
@@ -55,9 +57,9 @@ export class MutationBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet den weichen Außenbereich der Mutationsenergie.
-   * @param {number} width - Aktuelle Breite der Energiefüllung.
-   * @returns {void}
+   * Draws energy glow.
+   * @param {number} width - The width in pixels.
+   * @returns {void} No value is returned.
    */
   drawEnergyGlow(width) {
     const settings = HUD.mutation;
@@ -72,9 +74,9 @@ export class MutationBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet den kräftigen Kern der Mutationsenergie.
-   * @param {number} width - Aktuelle Breite der Energiefüllung.
-   * @returns {void}
+   * Draws energy core.
+   * @param {number} width - The width in pixels.
+   * @returns {void} No value is returned.
    */
   drawEnergyCore(width) {
     const settings = HUD.mutation;
@@ -88,7 +90,9 @@ export class MutationBar extends Phaser.GameObjects.Container {
     );
   }
 
-  /** Setzt die Mutation-Bar ohne zeitliche Verzögerung vollständig voll. */
+  /**
+   * Handles fill.
+   */
   fill() {
     this.energyTween?.stop();
     this.energy.value = 1;
@@ -96,10 +100,10 @@ export class MutationBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Leert die Energie gleichmäßig und meldet den Abschluss.
-   * @param {number} duration - Dauer der Entleerung in Millisekunden.
-   * @param {() => void} onComplete - Aktion nach vollständiger Entleerung.
-   * @returns {Phaser.Tweens.Tween} Laufender Entleerungstween.
+   * Handles drain.
+   * @param {number} duration - The duration in milliseconds.
+   * @param {() => void} onComplete - The callback invoked after completion.
+   * @returns {Phaser.Tweens.Tween} The resulting value.
    */
   drain(duration, onComplete) {
     this.energyTween?.stop();
@@ -115,8 +119,8 @@ export class MutationBar extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Blendet den Mutationsrahmen nach links aus dem Canvas aus.
-   * @returns {Phaser.Tweens.Tween} Laufender Ausblendtween.
+   * Hides the current state.
+   * @returns {Phaser.Tweens.Tween} The resulting value.
    */
   hide() {
     const settings = HUD.mutation;

@@ -1,7 +1,7 @@
 import { getAssetPath } from "./asset-paths.js";
 
 /**
- * Zentrale Darstellung und Ablaufwerte des Ausgangs von Level eins.
+ * Defines the level exit configuration.
  */
 export const LEVEL_EXIT = Object.freeze({
   textureKey: "level-one-exit-sign",

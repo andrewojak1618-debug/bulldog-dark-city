@@ -2,13 +2,13 @@ import { TEST_LEVEL } from "../../js/config/test-level-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
- * Lädt und erzeugt sämtliche Boden- und Plattformflächen von Level eins.
+ * Manages level one platform system behavior.
  */
 export class LevelOnePlatformSystem {
   /**
-   * Lädt die Grafiken der Bodenfläche und erhöhten Plattformen.
-   * @param {Phaser.Scene} scene - Aktive Level-1-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     const ground = TEST_LEVEL.assets.groundPlatform;
@@ -18,9 +18,9 @@ export class LevelOnePlatformSystem {
   }
 
   /**
-   * Erstellt alle Kollisionen und ihre sichtbaren Plattformgrafiken.
-   * @param {Phaser.Scene} scene - Aktive Level-1-Szene.
-   * @returns {Phaser.Physics.Arcade.StaticGroup} Kollisionsgruppe.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.Physics.Arcade.StaticGroup} The created instance.
    */
   static create(scene) {
     const platforms = scene.physics.add.staticGroup();
@@ -31,12 +31,12 @@ export class LevelOnePlatformSystem {
   }
 
   /**
-   * Erstellt eine konfigurierte Plattform mit passender Darstellung.
-   * @param {Phaser.Scene} scene - Aktive Level-1-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @param {object} config - Plattformkonfiguration.
-   * @param {boolean} isGround - Kennzeichnet die durchgehende Bodenfläche.
-   * @returns {void}
+   * Creates platform.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {object} config - The configuration values to use.
+   * @param {boolean} isGround - The is ground value.
+   * @returns {void} No value is returned.
    */
   static createPlatform(scene, platforms, config, isGround) {
     const hasVisual = Number.isInteger(config.visualFrame);
@@ -49,13 +49,13 @@ export class LevelOnePlatformSystem {
   }
 
   /**
-   * Erzeugt eine einzelne unsichtbare oder technische Kollisionsfläche.
-   * @param {Phaser.Scene} scene - Aktive Level-1-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @param {{x: number, y: number, width: number, height: number}} area - Fläche.
-   * @param {boolean} isGround - Kennzeichnet den Hauptboden.
-   * @param {boolean} hasVisual - Kennzeichnet eine vorhandene Plattformgrafik.
-   * @returns {void}
+   * Creates collision.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {{x: number, y: number, width: number, height: number}} area - The area value.
+   * @param {boolean} isGround - The is ground value.
+   * @param {boolean} hasVisual - The has visual value.
+   * @returns {void} No value is returned.
    */
   static createCollision(scene, platforms, area, isGround, hasVisual) {
     const debug = TEST_LEVEL.platformDebug;
@@ -74,11 +74,10 @@ export class LevelOnePlatformSystem {
   }
 
   /**
-   * Berechnet normale oder abgestufte Kollisionsflächen.
-   * @param {object} config - Plattformkonfiguration.
-   * @param {number} edgeInset - Rücksprung an den äußeren Kanten.
-   * @returns {Array<{x: number, y: number, width: number, height: number}>}
-   * Kollisionsflächen von links nach rechts.
+   * Returns collision areas.
+   * @param {object} config - The configuration values to use.
+   * @param {number} edgeInset - The edge inset value.
+   * @returns {Array<{x: number, y: number, width: number, height: number}>} The resulting numeric value.
    */
   static getCollisionAreas(config, edgeInset = 0) {
     if (!config.stepDown) {
@@ -88,11 +87,10 @@ export class LevelOnePlatformSystem {
   }
 
   /**
-   * Teilt eine abgestufte Plattform in zwei Kollisionsflächen.
-   * @param {object} config - Plattformkonfiguration mit Abstufung.
-   * @param {number} edgeInset - Rücksprung an den äußeren Kanten.
-   * @returns {Array<{x: number, y: number, width: number, height: number}>}
-   * Angepasste Teilflächen.
+   * Returns stepped collision areas.
+   * @param {object} config - The configuration values to use.
+   * @param {number} edgeInset - The edge inset value.
+   * @returns {Array<{x: number, y: number, width: number, height: number}>} The resulting numeric value.
    */
   static getSteppedCollisionAreas(config, edgeInset) {
     const { splitRatio, splitOffsetX = 0, dropY } = config.stepDown;
@@ -112,23 +110,22 @@ export class LevelOnePlatformSystem {
   }
 
   /**
-   * Erstellt Positionsdaten für eine Kollisionsfläche.
-   * @param {number} left - Linke Außenkante.
-   * @param {number} width - Breite der Fläche.
-   * @param {number} y - Vertikale Mitte.
-   * @param {number} height - Höhe der Fläche.
-   * @returns {{x: number, y: number, width: number, height: number}} Fläche.
+   * Creates area.
+   * @param {number} left - The left value.
+   * @param {number} width - The width in pixels.
+   * @param {number} y - The vertical position.
+   * @param {number} height - The height in pixels.
+   * @returns {{x: number, y: number, width: number, height: number}} The resulting numeric value.
    */
   static createArea(left, width, y, height) {
     return { x: left + width / 2, y, width, height };
   }
 
   /**
-   * Verkürzt ausschließlich die beiden äußeren Plattformenden.
-   * @param {Array<{x: number, y: number, width: number, height: number}>} areas - Flächen.
-   * @param {number} edgeInset - Rücksprung pro äußerer Kante.
-   * @returns {Array<{x: number, y: number, width: number, height: number}>}
-   * Flächen mit unveränderten inneren Fallkanten.
+   * Handles inset outer edges.
+   * @param {Array<{x: number, y: number, width: number, height: number}>} areas - The areas value.
+   * @param {number} edgeInset - The edge inset value.
+   * @returns {Array<{x: number, y: number, width: number, height: number}>} The resulting numeric value.
    */
   static insetOuterEdges(areas, edgeInset) {
     return areas.map((area, index) => {
@@ -143,10 +140,10 @@ export class LevelOnePlatformSystem {
   }
 
   /**
-   * Verkleidet die Boden-Kollision mit der Straßenplattform.
-   * @param {Phaser.Scene} scene - Aktive Level-1-Szene.
-   * @param {object} config - Bodenposition und Maße.
-   * @returns {void}
+   * Creates ground visual.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} config - The configuration values to use.
+   * @returns {void} No value is returned.
    */
   static createGroundVisual(scene, config) {
     const ground = TEST_LEVEL.assets.groundPlatform;
@@ -162,22 +159,22 @@ export class LevelOnePlatformSystem {
   }
 
   /**
-   * Erzeugt ein überlappendes Segment der durchgehenden Bodenplatte.
-   * @param {Phaser.Scene} scene - Aktive Level-1-Szene.
-   * @param {object} ground - Zentrale Boden-Assetkonfiguration.
-   * @param {number} x - Linke Position des Segments.
-   * @param {number} y - Obere Position des Segments.
-   * @returns {Phaser.GameObjects.Image} Erstelltes Bodensegment.
+   * Creates ground segment.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} ground - The ground value.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @returns {Phaser.GameObjects.Image} The resulting data object.
    */
   static createGroundSegment(scene, ground, x, y) {
     return scene.add.image(x, y, ground.key, ground.frame).setOrigin(0, 0);
   }
 
   /**
-   * Verkleidet eine erhöhte Kollision mit ihrer Plattformvariante.
-   * @param {Phaser.Scene} scene - Aktive Level-1-Szene.
-   * @param {object} config - Plattformposition, Maße und Grafikframe.
-   * @returns {void}
+   * Creates raised visual.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} config - The configuration values to use.
+   * @returns {void} No value is returned.
    */
   static createRaisedVisual(scene, config) {
     const floating = TEST_LEVEL.assets.floatingPlatform;

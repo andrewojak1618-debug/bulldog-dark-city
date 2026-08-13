@@ -1,12 +1,14 @@
 import { LEVEL_THREE } from "../../js/config/level-three-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
-/** Lädt und erstellt die kollidierbaren Hindernisse des dritten Levels. */
+/**
+ * Manages level three obstacle system behavior.
+ */
 export class LevelThreeObstacleSystem {
   /**
-   * Lädt die Spritesheets aller konfigurierten Katzenboxen.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     this.getCatBoxSettings().forEach((settings) => {
@@ -15,11 +17,11 @@ export class LevelThreeObstacleSystem {
   }
 
   /**
-   * Erstellt Animation, Grafik und statische Kollision aller Katzenboxen.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @param {number} surfaceY - Gemeinsame Laufkante von Boden und Box.
-   * @returns {Phaser.GameObjects.Sprite[]} Sichtbare Katzenboxen.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {number} surfaceY - The surface y value.
+   * @returns {Phaser.GameObjects.Sprite[]} The resulting collection.
    */
   static create(scene, platforms, surfaceY) {
     return this.getCatBoxSettings().map((settings) =>
@@ -28,12 +30,12 @@ export class LevelThreeObstacleSystem {
   }
 
   /**
-   * Erstellt eine konfigurierte Katzenbox samt Animation und Kollision.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @param {object} settings - Zentrale Boxkonfiguration.
-   * @param {number} surfaceY - Gemeinsame Laufkante von Boden und Box.
-   * @returns {Phaser.GameObjects.Sprite} Sichtbare Katzenbox.
+   * Creates cat box.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {object} settings - The configuration values to use.
+   * @param {number} surfaceY - The surface y value.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   static createCatBox(scene, platforms, settings, surfaceY) {
     const bottomY = surfaceY + settings.verticalOffsetY;
@@ -48,18 +50,18 @@ export class LevelThreeObstacleSystem {
   }
 
   /**
-   * Gibt alle zentral konfigurierten Katzenboxen zurück.
-   * @returns {object[]} Konfigurationen der Level-3-Katzenboxen.
+   * Returns cat box settings.
+   * @returns {object[]} The resulting collection.
    */
   static getCatBoxSettings() {
     return [LEVEL_THREE.catBoxSmall, LEVEL_THREE.catBoxLarge];
   }
 
   /**
-   * Registriert die dezente Pulsanimation genau einmal.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {object} settings - Zentrale Boxkonfiguration.
-   * @returns {void}
+   * Registers animation.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @returns {void} No value is returned.
    */
   static registerAnimation(scene, settings) {
     if (scene.anims.exists(settings.animationKey)) return;
@@ -76,12 +78,12 @@ export class LevelThreeObstacleSystem {
   }
 
   /**
-   * Legt die Oberkante der Hitbox passend unter die sichtbare Boxoberkante.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @param {object} settings - Zentrale Boxkonfiguration.
-   * @param {number} bottomY - Vertikal korrigierte Unterkante der Box.
-   * @returns {Phaser.GameObjects.Rectangle} Unsichtbare statische Hitbox.
+   * Creates collision.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {object} settings - The configuration values to use.
+   * @param {number} bottomY - The bottom y value.
+   * @returns {Phaser.GameObjects.Rectangle} The resulting data object.
    */
   static createCollision(scene, platforms, settings, bottomY) {
     const collision = scene.add.rectangle(

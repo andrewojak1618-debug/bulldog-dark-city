@@ -31,20 +31,20 @@ import { SCENES } from "../../../js/config/game-settings.js";
 import { LEVEL_TWO } from "../../../js/config/level-two-settings.js";
 
 /**
- * Koordiniert Aufbau, Steuerung und Kamera des zweiten Levels.
+ * Manages level two scene behavior.
  */
 export class LevelTwoScene extends Phaser.Scene {
-  /** Erstellt die Szene mit dem zentral konfigurierten Szenenschlüssel. */
+  /**
+   * Creates a new instance.
+   */
   constructor() {
     super(SCENES.levelTwo);
   }
 
   /**
-   * Übernimmt optional den Spielstand aus Level eins.
-   * @param {{playerState?: {health?: number,
-   * collectibles?: Record<string, number>},
-   * enterFromPreviousLevel?: boolean}} [data={}] - Szenendaten.
-   * @returns {void}
+   * Handles init.
+   * @param {{playerState?: {health?: number, collectibles?: Record<string, number>}, enterFromPreviousLevel?: boolean}} [data={}] - The data value.
+   * @returns {void} No value is returned.
    */
   init(data = {}) {
     LevelSceneSystem.initialize(this, data);
@@ -52,8 +52,8 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Lädt Spielfigur, Umgebung und Hindernisse des zweiten Levels.
-   * @returns {void}
+   * Preloads the current state.
+   * @returns {void} No value is returned.
    */
   preload() {
     if (!LevelTwoPreloadSystem.isReady(this)) {
@@ -62,8 +62,8 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Baut das zweite Level in seiner fachlichen Reihenfolge auf.
-   * @returns {void}
+   * Creates the current state.
+   * @returns {void} No value is returned.
    */
   create() {
     setMuteButtonGameMode(true);
@@ -76,13 +76,17 @@ export class LevelTwoScene extends Phaser.Scene {
     LevelTwoPreloadSystem.completeEntry(this);
   }
 
-  /** Bereitet Level drei im Hintergrund auf den späteren Wechsel vor. */
+  /**
+   * Handles prepare level transition.
+   */
   prepareLevelTransition() {
     this.levelThreeAssetsReady =
       LevelThreePreloadSystem.preloadAfterEntry(this);
   }
 
-  /** Erstellt Umgebung, Ausgang und kollidierbare Levelobjekte. */
+  /**
+   * Creates world content.
+   */
   createWorldContent() {
     this.configureWorld();
     LevelTwoEnvironmentSystem.create(this);
@@ -93,7 +97,9 @@ export class LevelTwoScene extends Phaser.Scene {
     this.createObstacles();
   }
 
-  /** Erstellt Gegner, Spielfigur und zugehörige Animationen. */
+  /**
+   * Creates gameplay actors.
+   */
   createGameplayActors() {
     this.mutantCats = MutantCatSystem.create(this, this.platforms);
     EnemyHealthBarSystem.attachMutantCats(this, this.mutantCats);
@@ -102,7 +108,9 @@ export class LevelTwoScene extends Phaser.Scene {
     this.createPlayer();
   }
 
-  /** Verknüpft Kamera, HUD, Items, Treffer und Belohnungen. */
+  /**
+   * Creates gameplay services.
+   */
   createGameplayServices() {
     this.createBackgroundMusic();
     this.captureSystem = new LevelTwoCaptureSystem(this);
@@ -112,7 +120,9 @@ export class LevelTwoScene extends Phaser.Scene {
     this.createCombatServices();
   }
 
-  /** Verknüpft Raketenangriffe und Katzenbelohnungen. */
+  /**
+   * Creates combat services.
+   */
   createCombatServices() {
     this.rocketSystem = new LevelTwoRocketSystem(
       this,
@@ -131,33 +141,35 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt die Bulldogge mit derselben Steuerung wie in Level eins.
-   * @returns {Bulldog} Erstellte Spielfigur.
+   * Creates player.
+   * @returns {Bulldog} The created instance.
    */
   createPlayer() {
     const { startX, startY } = LEVEL_TWO.playerSpawn;
     const playerX = this.isEnteringLevel ? LEVEL_TWO.levelEntry.startX : startX;
-
-    this.player = new Bulldog(
-      this,
-      playerX,
-      startY,
-      BULLDOG_TEXTURES.stand.key,
-    );
-    this.inputSystem = new InputSystem(this);
-    this.touchControls = TouchControlSystem.create(
-      this,
-      this.inputSystem,
-      this.player,
-    );
+    this.player = new Bulldog(this, playerX, startY, BULLDOG_TEXTURES.stand.key);
+    this.createPlayerInput();
     this.physics.add.collider(this.player, this.platforms);
     this.alignPlayerWithGround();
     return this.player;
   }
 
   /**
-   * Startet die Level-2-Musik und blendet sie beim K.-o. weich aus.
-   * @returns {void}
+   * Creates player input and touch controls.
+   * @returns {void} No value is returned.
+   */
+  createPlayerInput() {
+    this.inputSystem = new InputSystem(this);
+    this.touchControls = TouchControlSystem.create(
+      this,
+      this.inputSystem,
+      this.player,
+    );
+  }
+
+  /**
+   * Creates background music.
+   * @returns {void} No value is returned.
    */
   createBackgroundMusic() {
     this.backgroundMusic = new BackgroundMusicSystem(this);
@@ -168,8 +180,8 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Setzt die Fußkante ohne sichtbaren Fall exakt auf die Level-2-Straße.
-   * @returns {void}
+   * Handles align player with ground.
+   * @returns {void} No value is returned.
    */
   alignPlayerWithGround() {
     const body = this.player.body;
@@ -186,8 +198,8 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Lässt die Bulldogge automatisch vom linken Rand ins zweite Level laufen.
-   * @returns {boolean} `true`, solange die filmische Einlaufphase aktiv ist.
+   * Updates level entry.
+   * @returns {boolean} Whether the requested condition is met.
    */
   updateLevelEntry() {
     if (!this.isEnteringLevel) return false;
@@ -202,7 +214,9 @@ export class LevelTwoScene extends Phaser.Scene {
     return true;
   }
 
-  /** Erstellt die zentral konfigurierten Sammelobjekte von Level zwei. */
+  /**
+   * Creates items.
+   */
   createItems() {
     this.levelItems = LevelItemSystem.create(
       this,
@@ -214,8 +228,8 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Verbindet die sichtbare Straßenoberfläche mit einer statischen Hitbox.
-   * @returns {Phaser.Physics.Arcade.StaticGroup} Boden-Kollisionsgruppe.
+   * Creates ground collision.
+   * @returns {Phaser.Physics.Arcade.StaticGroup} The created instance.
    */
   createGroundCollision() {
     const ground = LEVEL_TWO.groundPlatform;
@@ -235,8 +249,8 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt alle zentral konfigurierten Hindernisse des Levels.
-   * @returns {void}
+   * Creates obstacles.
+   * @returns {void} No value is returned.
    */
   createObstacles() {
     LevelTwoObstacleSystem.createNuclearBoxes(
@@ -249,8 +263,8 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Berechnet die sichtbare Laufkante der Level-2-Bodenebene zentral.
-   * @returns {number} Vertikale Position der Laufkante in Weltkoordinaten.
+   * Returns ground surface y.
+   * @returns {number} The resulting numeric value.
    */
   getGroundSurfaceY() {
     const ground = LEVEL_TWO.groundPlatform;
@@ -263,8 +277,8 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Setzt identische Grenzen für Physikwelt und Hauptkamera.
-   * @returns {void}
+   * Configures world.
+   * @returns {void} No value is returned.
    */
   configureWorld() {
     const { width, height, backgroundColor } = LEVEL_TWO.world;
@@ -275,7 +289,9 @@ export class LevelTwoScene extends Phaser.Scene {
       .setBackgroundColor(backgroundColor);
   }
 
-  /** Sichert den Levelstand und startet den vorbereiteten dritten Abschnitt. */
+  /**
+   * Completes level.
+   */
   completeLevel() {
     if (this.isLevelCompleting) return;
     this.isLevelCompleting = true;
@@ -289,9 +305,8 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt den levelübergreifenden Zustand der Bulldogge.
-   * @returns {{health: number, collectibles: Record<string, number>}}
-   * Gespeicherter Lebens- und Sammelstand.
+   * Creates player state snapshot.
+   * @returns {{health: number, collectibles: Record<string, number>}} The resulting string value.
    */
   createPlayerStateSnapshot() {
     return {
@@ -301,10 +316,9 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Startet Level drei mit dem zuvor gesicherten Spielstand.
-   * @param {{health: number, collectibles: Record<string, number>}}
-   * playerState - Gesicherter Spielstand.
-   * @returns {void}
+   * Starts level three.
+   * @param {{health: number, collectibles: Record<string, number>}} playerState - The player state value.
+   * @returns {void} No value is returned.
    */
   startLevelThree(playerState) {
     this.scene.start(SCENES.levelThree, {
@@ -314,10 +328,10 @@ export class LevelTwoScene extends Phaser.Scene {
   }
 
   /**
-   * Aktualisiert die levelübergreifende Bewegung und Animation der Bulldogge.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @param {number} delta - Vergangene Zeit seit dem letzten Frame in ms.
-   * @returns {void}
+   * Updates the current state.
+   * @param {number} time - The current scene time in milliseconds.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   update(time, delta) {
     LevelTwoGameplaySystem.update(this, time, delta);

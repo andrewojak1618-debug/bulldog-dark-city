@@ -4,12 +4,13 @@ import {
   createTouchControlLayout,
   getTouchLayoutProfile,
   TOUCH_ACTIONS,
+  TOUCH_CONTROLS,
 } from "../js/config/touch-control-settings.js";
 
 /**
- * Wandelt ein Layout für gezielte Positionsprüfungen in eine Map um.
- * @param {Object[]} controls - Berechnete Touchbuttons.
- * @returns {Map<string, Object>} Buttons nach Aktionsschlüssel.
+ * Handles map controls.
+ * @param {Object[]} controls - The controls value.
+ * @returns {Map<string, Object>} The resulting string value.
  */
 function mapControls(controls) {
   return new Map(controls.map((control) => [control.action, control]));
@@ -66,4 +67,12 @@ test("Alle Smartphone-Touchflächen erreichen mindestens 44 CSS-Pixel", () => {
   controls.forEach((control) => {
     assert.ok(control.size * smallestLandscapeScale >= 44);
   });
+});
+
+test("Mobiler Angriffsbutton zeigt die primäre F-Belegung", () => {
+  const attack = TOUCH_CONTROLS.controls.find(
+    ({ action }) => action === TOUCH_ACTIONS.attack,
+  );
+
+  assert.equal(attack.label, "F");
 });

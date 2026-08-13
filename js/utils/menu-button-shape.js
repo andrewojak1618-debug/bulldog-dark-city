@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 
 /**
- * Erstellt die Einrisse der rechten Buttonkante.
- * @param {number} right - Rechte Außenposition.
- * @param {number} top - Obere Außenposition.
- * @param {number} bottom - Untere Außenposition.
- * @returns {Phaser.Geom.Point[]} Punkte der rechten Kante.
+ * Defines the get right edge points configuration.
+ * @param {number} right - The right value.
+ * @param {number} top - The top value.
+ * @param {number} bottom - The bottom value.
+ * @returns {Phaser.Geom.Point[]} The resulting collection.
  */
 const getRightEdgePoints = (right, top, bottom) => [
   new Phaser.Geom.Point(right, top + 4),
@@ -16,11 +16,11 @@ const getRightEdgePoints = (right, top, bottom) => [
 ];
 
 /**
- * Erstellt die Einrisse der linken Buttonkante.
- * @param {number} left - Linke Außenposition.
- * @param {number} top - Obere Außenposition.
- * @param {number} bottom - Untere Außenposition.
- * @returns {Phaser.Geom.Point[]} Punkte der linken Kante.
+ * Defines the get left edge points configuration.
+ * @param {number} left - The left value.
+ * @param {number} top - The top value.
+ * @param {number} bottom - The bottom value.
+ * @returns {Phaser.Geom.Point[]} The resulting collection.
  */
 const getLeftEdgePoints = (left, top, bottom) => [
   new Phaser.Geom.Point(left, bottom - 4),
@@ -31,11 +31,11 @@ const getLeftEdgePoints = (left, top, bottom) => [
 ];
 
 /**
- * Erstellt eine geschlossene Buttonkontur mit eingerissenen Seiten.
- * @param {number} width - Breite des Buttons.
- * @param {number} height - Höhe des Buttons.
- * @param {number} depth - Tiefe der unregelmäßigen Seitenkanten.
- * @returns {Phaser.Geom.Point[]} Punkte der geschlossenen Außenkontur.
+ * Defines the get torn button points configuration.
+ * @param {number} width - The width in pixels.
+ * @param {number} height - The height in pixels.
+ * @param {number} depth - The depth value.
+ * @returns {Phaser.Geom.Point[]} The resulting collection.
  */
 export const getTornButtonPoints = (width, height, depth) => {
   const left = -width / 2;

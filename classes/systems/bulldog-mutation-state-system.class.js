@@ -9,12 +9,14 @@ import { BULLDOG_GAMEPLAY } from
 
 const ANIMATION_COMPLETE_PREFIX = "animationcomplete-";
 
-/** Steuert den Lebenszyklus der mutierten Bulldoggenform. */
+/**
+ * Manages bulldog mutation state system behavior.
+ */
 export class BulldogMutationStateSystem {
   /**
-   * Initialisiert sämtliche Mutationszustände ausdrücklich.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Initializes the current state.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static initialize(player) {
     player.isMutating = false;
@@ -25,9 +27,9 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Startet die Transformation und sperrt dabei die Steuerung.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {boolean} `true`, wenn die Transformation gestartet wurde.
+   * Starts the current state.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static start(player) {
     if (!this.canStart(player)) return false;
@@ -38,27 +40,27 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Prüft, ob eine neue Transformation zulässig ist.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {boolean} `true`, wenn die Transformation starten darf.
+   * Checks the start condition.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static canStart(player) {
     return !player.isMutating && !player.isMutated && !player.isKnockedOut;
   }
 
   /**
-   * Prüft die Immunität der Mutation gegen gewöhnliche Schadensquellen.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {boolean} `true`, wenn normaler Schaden erlaubt ist.
+   * Checks the receive normal damage condition.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static canReceiveNormalDamage(player) {
     return !player.isMutating && !player.isMutated;
   }
 
   /**
-   * Bereitet Zustand, Bewegung und Transformationsanimation vor.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Handles prepare transformation.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static prepareTransformation(player) {
     player.isMutating = true;
@@ -68,9 +70,9 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Passt Darstellung und Hitbox bei gleichbleibendem Bodenkontakt an.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Applies visuals.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static applyVisuals(player) {
     const feetY = player.body.bottom;
@@ -84,9 +86,9 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Registriert Animationsende und zeitliche Rückfallebene.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Registers completion.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static registerCompletion(player) {
     player.once(this.getCompleteEventName(), () => this.finish(player));
@@ -97,8 +99,8 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Liefert den Ereignisnamen der abgeschlossenen Transformation.
-   * @returns {string} Vollständiger Phaser-Ereignisname.
+   * Returns complete event name.
+   * @returns {string} The resulting string value.
    */
   static getCompleteEventName() {
     return ANIMATION_COMPLETE_PREFIX +
@@ -106,9 +108,9 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Schließt die Transformation genau einmal ab.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Completes the current state.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static finish(player) {
     if (!player.isMutating) return;
@@ -120,9 +122,9 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Startet die rückwärts abgespielte Rückverwandlung.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {boolean} `true`, wenn die Rückverwandlung gestartet wurde.
+   * Handles revert.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static revert(player) {
     if (!player.isMutated || player.isMutating || player.isKnockedOut) {
@@ -137,9 +139,9 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Registriert Animationsende und Rückfallebene der Rückverwandlung.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Registers reversion completion.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static registerReversionCompletion(player) {
     const eventName = this.getRevertCompleteEventName();
@@ -151,8 +153,8 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Liefert den vollständigen Ereignisnamen der Rückverwandlung.
-   * @returns {string} Vollständiger Phaser-Ereignisname.
+   * Returns revert complete event name.
+   * @returns {string} The resulting string value.
    */
   static getRevertCompleteEventName() {
     return ANIMATION_COMPLETE_PREFIX +
@@ -160,9 +162,9 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Stellt nach der Rückverwandlung Form, Hitbox und Standbild wieder her.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Completes reversion.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static finishReversion(player) {
     if (!player.isMutating || !player.isMutated) return;
@@ -174,9 +176,9 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Stellt normale Größe und Hitbox bei unverändertem Bodenkontakt her.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Restores normal visuals.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   static restoreNormalVisuals(player) {
     const feetY = player.body.bottom;
@@ -193,10 +195,10 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Entfernt Listener und zeitliche Rückfallebene eines Formwechsels.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {string} eventName - Zu entfernender Animationsereignisname.
-   * @returns {void}
+   * Clears transition.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {string} eventName - The event name value.
+   * @returns {void} No value is returned.
    */
   static clearTransition(player, eventName) {
     player.off(eventName);
@@ -205,9 +207,9 @@ export class BulldogMutationStateSystem {
   }
 
   /**
-   * Liefert den nächsten normalen oder abwechselnden Mutationsangriff.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {string} Schlüssel der nächsten Angriffsanimation.
+   * Returns next attack animation key.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {string} The resulting string value.
    */
   static getNextAttackAnimationKey(player) {
     if (!player.isMutated) return BULLDOG_ANIMATION_KEYS.biteAttack;

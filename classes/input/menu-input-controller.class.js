@@ -1,12 +1,12 @@
 /**
- * Bündelt Maus-, Touch-, Tastatur- und Gamepad-Steuerung des Hauptmenüs.
+ * Manages menu input controller behavior.
  */
 export class MenuInputController {
   /**
-   * Erstellt die Eingabesteuerung für eine Liste von Menübuttons.
-   * @param {Phaser.Scene} scene - Szene, die die Eingaben empfängt.
-   * @param {import("../ui/menu-button.class.js").MenuButton[]} buttons - Steuerbare Buttons.
-   * @param {Function|null} [onInputModeChange=null] - Meldet die aktive Eingabeart.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Array<{isDisabled: boolean, setSelected: Function, activate: Function}>} buttons - The buttons value.
+   * @param {Function|null} [onInputModeChange=null] - The on input mode change value.
    */
   constructor(scene, buttons, onInputModeChange = null) {
     this.scene = scene;
@@ -20,44 +20,53 @@ export class MenuInputController {
   }
 
   /**
-   * Findet den ersten ausführbaren Menüpunkt.
-   * @returns {number} Index oder `-1`, wenn kein Button aktiv ist.
+   * Finds first enabled index.
+   * @returns {number} The resulting numeric value.
    */
   findFirstEnabledIndex() {
     return this.buttons.findIndex((button) => !button.isDisabled);
   }
 
   /**
-   * Verknüpft Pfeiltasten, W/S, Enter und Leertaste.
-   * @returns {void}
+   * Binds keyboard.
+   * @returns {void} No value is returned.
    */
   bindKeyboard() {
     const keyboard = this.scene.input.keyboard;
+    if (!keyboard) return;
+    this.keyboardHandlers = this.createKeyboardHandlers();
+    this.bindKeyboardEvents(keyboard);
+    this.scene.events.once("shutdown", () => this.unbindKeyboard());
+  }
 
-    if (!keyboard) {
-      return;
-    }
-
-    this.keyboardHandlers = {
+  /**
+   * Creates keyboard handlers.
+   */
+  createKeyboardHandlers() {
+    return {
       up: (event) => this.handleKeyboardNavigation(event, -1),
       down: (event) => this.handleKeyboardNavigation(event, 1),
       confirm: (event) => this.handleKeyboardConfirmation(event),
     };
+  }
 
+  /**
+   * Binds keyboard events.
+   */
+  bindKeyboardEvents(keyboard) {
     keyboard.on("keydown-UP", this.keyboardHandlers.up);
     keyboard.on("keydown-W", this.keyboardHandlers.up);
     keyboard.on("keydown-DOWN", this.keyboardHandlers.down);
     keyboard.on("keydown-S", this.keyboardHandlers.down);
     keyboard.on("keydown-ENTER", this.keyboardHandlers.confirm);
     keyboard.on("keydown-SPACE", this.keyboardHandlers.confirm);
-    this.scene.events.once("shutdown", () => this.unbindKeyboard());
   }
 
   /**
-   * Navigiert bei einem neuen Tastendruck genau einmal.
-   * @param {KeyboardEvent} event - Auslösendes Tastaturereignis.
-   * @param {number} direction - Bewegungsrichtung `-1` oder `1`.
-   * @returns {void}
+   * Handles keyboard navigation.
+   * @param {KeyboardEvent} event - The triggering event.
+   * @param {number} direction - The horizontal movement direction.
+   * @returns {void} No value is returned.
    */
   handleKeyboardNavigation(event, direction) {
     if (!this.isEnabled || event.repeat) {
@@ -70,9 +79,9 @@ export class MenuInputController {
   }
 
   /**
-   * Bestätigt die aktuelle Auswahl bei einem neuen Tastendruck.
-   * @param {KeyboardEvent} event - Auslösendes Tastaturereignis.
-   * @returns {void}
+   * Handles keyboard confirmation.
+   * @param {KeyboardEvent} event - The triggering event.
+   * @returns {void} No value is returned.
    */
   handleKeyboardConfirmation(event) {
     if (!this.isEnabled || event.repeat) {
@@ -85,8 +94,8 @@ export class MenuInputController {
   }
 
   /**
-   * Entfernt alle registrierten Tastaturereignisse beim Szenenwechsel.
-   * @returns {void}
+   * Handles unbind keyboard.
+   * @returns {void} No value is returned.
    */
   unbindKeyboard() {
     const keyboard = this.scene.input.keyboard;
@@ -104,9 +113,9 @@ export class MenuInputController {
   }
 
   /**
-   * Verschiebt die Auswahl zyklisch und überspringt gesperrte Buttons.
-   * @param {number} direction - Bewegungsrichtung `-1` oder `1`.
-   * @returns {void}
+   * Moves selection.
+   * @param {number} direction - The horizontal movement direction.
+   * @returns {void} No value is returned.
    */
   moveSelection(direction) {
     if (this.activeIndex < 0 || this.buttons.length === 0) {
@@ -128,9 +137,9 @@ export class MenuInputController {
   }
 
   /**
-   * Wählt einen ausführbaren Button aus.
-   * @param {number} index - Index des gewünschten Buttons.
-   * @returns {void}
+   * Handles select index.
+   * @param {number} index - The zero-based item index.
+   * @returns {void} No value is returned.
    */
   selectIndex(index) {
     const button = this.buttons[index];
@@ -146,10 +155,10 @@ export class MenuInputController {
   }
 
   /**
-   * Übernimmt einen mit Maus oder Touch fokussierten Button.
-   * @param {import("../ui/menu-button.class.js").MenuButton} button - Fokussierter Button.
-   * @param {"pointer"|"mouse"|"touch"} [inputMode="pointer"] - Aktive Zeigereingabe.
-   * @returns {void}
+   * Handles focus button.
+   * @param {{isDisabled: boolean, setSelected: Function, activate: Function}} button - The button value.
+   * @param {"pointer"|"mouse"|"touch"} [inputMode="pointer"] - The input mode value.
+   * @returns {void} No value is returned.
    */
   focusButton(button, inputMode = "pointer") {
     if (!this.isEnabled) {
@@ -162,8 +171,8 @@ export class MenuInputController {
   }
 
   /**
-   * Führt den aktuell ausgewählten Menüpunkt entprellt aus.
-   * @returns {void}
+   * Handles activate current.
+   * @returns {void} No value is returned.
    */
   activateCurrent() {
     if (!this.isEnabled) {
@@ -180,26 +189,33 @@ export class MenuInputController {
   }
 
   /**
-   * Prüft Gamepad-Steuerkreuz und A-Taste auf neue Betätigungen.
-   * @returns {void}
+   * Updates the current state.
+   * @returns {void} No value is returned.
    */
   update() {
-    if (!this.isEnabled) {
-      return;
-    }
-
+    if (!this.isEnabled) return;
     const gamepad = this.scene.input.gamepad?.getPad(0);
+    if (!gamepad) return;
+    const nextState = this.getGamepadState(gamepad);
+    this.handleGamepadState(nextState);
+    this.gamepadState = nextState;
+  }
 
-    if (!gamepad) {
-      return;
-    }
-
-    const nextState = {
+  /**
+   * Returns gamepad state.
+   */
+  getGamepadState(gamepad) {
+    return {
       up: Boolean(gamepad.up),
       down: Boolean(gamepad.down),
       confirm: Boolean(gamepad.buttons[0]?.pressed),
     };
+  }
 
+  /**
+   * Handles gamepad state.
+   */
+  handleGamepadState(nextState) {
     if (nextState.up && !this.gamepadState.up) {
       this.onInputModeChange?.("gamepad");
       this.moveSelection(-1);
@@ -214,14 +230,12 @@ export class MenuInputController {
       this.onInputModeChange?.("gamepad");
       this.activateCurrent();
     }
-
-    this.gamepadState = nextState;
   }
 
   /**
-   * Aktiviert oder pausiert sämtliche Menüeingaben.
-   * @param {boolean} enabled - Neuer Aktivierungszustand.
-   * @returns {void}
+   * Sets enabled.
+   * @param {boolean} enabled - The enabled value.
+   * @returns {void} No value is returned.
    */
   setEnabled(enabled) {
     this.isEnabled = enabled;

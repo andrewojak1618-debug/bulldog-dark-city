@@ -1,12 +1,14 @@
 import Phaser from "phaser";
 import { HUD } from "../../js/config/hud-settings.js";
 
-/** Zeigt Levelnummer und Escape-Rückkehr kamerafest über dem Spiel an. */
+/**
+ * Manages level menu hint behavior.
+ */
 export class LevelMenuHint extends Phaser.GameObjects.Text {
   /**
-   * Erstellt den einheitlichen Hinweis für ein Level.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {number} levelNumber - Sichtbare Nummer des aktuellen Levels.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} levelNumber - The level number value.
    */
   constructor(scene, levelNumber) {
     const settings = HUD.levelMenuHint;

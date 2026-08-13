@@ -44,9 +44,8 @@ test("Angriffsoffset bewahrt Boden und sichtbare Pfotenkante", () => {
 });
 
 /**
- * Erstellt eine minimale Katze für den Bodenkanten-Regressionsfall.
- *
- * @returns {object} Test-Double mit Display- und Physics-Daten.
+ * Creates cat double.
+ * @returns {object} The resulting data object.
  */
 function createCatDouble() {
   const cat = {
@@ -70,8 +69,8 @@ function createCatDouble() {
 }
 
 /**
- * Erstellt ein skaliertes Test-Double mit Phaser-ähnlicher Hitboxberechnung.
- * @returns {object} Katze mit skalierter Display- und Body-Geometrie.
+ * Creates scaled cat double.
+ * @returns {object} The resulting data object.
  */
 function createScaledCatDouble() {
   const cat = {
@@ -100,9 +99,9 @@ function createScaledCatDouble() {
 }
 
 /**
- * Berechnet die sichtbare Unterkante der Angriffsfigur.
- * @param {object} cat - Test-Double mit Darstellungsgröße und Position.
- * @returns {number} Sichtbare Unterkante in Weltkoordinaten.
+ * Returns visible attack bottom.
+ * @param {object} cat - The mutant cat instance.
+ * @returns {number} The resulting numeric value.
  */
 function getVisibleAttackBottom(cat) {
   const scale = cat.displayHeight / 256;

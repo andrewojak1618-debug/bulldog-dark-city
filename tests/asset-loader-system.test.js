@@ -5,7 +5,9 @@ import { AssetLoaderSystem } from
 import { LevelItemSystem } from
   "../classes/systems/level-item-system.class.js";
 
-/** Erstellt Cache- und Loader-Doubles fuer die Asset-Hilfen. */
+/**
+ * Creates scene double.
+ */
 function createSceneDouble() {
   const textureKeys = new Set(["cached-texture"]);
   const audioKeys = new Set(["cached-audio"]);

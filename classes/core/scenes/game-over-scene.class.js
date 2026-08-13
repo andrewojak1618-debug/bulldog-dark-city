@@ -11,19 +11,19 @@ import { ENDSCREEN_RESULT } from
   "../../../js/config/game-endscreen-settings.js";
 
 /**
- * Spielt nach der K.-o.-Animation die Game-over-Sequenz ab.
+ * Manages game over scene behavior.
  */
 export class GameOverScene extends Phaser.Scene {
   /**
-   * Erstellt die Game-Over-Szene mit ihrem eindeutigen Szenenschlüssel.
+   * Creates a new instance.
    */
   constructor() {
     super(SCENES.gameOver);
   }
 
   /**
-   * Lädt das weboptimierte Game-over-Video mit Ton.
-   * @returns {void}
+   * Preloads the current state.
+   * @returns {void} No value is returned.
    */
   preload() {
     const { video } = GAME_OVER;
@@ -31,11 +31,33 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt und startet das Video in der vollständigen Canvasgröße.
-   * @returns {void}
+   * Creates the current state.
+   * @returns {void} No value is returned.
    */
   create() {
     setMuteButtonVisibility(false);
+    this.initializeVideoState();
+    this.createVideo();
+    this.bindVideoEvents();
+    this.events.once("shutdown", () => this.cleanup());
+    EndingVideoSystem.start(this);
+  }
+
+  /**
+   * Initializes the video lifecycle state.
+   * @returns {void} No value is returned.
+   */
+  initializeVideoState() {
+    this.isFinished = false;
+    this.isFallbackVisible = false;
+    this.isVideoSized = false;
+  }
+
+  /**
+   * Creates the game-over video object.
+   * @returns {void} No value is returned.
+   */
+  createVideo() {
     const { width, height } = this.scale;
     const { video } = GAME_OVER;
     this.video = this.add
@@ -44,20 +66,22 @@ export class GameOverScene extends Phaser.Scene {
       .setMute(globalMuteSystem.isMuted())
       .setVolume(video.volume);
     this.unregisterVideoMute = globalMuteSystem.registerVideo(this.video);
-    this.isFinished = false;
-    this.isFallbackVisible = false;
-    this.isVideoSized = false;
+  }
+
+  /**
+   * Binds the game-over video lifecycle events.
+   * @returns {void} No value is returned.
+   */
+  bindVideoEvents() {
     this.video.once("created", () => EndingVideoSystem.sizeAndReveal(this));
     this.video.once("playing", () => EndingVideoSystem.sizeAndReveal(this));
     this.video.once("complete", () => this.finish());
     this.video.once("error", () => this.showFallback());
-    this.events.once("shutdown", () => this.cleanup());
-    EndingVideoSystem.start(this);
   }
 
   /**
-   * Beendet die Sequenz genau einmal und öffnet den gemeinsamen Endscreen.
-   * @returns {void}
+   * Completes the current state.
+   * @returns {void} No value is returned.
    */
   finish() {
     if (this.isFinished) return;
@@ -70,23 +94,16 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   /**
-   * Zeigt bei einem Wiedergabefehler einen lesbaren Ersatzbildschirm.
-   * @returns {void}
+   * Shows fallback.
+   * @returns {void} No value is returned.
    */
   showFallback() {
     if (this.isFinished || this.isFallbackVisible) return;
-    const { width, height } = this.scale;
     const { fallback } = GAME_OVER;
     this.isFallbackVisible = true;
     this.cleanup();
     this.cameras.main.setBackgroundColor("#050309");
-    this.add
-      .text(width / 2, height / 2, fallback.text, {
-        fontFamily: fallback.fontFamily,
-        fontSize: `${fallback.fontSize}px`,
-        color: fallback.color,
-      })
-      .setOrigin(0.5);
+    this.createFallbackText(fallback);
     this.fallbackTimer = this.time.delayedCall(
       fallback.returnDelayMs,
       () => this.finish(),
@@ -94,8 +111,22 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   /**
-   * Meldet das Video ab und gibt die Phaser-Instanz sicher frei.
-   * @returns {void}
+   * Creates the fallback message.
+   * @param {object} fallback - The fallback display settings.
+   * @returns {void} No value is returned.
+   */
+  createFallbackText(fallback) {
+    const { width, height } = this.scale;
+    this.add.text(width / 2, height / 2, fallback.text, {
+      fontFamily: fallback.fontFamily,
+      fontSize: `${fallback.fontSize}px`,
+      color: fallback.color,
+    }).setOrigin(0.5);
+  }
+
+  /**
+   * Handles cleanup.
+   * @returns {void} No value is returned.
    */
   cleanup() {
     this.fallbackTimer?.remove(false);

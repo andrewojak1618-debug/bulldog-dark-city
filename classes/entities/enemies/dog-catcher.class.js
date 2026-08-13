@@ -18,20 +18,30 @@ const DOG_CATCHER_STATES = Object.freeze({
 });
 
 /**
- * Patrouilliert, entdeckt die Bulldogge und führt einen Netzangriff aus.
+ * Manages dog catcher behavior.
  */
 export class DogCatcher extends Enemy {
   /**
-   * Erstellt einen physikbasierten Hundefänger im Testlevel.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {number} x - Horizontale Startposition.
-   * @param {number} y - Vertikale Startposition.
-   * @param {string} texture - Initialer Texturschlüssel.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {string} texture - The texture configuration to use.
    */
   constructor(scene, x, y, texture) {
     super(scene, x, y, texture);
     scene.add.existing(this);
     scene.physics.add.existing(this);
+    this.configureBody();
+    this.initializeState();
+    this.play(DOG_CATCHER_ANIMATION_KEYS.walk);
+  }
+
+  /**
+   * Configures the dog catcher's visual and physics body.
+   * @returns {void} No value is returned.
+   */
+  configureBody() {
     this.setDisplaySize(
       DOG_CATCHER.displayWidth,
       DOG_CATCHER.displayHeight,
@@ -40,6 +50,13 @@ export class DogCatcher extends Enemy {
       .setSize(DOG_CATCHER.bodyWidth, DOG_CATCHER.bodyHeight)
       .setOffset(DOG_CATCHER.bodyOffsetX, DOG_CATCHER.bodyOffsetY);
     this.setCollideWorldBounds(true);
+  }
+
+  /**
+   * Initializes the dog catcher's runtime state.
+   * @returns {void} No value is returned.
+   */
+  initializeState() {
     this.state = DOG_CATCHER_STATES.patrol;
     this.patrolDirection = 1;
     this.hasDetectedPlayer = false;
@@ -48,14 +65,13 @@ export class DogCatcher extends Enemy {
     this.receivedBiteHits = 0;
     this.hitReactionEndsAt = 0;
     this.isDead = false;
-    this.play(DOG_CATCHER_ANIMATION_KEYS.walk);
   }
 
   /**
-   * Aktualisiert Wahrnehmung, Zustandswechsel und Bewegung des Gegners.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Zu verfolgende Bulldogge.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Updates behavior.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   updateBehavior(player, time) {
     if (!player?.active || !this.body || this.isDead) return;
@@ -79,9 +95,9 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Beendet eine Trefferreaktion erst nach Ablauf ihrer Sperrzeit.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} `true`, sobald normales Verhalten wieder erlaubt ist.
+   * Handles recover from hit.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   recoverFromHit(time) {
     if (this.state !== DOG_CATCHER_STATES.hit) return true;
@@ -92,10 +108,10 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Wählt für einen erkannten Spieler Alarm, Angriff oder Verfolgung.
-   * @param {number} distanceX - Horizontaler Abstand zur Bulldogge.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Updates detected behavior.
+   * @param {number} distanceX - The distance x value.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   updateDetectedBehavior(distanceX, time) {
     this.faceDirection(Math.sign(distanceX) || this.patrolDirection);
@@ -115,10 +131,10 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Prüft das gerichtete Sichtfeld und den Nahbereich hinter dem Gegner.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Zu prüfende Bulldogge.
-   * @param {number} distanceX - Horizontaler Abstand zur Bulldogge.
-   * @returns {boolean} `true`, wenn der Hundefänger reagieren darf.
+   * Checks the player detected condition.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} distanceX - The distance x value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isPlayerDetected(player, distanceX) {
     if (!this.isPlayerOnSameGroundLevel(player)) return false;
@@ -132,9 +148,9 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Vergleicht die Fußpunkte, damit obere Plattformen unsichtbar bleiben.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Zu prüfende Bulldogge.
-   * @returns {boolean} `true` bei annähernd gleicher Bodenhöhe.
+   * Checks the player on same ground level condition.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isPlayerOnSameGroundLevel(player) {
     const playerFeetY = player.body?.bottom;
@@ -151,16 +167,16 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Liefert die aktuelle Blickrichtung anhand der Sprite-Spiegelung.
-   * @returns {-1|1} Linke oder rechte Blickrichtung.
+   * Returns facing direction.
+   * @returns {-1|1} The resulting value.
    */
   getFacingDirection() {
     return this.flipX ? -1 : 1;
   }
 
   /**
-   * Bewegt den Gegner innerhalb seines festgelegten Patrouillenbereichs.
-   * @returns {void}
+   * Updates patrol.
+   * @returns {void} No value is returned.
    */
   updatePatrol() {
     this.state = DOG_CATCHER_STATES.patrol;
@@ -172,8 +188,8 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Spielt die einmalige Entdeckungsreaktion ab.
-   * @returns {void}
+   * Starts alert.
+   * @returns {void} No value is returned.
    */
   startAlert() {
     this.state = DOG_CATCHER_STATES.alert;
@@ -184,9 +200,9 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Verfolgt die Bulldogge nach abgeschlossener Entdeckungsreaktion.
-   * @param {number} distanceX - Horizontaler Abstand zur Bulldogge.
-   * @returns {void}
+   * Updates chase.
+   * @param {number} distanceX - The distance x value.
+   * @returns {void} No value is returned.
    */
   updateChase(distanceX) {
     this.state = DOG_CATCHER_STATES.chase;
@@ -194,9 +210,9 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Startet einen einzelnen Angriff und setzt dessen Abklingzeit.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Starts attack.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   startAttack(time) {
     this.state = DOG_CATCHER_STATES.attack;
@@ -207,41 +223,36 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Meldet einen gültigen Treffer exakt einmal im letzten Attack-Frame.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Angegriffene Bulldogge.
-   * @returns {boolean} `true`, wenn die Bulldogge vom Netz getroffen wird.
+   * Consumes attack hit.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   consumeAttackHit(player) {
-    if (
-      this.state !== DOG_CATCHER_STATES.attack ||
-      this.attackHitConsumed ||
-      this.anims.currentAnim?.key !== DOG_CATCHER_ANIMATION_KEYS.attack
-    ) {
-      return false;
-    }
-
-    const lastFrame = DOG_CATCHER_TEXTURES.attack.frameCount - 1;
-    const isImpactFrame =
-      this.anims.currentFrame?.textureFrame === lastFrame;
-
-    if (!isImpactFrame) return false;
-
+    if (!this.canApplyAttackHit()) return false;
     this.attackHitConsumed = true;
     const distanceX = player.x - this.x;
-    const isInAttackDirection =
-      distanceX * this.getFacingDirection() >= 0;
-
-    return (
-      isInAttackDirection &&
+    return distanceX * this.getFacingDirection() >= 0 &&
       this.isPlayerOnSameGroundLevel(player) &&
-      Math.abs(distanceX) <= DOG_CATCHER.attackHitRange
-    );
+      Math.abs(distanceX) <= DOG_CATCHER.attackHitRange;
   }
 
   /**
-   * Verarbeitet einen Biss und startet Trefferreaktion oder Dead-Sequenz.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} `true`, wenn der Hundefänger besiegt wurde.
+   * Checks whether the current attack frame may apply damage.
+   * @returns {boolean} Whether an attack hit can be applied.
+   */
+  canApplyAttackHit() {
+    const isActiveAttack = this.state === DOG_CATCHER_STATES.attack &&
+      !this.attackHitConsumed &&
+      this.anims.currentAnim?.key === DOG_CATCHER_ANIMATION_KEYS.attack;
+    const lastFrame = DOG_CATCHER_TEXTURES.attack.frameCount - 1;
+    return isActiveAttack &&
+      this.anims.currentFrame?.textureFrame === lastFrame;
+  }
+
+  /**
+   * Handles take bite hit.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   takeBiteHit(time) {
     if (this.isDead || this.state === DOG_CATCHER_STATES.hit) return false;
@@ -262,8 +273,8 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Beendet Bewegung, Physik und KI und spielt die Dead-Animation einmal ab.
-   * @returns {void}
+   * Starts death.
+   * @returns {void} No value is returned.
    */
   startDeath() {
     this.state = DOG_CATCHER_STATES.dead;
@@ -279,8 +290,8 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Prüft, ob Alert oder Angriff erst vollständig ablaufen müssen.
-   * @returns {boolean} `true`, solange eine gesperrte Animation läuft.
+   * Checks the locked in animation condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isLockedInAnimation() {
     const isLockedState =
@@ -293,8 +304,8 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Verlässt den letzten Attacken-Frame während der Abklingzeit.
-   * @returns {void}
+   * Shows ready pose.
+   * @returns {void} No value is returned.
    */
   showReadyPose() {
     this.state = DOG_CATCHER_STATES.chase;
@@ -304,10 +315,10 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Setzt Geschwindigkeit, Blickrichtung und Laufanimation gemeinsam.
-   * @param {number} direction - Negative oder positive Laufrichtung.
-   * @param {number} speed - Horizontale Geschwindigkeit.
-   * @returns {void}
+   * Moves the current state.
+   * @param {number} direction - The horizontal movement direction.
+   * @param {number} speed - The speed value.
+   * @returns {void} No value is returned.
    */
   move(direction, speed) {
     const normalizedDirection = direction < 0 ? -1 : 1;
@@ -317,9 +328,9 @@ export class DogCatcher extends Enemy {
   }
 
   /**
-   * Richtet das ursprünglich nach rechts blickende Sprite aus.
-   * @param {number} direction - Negative oder positive Blickrichtung.
-   * @returns {void}
+   * Handles face direction.
+   * @param {number} direction - The horizontal movement direction.
+   * @returns {void} No value is returned.
    */
   faceDirection(direction) {
     this.setFlipX(direction < 0);

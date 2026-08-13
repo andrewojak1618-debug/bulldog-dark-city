@@ -1,4 +1,6 @@
-/** Zentrale Zeitgrenze und Positionierung der Katzenbelohnung. */
+/**
+ * Defines the mutant cat reward configuration.
+ */
 export const MUTANT_CAT_REWARD = Object.freeze({
   fastDefeatLimitMs: 15_000,
   dropOffsetY: 46,
@@ -8,9 +10,9 @@ export const MUTANT_CAT_REWARD = Object.freeze({
 });
 
 /**
- * Prüft einschließlich der Grenzsekunde auf die schnelle Belohnungsstufe.
- * @param {number} elapsedMs - Kampfzeit vom ersten bis zum neunten Biss.
- * @returns {boolean} `true` für den Golden Coin.
+ * Defines the is fast mutant cat defeat configuration.
+ * @param {number} elapsedMs - The elapsed ms value.
+ * @returns {boolean} Whether the requested condition is met.
  */
 export const isFastMutantCatDefeat = (elapsedMs) =>
   elapsedMs <= MUTANT_CAT_REWARD.fastDefeatLimitMs;

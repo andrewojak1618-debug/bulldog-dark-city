@@ -10,7 +10,7 @@ const BULLDOG_MUTATION_BASE_PATH = getAssetPath(
 );
 
 /**
- * Zentrale Texturschlüssel und Quelldaten der normalen Bulldogge.
+ * Defines the bulldog textures configuration.
  */
 export const BULLDOG_TEXTURES = Object.freeze({
   mutationTransform: Object.freeze({
@@ -132,7 +132,7 @@ export const BULLDOG_TEXTURES = Object.freeze({
 });
 
 /**
- * Eindeutige Phaser-Schlüssel für die Bewegungsanimationen.
+ * Defines the bulldog animation keys configuration.
  */
 export const BULLDOG_ANIMATION_KEYS = Object.freeze({
   mutationTransform: "bulldog-mutation-transform",
@@ -153,7 +153,9 @@ export const BULLDOG_ANIMATION_KEYS = Object.freeze({
   biteAttack: "bulldog-bite-attack",
 });
 
-/** Ordnet jeder Trefferanimation ihre zugehörigen Framedaten zu. */
+/**
+ * Defines the bulldog attack textures configuration.
+ */
 export const BULLDOG_ATTACK_TEXTURES = Object.freeze({
   [BULLDOG_ANIMATION_KEYS.biteAttack]: BULLDOG_TEXTURES.biteAttack,
   [BULLDOG_ANIMATION_KEYS.mutationAttackLeft]:
@@ -163,7 +165,7 @@ export const BULLDOG_ATTACK_TEXTURES = Object.freeze({
 });
 
 /**
- * Domänenereignisse für Reaktionen außerhalb der Bulldog-Klasse.
+ * Defines the bulldog events configuration.
  */
 export const BULLDOG_EVENTS = Object.freeze({
   knockedOut: "bulldog-knocked-out",
@@ -172,7 +174,7 @@ export const BULLDOG_EVENTS = Object.freeze({
 });
 
 /**
- * Zeitabhängige Schwellenwerte der Bulldog-Animationen.
+ * Defines the bulldog animation timing configuration.
  */
 export const BULLDOG_ANIMATION_TIMING = Object.freeze({
   waitDelayMs: 6000,
@@ -184,7 +186,7 @@ export const BULLDOG_ANIMATION_TIMING = Object.freeze({
 });
 
 /**
- * Zentrale Abspielwerte und Framebereiche der Bulldog-Animationen.
+ * Defines the bulldog animations configuration.
  */
 export const BULLDOG_ANIMATIONS = Object.freeze([
   Object.freeze({

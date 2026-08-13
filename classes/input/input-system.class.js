@@ -1,20 +1,41 @@
 import { TOUCH_ACTIONS } from "../../js/config/touch-control-settings.js";
 
 /**
- * Bündelt Tastatur-, Maus-, Touch- und Gamepad-Eingaben des Spielers.
+ * Manages input system behavior.
  */
 export class InputSystem {
   /**
-   * Registriert die Steuerung einer Spielszene.
-   * @param {Phaser.Scene} scene - Szene, die Eingaben empfängt.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
    */
   constructor(scene) {
     this.scene = scene;
+    this.initializeState();
+    this.createKeyboardInput(scene);
+    this.bindJumpKeys();
+    this.bindAttackInputs();
+  }
+
+  /**
+   * Initializes transient input state.
+   * @returns {void} No value is returned.
+   */
+  initializeState() {
     this.jumpQueued = false;
     this.attackQueued = false;
     this.touchState = { left: false, right: false };
     this.touchActions = new Set();
     this.wasMutationPressed = false;
+    this.wasGamepadJumpPressed = false;
+    this.wasGamepadAttackPressed = false;
+  }
+
+  /**
+   * Creates the keyboard bindings.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
+   */
+  createKeyboardInput(scene) {
     this.cursors = scene.input.keyboard?.createCursorKeys();
     this.keys = scene.input.keyboard?.addKeys({
       left: "A",
@@ -24,15 +45,11 @@ export class InputSystem {
       alternativeAttack: "J",
       mutation: "M",
     });
-    this.wasGamepadJumpPressed = false;
-    this.wasGamepadAttackPressed = false;
-    this.bindJumpKeys();
-    this.bindAttackInputs();
   }
 
   /**
-   * Puffert kurze Sprungeingaben bis zum nächsten Spiel-Update.
-   * @returns {void}
+   * Binds jump keys.
+   * @returns {void} No value is returned.
    */
   bindJumpKeys() {
     const keyboard = this.scene.input.keyboard;
@@ -52,8 +69,8 @@ export class InputSystem {
   }
 
   /**
-   * Puffert Angriffe von beiden Tastaturbelegungen und linker Maustaste.
-   * @returns {void}
+   * Binds attack inputs.
+   * @returns {void} No value is returned.
    */
   bindAttackInputs() {
     const keyboard = this.scene.input.keyboard;
@@ -77,9 +94,9 @@ export class InputSystem {
   }
 
   /**
-   * Erkennt Phaser- und Browserkennzeichnungen einer Touchberührung.
-   * @param {Phaser.Input.Pointer} pointer - Auslösender Phaser-Pointer.
-   * @returns {boolean} Ob die Eingabe von einem Touchscreen stammt.
+   * Checks the touch pointer condition.
+   * @param {Phaser.Input.Pointer} pointer - The triggering Phaser pointer.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isTouchPointer(pointer) {
     const nativeType = pointer.event?.pointerType;
@@ -93,32 +110,36 @@ export class InputSystem {
   }
 
   /**
-   * Ermittelt die horizontale Bewegungsrichtung.
-   * @returns {-1|0|1} Linke, neutrale oder rechte Richtung.
+   * Returns horizontal axis.
+   * @returns {-1|0|1} The resulting value.
    */
   getHorizontalAxis() {
     const gamepad = this.scene.input.gamepad?.getPad(0);
     const gamepadAxis = gamepad?.axes[0]?.getValue() ?? 0;
-    const leftPressed =
-      this.cursors?.left.isDown ||
-      this.keys?.left.isDown ||
-      this.touchState.left ||
-      gamepad?.left ||
-      gamepadAxis < -0.25;
-    const rightPressed =
-      this.cursors?.right.isDown ||
-      this.keys?.right.isDown ||
-      this.touchState.right ||
-      gamepad?.right ||
-      gamepadAxis > 0.25;
-
+    const leftPressed = this.isDirectionPressed("left", gamepad, gamepadAxis);
+    const rightPressed = this.isDirectionPressed("right", gamepad, gamepadAxis);
     if (leftPressed === rightPressed) return 0;
     return leftPressed ? -1 : 1;
   }
 
   /**
-   * Meldet einen neuen Sprungimpuls genau einmal pro Betätigung.
-   * @returns {boolean} `true` bei einem neuen Tastatur- oder Gamepadimpuls.
+   * Checks whether one horizontal direction is pressed.
+   * @param {"left"|"right"} direction - The requested direction.
+   * @param {Phaser.Input.Gamepad.Gamepad} gamepad - The active gamepad.
+   * @param {number} axis - The horizontal gamepad axis.
+   * @returns {boolean} Whether the direction is pressed.
+   */
+  isDirectionPressed(direction, gamepad, axis) {
+    const isLeft = direction === "left";
+    const axisPressed = isLeft ? axis < -0.25 : axis > 0.25;
+    return Boolean(this.cursors?.[direction].isDown ||
+      this.keys?.[direction].isDown || this.touchState[direction] ||
+      gamepad?.[direction] || axisPressed);
+  }
+
+  /**
+   * Consumes jump.
+   * @returns {boolean} Whether the requested condition is met.
    */
   consumeJump() {
     const gamepad = this.scene.input.gamepad?.getPad(0);
@@ -131,9 +152,8 @@ export class InputSystem {
   }
 
   /**
-   * Meldet einen neuen Angriffsimpuls von F, J, Linksklick oder Gamepad-X
-   * genau einmal pro Betätigung.
-   * @returns {boolean} `true`, wenn ein neuer Angriff angefordert wurde.
+   * Consumes attack.
+   * @returns {boolean} Whether the requested condition is met.
    */
   consumeAttack() {
     const gamepad = this.scene.input.gamepad?.getPad(0);
@@ -146,14 +166,16 @@ export class InputSystem {
     return shouldAttack;
   }
 
-  /** Verwirft einen gepufferten Tastatur-, Maus- oder Touchangriff. */
+  /**
+   * Discards attack.
+   */
   discardAttack() {
     this.attackQueued = false;
   }
 
   /**
-   * Meldet M oder den mobilen Mutationsbutton genau einmal pro Betätigung.
-   * @returns {boolean} `true`, wenn die Mutation neu angefordert wurde.
+   * Consumes mutation.
+   * @returns {boolean} Whether the requested condition is met.
    */
   consumeMutation() {
     const mutationPressed = Boolean(this.keys?.mutation?.isDown);
@@ -165,10 +187,10 @@ export class InputSystem {
   }
 
   /**
-   * Übernimmt den Zustand eines mobilen Steuerelements.
-   * @param {string} action - Aktion aus `TOUCH_ACTIONS`.
-   * @param {boolean} isPressed - Ob der Button gerade gehalten wird.
-   * @returns {void}
+   * Sets touch action.
+   * @param {string} action - The requested action.
+   * @param {boolean} isPressed - The is pressed value.
+   * @returns {void} No value is returned.
    */
   setTouchAction(action, isPressed) {
     if (action === TOUCH_ACTIONS.left || action === TOUCH_ACTIONS.right) {
@@ -182,9 +204,9 @@ export class InputSystem {
   }
 
   /**
-   * Meldet eine gepufferte Touchaktion genau einmal.
-   * @param {string} action - Zu prüfende Touchaktion.
-   * @returns {boolean} Ob die Aktion seit dem letzten Abruf ausgelöst wurde.
+   * Consumes touch action.
+   * @param {string} action - The requested action.
+   * @returns {boolean} Whether the requested condition is met.
    */
   consumeTouchAction(action) {
     const wasQueued = this.touchActions.has(action);
@@ -193,9 +215,9 @@ export class InputSystem {
   }
 
   /**
-   * Meldet eine mobile Wurfaktion genau einmal.
-   * @param {"normal"|"nuclear"} type - Gewählte Knochenart.
-   * @returns {boolean} Ob der passende Touchbutton gedrückt wurde.
+   * Consumes throw.
+   * @param {"normal"|"nuclear"} type - The requested item type.
+   * @returns {boolean} Whether the requested condition is met.
    */
   consumeThrow(type) {
     const action = type === "normal" ?
@@ -204,8 +226,8 @@ export class InputSystem {
   }
 
   /**
-   * Beendet gehaltene Touchbewegungen und verwirft gepufferte Aktionen.
-   * @returns {void}
+   * Clears touch state.
+   * @returns {void} No value is returned.
    */
   clearTouchState() {
     this.touchState.left = false;

@@ -9,13 +9,13 @@ import { COLLECTIBLE_KEYS, HUD } from "../../js/config/hud-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
- * Lädt und erstellt die aktuell sichtbaren Anzeigen des Level-HUDs.
+ * Manages level hud system behavior.
  */
 export class LevelHudSystem {
   /**
-   * Lädt nur die aktuell verwendeten HUD-Rahmen.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     [HUD.health, HUD.coin, HUD.serum, HUD.mutation].forEach((asset) => {
@@ -27,15 +27,11 @@ export class LevelHudSystem {
   }
 
   /**
-   * Erstellt HUD-Daten und die drei sichtbaren Anzeigen.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {{health?: number, collectibles?: Record<string, number>}}
-   * [initialState={}] - Optionaler Zustand des vorherigen Levels.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog|null}
-   * [player=null] - Verwandelbare Spielfigur.
-   * @returns {{health: HealthSystem, collectibles: CollectibleSystem,
-   * mutation: MutationSystem}}
-   * Veränderbare Leveldaten für Treffer und Sammelobjekte.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{health?: number, collectibles?: Record<string, number>}} [initialState={}] - The initial state value.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog|null} [player=null] - The player-controlled bulldog.
+   * @returns {{health: HealthSystem, collectibles: CollectibleSystem, mutation: MutationSystem}} The created instance.
    */
   static create(scene, initialState = {}, player = null) {
     const health = this.createHealthSystem(initialState);
@@ -50,9 +46,9 @@ export class LevelHudSystem {
   }
 
   /**
-   * Erstellt die begrenzten Lebensdaten aus dem optionalen Levelzustand.
-   * @param {object} initialState - Zustand des vorherigen Levels.
-   * @returns {HealthSystem} Gemeinsame Lebensdaten.
+   * Creates health system.
+   * @param {object} initialState - The initial state value.
+   * @returns {HealthSystem} The created instance.
    */
   static createHealthSystem(initialState) {
     const current = initialState.health ?? HUD.health.maximum;
@@ -60,9 +56,9 @@ export class LevelHudSystem {
   }
 
   /**
-   * Erstellt die bekannten Sammelstände aus dem optionalen Levelzustand.
-   * @param {object} initialState - Zustand des vorherigen Levels.
-   * @returns {CollectibleSystem} Gemeinsame Sammeldaten.
+   * Creates collectible system.
+   * @param {object} initialState - The initial state value.
+   * @returns {CollectibleSystem} The created instance.
    */
   static createCollectibleSystem(initialState) {
     return new CollectibleSystem(
@@ -72,13 +68,12 @@ export class LevelHudSystem {
   }
 
   /**
-   * Verbindet normale HUD-Elemente, Mutationsanzeige und Spielfigur.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {HealthSystem} health - Gemeinsame Lebensdaten.
-   * @param {CollectibleSystem} collectibles - Gemeinsame Sammeldaten.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog|null}
-   * player - Verwandelbare Spielfigur.
-   * @returns {MutationSystem} Steuerung des Mutations-HUDs.
+   * Creates mutation system.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {HealthSystem} health - The associated health system.
+   * @param {CollectibleSystem} collectibles - The collectibles value.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog|null} player - The player-controlled bulldog.
+   * @returns {MutationSystem} The created instance.
    */
   static createMutationSystem(scene, health, collectibles, player) {
     const healthBar = new HealthBar(scene, health);
@@ -95,10 +90,10 @@ export class LevelHudSystem {
   }
 
   /**
-   * Erstellt Münz- und Serumzähler aus derselben UI-Komponente.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {CollectibleSystem} collectibles - Gemeinsame Zählerdaten.
-   * @returns {CollectibleCounter[]} Erstellte Coin- und Serumanzeigen.
+   * Creates collectible counters.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {CollectibleSystem} collectibles - The collectibles value.
+   * @returns {CollectibleCounter[]} The resulting collection.
    */
   static createCollectibleCounters(scene, collectibles) {
     const coin = new CollectibleCounter(

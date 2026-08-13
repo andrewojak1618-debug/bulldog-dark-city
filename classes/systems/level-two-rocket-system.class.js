@@ -5,28 +5,19 @@ import { BulldogMutationStateSystem } from
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
- * Steuert die ausweichbaren Raketen der großen Alarmdrohne.
+ * Manages level two rocket system behavior.
  */
 export class LevelTwoRocketSystem {
   /**
-   * Lädt Flug-, Explosions- und Audio-Assets.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     const settings = LEVEL_TWO.drones.rocket;
-    AssetLoaderSystem.loadSpritesheet(scene, {
-      key: settings.key,
-      path: settings.path,
-      frameWidth: settings.frameWidth,
-      frameHeight: settings.frameHeight,
-    });
-    AssetLoaderSystem.loadSpritesheet(scene, {
-      key: settings.explosionKey,
-      path: settings.explosionPath,
-      frameWidth: settings.frameWidth,
-      frameHeight: settings.frameHeight,
-    });
+    this.loadSpriteAsset(scene, settings.key, settings.path, settings);
+    this.loadSpriteAsset(scene, settings.explosionKey,
+      settings.explosionPath, settings);
     AssetLoaderSystem.loadAudio(scene, {
       key: settings.explosionSoundKey,
       path: settings.explosionSoundPath,
@@ -34,12 +25,27 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Erstellt eine abgeschlossene Raketensteuerung für die Szene.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite[]} drones - Aktive Drohnen.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Trefferflächen.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
+   * Loads one rocket spritesheet.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {string} key - The texture key.
+   * @param {string} path - The texture path.
+   * @param {object} settings - The rocket settings.
+   * @returns {void} No value is returned.
+   */
+  static loadSpriteAsset(scene, key, path, settings) {
+    AssetLoaderSystem.loadSpritesheet(scene, {
+      key, path, frameWidth: settings.frameWidth,
+      frameHeight: settings.frameHeight,
+    });
+  }
+
+  /**
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite[]} drones - The drones value.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
    */
   constructor(scene, drones, player, platforms, health) {
     this.scene = scene;
@@ -54,8 +60,8 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Initialisiert alle zeit- und trefferabhängigen Zustände.
-   * @returns {void}
+   * Initializes state.
+   * @returns {void} No value is returned.
    */
   initializeState() {
     this.nextShotAt = 0;
@@ -64,8 +70,8 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Verbindet Raketen mit Plattformen und Spielfigur.
-   * @returns {void}
+   * Binds collisions.
+   * @returns {void} No value is returned.
    */
   bindCollisions() {
     this.scene.physics.add.collider(
@@ -85,8 +91,8 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Registriert beide Animationen genau einmal.
-   * @returns {void}
+   * Registers animations.
+   * @returns {void} No value is returned.
    */
   registerAnimations() {
     this.registerFlightAnimation();
@@ -94,8 +100,8 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Registriert die wiederholte Fluganimation genau einmal.
-   * @returns {void}
+   * Registers flight animation.
+   * @returns {void} No value is returned.
    */
   registerFlightAnimation() {
     const settings = LEVEL_TWO.drones.rocket;
@@ -112,8 +118,8 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Registriert die einmalige Explosion genau einmal.
-   * @returns {void}
+   * Registers explosion animation.
+   * @returns {void} No value is returned.
    */
   registerExplosionAnimation() {
     const settings = LEVEL_TWO.drones.rocket;
@@ -130,9 +136,9 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Feuert während des Alarms in fairen Zeitabständen auf die aktuelle Position.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} `true`, wenn der Treffer die Bulldogge K.O. gesetzt hat.
+   * Updates the current state.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   update(time) {
     if (this.playerKnockedOut) return true;
@@ -151,8 +157,8 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Liefert die große, raketentragende Drohne.
-   * @returns {Phaser.GameObjects.Sprite|undefined} Große Drohne oder `undefined`.
+   * Returns big drone.
+   * @returns {Phaser.GameObjects.Sprite|undefined} The resulting data object.
    */
   getBigDrone() {
     return this.drones.find((drone) =>
@@ -161,9 +167,9 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Erzeugt eine Rakete und richtet ihre konstante Flugbahn auf die Bulldogge aus.
-   * @param {Phaser.GameObjects.Sprite} drone - Abschießende große Drohne.
-   * @returns {Phaser.Physics.Arcade.Sprite} Erzeugte Rakete.
+   * Handles fire.
+   * @param {Phaser.GameObjects.Sprite} drone - The drone value.
+   * @returns {Phaser.Physics.Arcade.Sprite} The resulting value.
    */
   fire(drone) {
     const settings = LEVEL_TWO.drones.rocket;
@@ -181,10 +187,10 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Erzeugt die Rakete am Abschusspunkt der großen Drohne.
-   * @param {Phaser.GameObjects.Sprite} drone - Abschießende Drohne.
-   * @param {object} settings - Zentrale Raketenkonfiguration.
-   * @returns {Phaser.Physics.Arcade.Sprite} Neue Rakete.
+   * Creates rocket.
+   * @param {Phaser.GameObjects.Sprite} drone - The drone value.
+   * @param {object} settings - The configuration values to use.
+   * @returns {Phaser.Physics.Arcade.Sprite} The created instance.
    */
   createRocket(drone, settings) {
     return this.projectiles.create(
@@ -196,11 +202,11 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Konfiguriert Darstellung, Hitbox und konstante Geschwindigkeit.
-   * @param {Phaser.Physics.Arcade.Sprite} rocket - Neue Rakete.
-   * @param {number} angle - Flugwinkel zum Zielpunkt.
-   * @param {object} settings - Zentrale Raketenkonfiguration.
-   * @returns {void}
+   * Handles launch rocket.
+   * @param {Phaser.Physics.Arcade.Sprite} rocket - The rocket value.
+   * @param {number} angle - The angle value.
+   * @param {object} settings - The configuration values to use.
+   * @returns {void} No value is returned.
    */
   launchRocket(rocket, angle, settings) {
     rocket
@@ -212,11 +218,11 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Konfiguriert Hitbox und konstante Fluggeschwindigkeit.
-   * @param {Phaser.Physics.Arcade.Sprite} rocket - Neue Rakete.
-   * @param {number} angle - Flugwinkel zum Zielpunkt.
-   * @param {object} settings - Zentrale Raketenkonfiguration.
-   * @returns {void}
+   * Configures rocket body.
+   * @param {Phaser.Physics.Arcade.Sprite} rocket - The rocket value.
+   * @param {number} angle - The angle value.
+   * @param {object} settings - The configuration values to use.
+   * @returns {void} No value is returned.
    */
   configureRocketBody(rocket, angle, settings) {
     rocket.body.setCircle(
@@ -232,9 +238,9 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Zieht bei einem direkten Treffer einmalig zehn Lebenspunkte ab.
-   * @param {Phaser.Physics.Arcade.Sprite} rocket - Treffende Rakete.
-   * @returns {void}
+   * Handles hit player.
+   * @param {Phaser.Physics.Arcade.Sprite} rocket - The rocket value.
+   * @returns {void} No value is returned.
    */
   hitPlayer(rocket) {
     if (!rocket?.active || rocket.getData("isExploding")) return;
@@ -248,17 +254,17 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Zieht den zentral konfigurierten Raketenschaden ab.
-   * @returns {number} Verbleibende Lebenspunkte.
+   * Applies rocket damage.
+   * @returns {number} The resulting numeric value.
    */
   applyRocketDamage() {
     return this.health.takeDamage(LEVEL_TWO.drones.rocket.damage);
   }
 
   /**
-   * Startet abhängig von den Restleben Treffer- oder K.-o.-Reaktion.
-   * @param {number} remainingHealth - Verbleibende Lebenspunkte.
-   * @returns {void}
+   * Shows player hit reaction.
+   * @param {number} remainingHealth - The remaining health value.
+   * @returns {void} No value is returned.
    */
   showPlayerHitReaction(remainingHealth) {
     this.playerKnockedOut = remainingHealth <= 0;
@@ -270,10 +276,10 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Ermittelt die Rakete unabhängig von der Phaser-Callback-Reihenfolge.
-   * @param {Phaser.GameObjects.GameObject} first - Erstes Kollisionsobjekt.
-   * @param {Phaser.GameObjects.GameObject} second - Zweites Kollisionsobjekt.
-   * @returns {Phaser.Physics.Arcade.Sprite|undefined} Beteiligte Rakete.
+   * Resolves projectile.
+   * @param {Phaser.GameObjects.GameObject} first - The first value.
+   * @param {Phaser.GameObjects.GameObject} second - The second value.
+   * @returns {Phaser.Physics.Arcade.Sprite|undefined} The resulting value.
    */
   resolveProjectile(first, second) {
     const projectiles = this.projectiles.getChildren();
@@ -282,9 +288,9 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Ersetzt eine Rakete am Kontaktpunkt durch die einmalige Explosion.
-   * @param {Phaser.Physics.Arcade.Sprite} rocket - Auftreffende Rakete.
-   * @returns {void}
+   * Handles explode.
+   * @param {Phaser.Physics.Arcade.Sprite} rocket - The rocket value.
+   * @returns {void} No value is returned.
    */
   explode(rocket) {
     if (!rocket?.active || rocket.getData("isExploding")) return;
@@ -304,9 +310,9 @@ export class LevelTwoRocketSystem {
   }
 
   /**
-   * Spielt den Explosionssound mit zentral konfigurierter Lautstärke.
-   * @param {object} settings - Zentrale Raketenkonfiguration.
-   * @returns {void}
+   * Plays explosion sound.
+   * @param {object} settings - The configuration values to use.
+   * @returns {void} No value is returned.
    */
   playExplosionSound(settings) {
     this.scene.sound.play(settings.explosionSoundKey, {

@@ -3,27 +3,31 @@ import test from "node:test";
 import { GlobalMuteSystem } from
   "../classes/systems/global-mute-system.class.js";
 
-/** Erstellt einen kleinen LocalStorage-Ersatz für isolierte Systemtests. */
+/**
+ * Manages storage stub behavior.
+ */
 class StorageStub {
-  /** Erstellt den Speicher mit optionalen Anfangswerten. */
+  /**
+   * Creates a new instance.
+   */
   constructor(entries = {}) {
     this.entries = new Map(Object.entries(entries));
   }
 
   /**
-   * Liest einen gespeicherten Wert.
-   * @param {string} key - Speicherschlüssel.
-   * @returns {string|null} Gespeicherter Wert oder null.
+   * Returns item.
+   * @param {string} key - The lookup key.
+   * @returns {string|null} The resulting string value.
    */
   getItem(key) {
     return this.entries.get(key) ?? null;
   }
 
   /**
-   * Speichert einen Wert wie die native LocalStorage-Schnittstelle.
-   * @param {string} key - Speicherschlüssel.
-   * @param {string} value - Zu speichernder Wert.
-   * @returns {void}
+   * Sets item.
+   * @param {string} key - The lookup key.
+   * @param {string} value - The value to process.
+   * @returns {void} No value is returned.
    */
   setItem(key, value) {
     this.entries.set(key, value);

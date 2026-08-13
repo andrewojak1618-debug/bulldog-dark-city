@@ -1,9 +1,5 @@
 /**
- * Levelübergreifende Darstellungs- und Physikwerte der normalen Bulldogge.
- *
- * Beide Level verwenden bewusst dieselben Werte, damit Hitbox, Laufen,
- * Springen und Fallen unabhängig von der jeweiligen Levelkonfiguration
- * identisch bleiben.
+ * Defines the bulldog gameplay configuration.
  */
 export const BULLDOG_GAMEPLAY = Object.freeze({
   displayWidth: 128,

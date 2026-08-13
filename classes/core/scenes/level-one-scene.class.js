@@ -35,27 +35,30 @@ import { LEVEL_MUSIC } from "../../../js/config/level-music-settings.js";
 import { SCENES } from "../../../js/config/game-settings.js";
 import { PLAYER_CAMERA } from
   "../../../js/config/player-camera-settings.js";
+import { LEVEL_ITEMS } from "../../../js/config/level-item-settings.js";
 
-/** Stellt das eigenständige erste Level von Bulldog Dark City bereit. */
+/**
+ * Manages level one scene behavior.
+ */
 export class LevelOneScene extends Phaser.Scene {
   /**
-   * Erstellt Level eins mit seinem eindeutigen Szenenschlüssel.
+   * Creates a new instance.
    */
   constructor() {
     super(SCENES.levelOne);
   }
 
   /**
-   * Setzt den einmaligen Übergang bei jedem neuen Leveldurchlauf zurück.
-   * @returns {void}
+   * Handles init.
+   * @returns {void} No value is returned.
    */
   init() {
     this.isLevelCompleting = false;
   }
 
   /**
-   * Lädt die aktuell benötigten Bulldog-Spritesheets.
-   * @returns {void}
+   * Preloads the current state.
+   * @returns {void} No value is returned.
    */
   preload() {
     if (!LevelOnePreloadSystem.isReady(this)) {
@@ -64,8 +67,8 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Baut Testwelt, Plattformen, Spieler, Kamera und Bedienhinweise auf.
-   * @returns {void}
+   * Creates the current state.
+   * @returns {void} No value is returned.
    */
   create() {
     setMuteButtonGameMode(true);
@@ -78,8 +81,8 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt Weltgrenzen, Umgebung, Plattformen und Animationen.
-   * @returns {void}
+   * Creates level world.
+   * @returns {void} No value is returned.
    */
   createLevelWorld() {
     this.configureWorld();
@@ -90,8 +93,8 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt Spieler, Gegner, Musik und freischaltbaren Ausgang.
-   * @returns {void}
+   * Creates level gameplay.
+   * @returns {void} No value is returned.
    */
   createLevelGameplay() {
     this.createPlayer();
@@ -106,13 +109,13 @@ export class LevelOneScene extends Phaser.Scene {
     this.levelExit = LevelExitSystem.create(this);
     DogCatcherSystem.onceDefeated(
       this.dogCatchers,
-      () => this.levelExit.unlock(),
+      () => this.completeFirstCombat(),
     );
   }
 
   /**
-   * Erstellt Kamera, HUD, Sammelobjekte und Bedienhinweise.
-   * @returns {void}
+   * Creates level interface.
+   * @returns {void} No value is returned.
    */
   createLevelInterface() {
     this.configureCamera();
@@ -121,7 +124,7 @@ export class LevelOneScene extends Phaser.Scene {
     this.collectibleSystem = hud.collectibles;
     this.mutationSystem = hud.mutation;
     this.menuHint = new LevelMenuHint(this, 1);
-    LevelItemSystem.create(
+    this.levelItems = LevelItemSystem.create(
       this,
       this.player,
       this.healthSystem,
@@ -132,8 +135,21 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Lädt Level zwei vor und blendet den ersten Leveldurchlauf ein.
-   * @returns {void}
+   * Completes first combat.
+   * @returns {void} No value is returned.
+   */
+  completeFirstCombat() {
+    this.levelExit.unlock();
+    LevelItemSystem.addPlacements(
+      this,
+      this.levelItems,
+      LEVEL_ITEMS.placements.afterFirstCombat,
+    );
+  }
+
+  /**
+   * Handles prepare level transition.
+   * @returns {void} No value is returned.
    */
   prepareLevelTransition() {
     this.levelTwoAssetsReady = LevelTwoPreloadSystem.preloadAfterEntry(this);
@@ -141,8 +157,8 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Definiert Physics- und Kameragrenzen der Testwelt.
-   * @returns {void}
+   * Configures world.
+   * @returns {void} No value is returned.
    */
   configureWorld() {
     const { width, height } = TEST_LEVEL.world;
@@ -151,8 +167,8 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt die Spielfigur und verbindet sie mit den Plattformen.
-   * @returns {void}
+   * Creates player.
+   * @returns {void} No value is returned.
    */
   createPlayer() {
     const settings = TEST_LEVEL.playerSpawn;
@@ -162,6 +178,13 @@ export class LevelOneScene extends Phaser.Scene {
       settings.startY,
       BULLDOG_TEXTURES.stand.key,
     );
+    this.connectPlayerSystems();
+  }
+
+  /**
+   * Handles connect player systems.
+   */
+  connectPlayerSystems() {
     this.inputSystem = new InputSystem(this);
     this.touchControls = TouchControlSystem.create(
       this,
@@ -169,14 +192,12 @@ export class LevelOneScene extends Phaser.Scene {
       this.player,
     );
     this.physics.add.collider(this.player, this.platforms);
-    this.player.onceKnockOutComplete(() => {
-      this.scene.start(SCENES.gameOver);
-    });
+    this.player.onceKnockOutComplete(() => this.scene.start(SCENES.gameOver));
   }
 
   /**
-   * Startet die Einstiegsmusik und blendet sie beim K. o. weich aus.
-   * @returns {void}
+   * Creates background music.
+   * @returns {void} No value is returned.
    */
   createBackgroundMusic() {
     this.backgroundMusic = new BackgroundMusicSystem(this);
@@ -189,8 +210,8 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Lässt die Kamera weich innerhalb der Weltgrenzen folgen.
-   * @returns {void}
+   * Configures camera.
+   * @returns {void} No value is returned.
    */
   configureCamera() {
     const settings = PLAYER_CAMERA;
@@ -207,14 +228,22 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Zeigt die Desktop-Steuerung zu Levelbeginn kurz als mittiges Popup.
-   * Touchgeräte erhalten stattdessen ihre sichtbaren Bildschirmbuttons.
-   * @returns {void}
+   * Creates movement info popup.
+   * @returns {void} No value is returned.
    */
   createMovementInfoPopup() {
     if (TouchControlSystem.isSupported()) return;
     const settings = TEST_LEVEL.movementInfoPopup;
-    const popup = this.add.text(settings.x, settings.y, settings.text, {
+    const popup = this.createMovementInfoText(settings);
+    this.time.delayedCall(settings.visibleDurationMs, () =>
+      this.fadeOutMovementInfo(popup, settings));
+  }
+
+  /**
+   * Creates movement info text.
+   */
+  createMovementInfoText(settings) {
+    return this.add.text(settings.x, settings.y, settings.text, {
       fontFamily: settings.fontFamily,
       fontSize: `${settings.fontSize}px`,
       color: settings.color,
@@ -226,7 +255,12 @@ export class LevelOneScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(settings.depth);
-    this.time.delayedCall(settings.visibleDurationMs, () => {
+  }
+
+  /**
+   * Fades out movement info.
+   */
+  fadeOutMovementInfo(popup, settings) {
       this.tweens.add({
         targets: popup,
         alpha: 0,
@@ -234,12 +268,11 @@ export class LevelOneScene extends Phaser.Scene {
         ease: "Sine.easeIn",
         onComplete: () => popup.destroy(),
       });
-    });
   }
 
   /**
-   * Bindet die Rückkehr zum Hauptmenü.
-   * @returns {void}
+   * Binds scene controls.
+   * @returns {void} No value is returned.
    */
   bindSceneControls() {
     this.input.keyboard?.once("keydown-ESC", () =>
@@ -248,8 +281,8 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Blendet Level eins aus und startet die vorbereitete zweite Szene.
-   * @returns {void}
+   * Completes level.
+   * @returns {void} No value is returned.
    */
   completeLevel() {
     if (this.isLevelCompleting) return;
@@ -264,10 +297,9 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Startet das vollständig vorgeladene zweite Level.
-   * @param {{health: number, collectibles: Record<string, number>}}
-   * playerState - Zu übernehmender Spielerzustand.
-   * @returns {void}
+   * Starts level two.
+   * @param {{health: number, collectibles: Record<string, number>}} playerState - The player state value.
+   * @returns {void} No value is returned.
    */
   startLevelTwo(playerState) {
     this.scene.start(SCENES.levelTwo, {
@@ -277,9 +309,8 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Sichert die über Levelgrenzen hinweg benötigten Spielerwerte.
-   * @returns {{health: number, collectibles: Record<string, number>}}
-   * Aktueller Lebens- und Sammelzustand.
+   * Creates player state snapshot.
+   * @returns {{health: number, collectibles: Record<string, number>}} The resulting string value.
    */
   createPlayerStateSnapshot() {
     return {
@@ -289,27 +320,39 @@ export class LevelOneScene extends Phaser.Scene {
   }
 
   /**
-   * Aktualisiert Spielerbewegung, Gegner, Umgebung und Levelausgang.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @param {number} delta - Vergangene Millisekunden seit dem letzten Frame.
-   * @returns {void}
+   * Updates the current state.
+   * @param {number} time - The current scene time in milliseconds.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   update(time, delta) {
-    this.mutationSystem?.update(this.inputSystem);
-    if (!this.levelExit?.isTransitioning) {
-      this.player?.updateMovement(this.inputSystem, time);
+    this.updatePlayer(time);
+    this.updateEnemies(time);
+    this.dogCatcherRangeDebug?.update();
+    LevelEnvironmentSystem.update(this, delta);
+    if (this.levelExit?.update(this.player)) {
+      this.completeLevel();
     }
+  }
+
+  /**
+   * Updates player.
+   */
+  updatePlayer(time) {
+    this.mutationSystem?.update(this.inputSystem);
+    if (this.levelExit?.isTransitioning) return;
+    this.player?.updateMovement(this.inputSystem, time);
+  }
+
+  /**
+   * Updates enemies.
+   */
+  updateEnemies(time) {
     DogCatcherSystem.update(
       this.dogCatchers,
       this.player,
       this.healthSystem,
       time,
     );
-    this.dogCatcherRangeDebug?.update();
-    LevelEnvironmentSystem.update(this, delta);
-    if (this.levelExit?.update(this.player)) {
-      this.completeLevel();
-      return;
-    }
   }
 }

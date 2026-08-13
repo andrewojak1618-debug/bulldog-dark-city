@@ -1,15 +1,15 @@
 /**
- * Liefert den barrierearmen GitHub-Link außerhalb des Phaser-Canvas.
- * @returns {HTMLAnchorElement|null} Gefundener Profil-Link oder `null`.
+ * Returns git hub profile link.
+ * @returns {HTMLAnchorElement|null} The resulting value.
  */
 function getGitHubProfileLink() {
   return document.getElementById("github-profile-link");
 }
 
 /**
- * Schaltet Sichtbarkeit und Tastaturzugriff des GitHub-Links gemeinsam um.
- * @param {boolean} isVisible - Ob der Link im Hauptmenü sichtbar sein soll.
- * @returns {void}
+ * Sets menu social link visibility.
+ * @param {boolean} isVisible - The is visible value.
+ * @returns {void} No value is returned.
  */
 export function setMenuSocialLinkVisibility(isVisible) {
   const link = getGitHubProfileLink();

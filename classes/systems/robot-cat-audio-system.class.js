@@ -1,12 +1,14 @@
 import { ROBOT_CAT_AUDIO } from
   "../../js/config/robot-cat-audio-settings.js";
 
-/** Lädt und spielt die kurzen Soundeffekte der Roboterkatze. */
+/**
+ * Manages robot cat audio system behavior.
+ */
 export class RobotCatAudioSystem {
   /**
-   * Lädt alle Roboterkatzen-Sounds genau einmal in den Phaser-Audiocache.
-   * @param {Phaser.Scene} scene - Zugehörige Level-3-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     Object.values(ROBOT_CAT_AUDIO).forEach((audio) => {
@@ -16,9 +18,9 @@ export class RobotCatAudioSystem {
   }
 
   /**
-   * Spielt den Schnittsound synchron zum Abschuss des Klauenprojektils.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @returns {void}
+   * Plays claw attack.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static playClawAttack(scene) {
     const audio = ROBOT_CAT_AUDIO.clawAttack;
@@ -26,9 +28,9 @@ export class RobotCatAudioSystem {
   }
 
   /**
-   * Startet den einmaligen Schub-Sound für eine vollständige Flugsequenz.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Fliegende Roboterkatze.
-   * @returns {void}
+   * Plays thrust flight.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
    */
   static playThrustFlight(robotCat) {
     this.stopThrustFlight(robotCat);
@@ -40,9 +42,9 @@ export class RobotCatAudioSystem {
   }
 
   /**
-   * Erstellt eine eigene Soundinstanz für die aktuelle Flugsequenz.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Fliegende Roboterkatze.
-   * @returns {Phaser.Sound.BaseSound} Erstellter Schub-Sound.
+   * Creates thrust sound.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {Phaser.Sound.BaseSound} The created instance.
    */
   static createThrustSound(robotCat) {
     const audio = ROBOT_CAT_AUDIO.thrustFlight;
@@ -50,10 +52,10 @@ export class RobotCatAudioSystem {
   }
 
   /**
-   * Räumt den Schub-Sound nach seinem natürlichen Ende sicher auf.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Fliegende Roboterkatze.
-   * @param {Phaser.Sound.BaseSound} sound - Aktive Soundinstanz.
-   * @returns {void}
+   * Binds thrust completion.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Sound.BaseSound} sound - The sound value.
+   * @returns {void} No value is returned.
    */
   static bindThrustCompletion(robotCat, sound) {
     sound.once("complete", () => {
@@ -66,9 +68,9 @@ export class RobotCatAudioSystem {
   }
 
   /**
-   * Stoppt einen noch aktiven Flug-Sound ohne verwaiste Audioinstanz.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatze mit Audiostatus.
-   * @returns {void}
+   * Stops thrust flight.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
    */
   static stopThrustFlight(robotCat) {
     const fadeTween = robotCat?.getData("thrustFlightFadeTween");
@@ -82,10 +84,10 @@ export class RobotCatAudioSystem {
   }
 
   /**
-   * Blendet den Schub kurz vor Bodenkontakt genau einmal weich aus.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Landende Roboterkatze.
-   * @param {number} duration - Dauer bis zum erwarteten Bodenkontakt.
-   * @returns {void}
+   * Fades out thrust flight.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {number} duration - The duration in milliseconds.
+   * @returns {void} No value is returned.
    */
   static fadeOutThrustFlight(robotCat, duration) {
     const sound = robotCat?.getData("thrustFlightSound");

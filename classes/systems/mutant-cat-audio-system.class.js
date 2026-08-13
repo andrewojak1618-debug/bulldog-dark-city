@@ -1,12 +1,14 @@
 import { MUTANT_CAT_AUDIO } from
   "../../js/config/mutant-cat-audio-settings.js";
 
-/** Lädt und spielt die kurzen Soundeffekte der mutierten Katze. */
+/**
+ * Manages mutant cat audio system behavior.
+ */
 export class MutantCatAudioSystem {
   /**
-   * Lädt alle Katzensounds genau einmal in den Phaser-Audiocache.
-   * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     Object.values(MUTANT_CAT_AUDIO).forEach((audio) => {
@@ -16,9 +18,9 @@ export class MutantCatAudioSystem {
   }
 
   /**
-   * Spielt den einmaligen Laut beim Entdecken der Bulldogge.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {void}
+   * Plays attentive.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static playAttentive(scene) {
     const audio = MUTANT_CAT_AUDIO.attentive;

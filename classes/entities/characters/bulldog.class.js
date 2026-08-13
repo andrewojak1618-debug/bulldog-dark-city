@@ -15,15 +15,15 @@ import { BulldogMutationStateSystem } from
   "../../systems/bulldog-mutation-state-system.class.js";
 
 /**
- * Bildet die steuerbare Bulldogge des technischen Prototyps ab.
+ * Manages bulldog behavior.
  */
 export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   /**
-   * Erstellt die Bulldogge mit einer angepassten Arcade-Physics-Hitbox.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {number} x - Horizontale Startposition.
-   * @param {number} y - Vertikale Startposition.
-   * @param {string} texture - Texturschlüssel des Testframes.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {string} texture - The texture configuration to use.
    */
   constructor(scene, x, y, texture) {
     super(scene, x, y, texture);
@@ -35,8 +35,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Richtet Größe, Hitbox und Bewegungsgrenzen der Bulldogge ein.
-   * @returns {void}
+   * Configures physics.
+   * @returns {void} No value is returned.
    */
   configurePhysics() {
     const settings = BULLDOG_GAMEPLAY;
@@ -49,8 +49,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Initialisiert die veränderlichen Bewegungs- und Aktionszustände.
-   * @returns {void}
+   * Initializes state.
+   * @returns {void} No value is returned.
    */
   initializeState() {
     this.standingStartedAt = null;
@@ -66,10 +66,10 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Wendet Bewegung und Sprung anhand der aktuellen Eingaben an.
-   * @param {import("../../input/input-system.class.js").InputSystem} input - Spielereingaben.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Updates movement.
+   * @param {import("../../input/input-system.class.js").InputSystem} input - The active input system.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   updateMovement(input, time) {
     if (this.isKnockedOut || this.isMutating) return;
@@ -87,18 +87,18 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Startet einmalig die sichtbare Verwandlung.
-   * @returns {boolean} `true`, wenn die Mutation gestartet wurde.
+   * Starts mutation.
+   * @returns {boolean} Whether the requested condition is met.
    */
   startMutation() {
     return BulldogMutationStateSystem.start(this);
   }
 
   /**
-   * Behandelt Trefferreaktion und Angriff, bevor Bewegung erlaubt wird.
-   * @param {import("../../input/input-system.class.js").InputSystem} input - Spielereingaben.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} `true`, solange eine Aktion die Bewegung sperrt.
+   * Updates action state.
+   * @param {import("../../input/input-system.class.js").InputSystem} input - The active input system.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   updateActionState(input, time) {
     if (this.isHit && time < this.hitReactionEndsAt) {
@@ -113,10 +113,10 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Überträgt Richtung, Schwerkraft und Sprungimpuls auf die Physik.
-   * @param {import("../../input/input-system.class.js").InputSystem} input - Spielereingaben.
-   * @param {-1|0|1} direction - Horizontale Bewegungsrichtung.
-   * @returns {void}
+   * Applies movement.
+   * @param {import("../../input/input-system.class.js").InputSystem} input - The active input system.
+   * @param {-1|0|1} direction - The horizontal movement direction.
+   * @returns {void} No value is returned.
    */
   applyMovement(input, direction) {
     const isFalling = this.body.velocity.y > 0;
@@ -129,17 +129,17 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Wählt anhand der Physik den passenden Sprung-, Fall- oder Bodenstatus.
-   * @param {-1|0|1} direction - Horizontale Bewegungsrichtung.
-   * @returns {void}
+   * Updates movement animations.
+   * @param {-1|0|1} direction - The horizontal movement direction.
+   * @returns {void} No value is returned.
    */
   updateMovementAnimations(direction) {
     BulldogMovementAnimationSystem.update(this, direction);
   }
 
   /**
-   * Startet einen erlaubten Angriff und sperrt Mehrfachauslösungen.
-   * @returns {boolean} `true`, wenn ein neuer Angriff gestartet wurde.
+   * Starts attack.
+   * @returns {boolean} Whether the requested condition is met.
    */
   startAttack() {
     if (!this.canStartAttack()) return false;
@@ -149,8 +149,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Prüft Aktionszustand und erlaubte Luftangriffe.
-   * @returns {boolean} `true`, wenn ein Angriff beginnen darf.
+   * Checks the start attack condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   canStartAttack() {
     const isAirAttackBlocked = !this.isGrounded() && !this.isMutated;
@@ -158,8 +158,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Setzt den Aktionszustand und startet die passende Angriffsanimation.
-   * @returns {void}
+   * Handles prepare attack.
+   * @returns {void} No value is returned.
    */
   prepareAttack() {
     if (!this.isMutated) this.audio.prepareBiteAttack();
@@ -174,8 +174,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Liefert den Phaser-Ereignisnamen für das Ende des aktiven Angriffs.
-   * @returns {string} Vollständiger Animation-Complete-Ereignisname.
+   * Returns attack complete event name.
+   * @returns {string} The resulting string value.
    */
   getAttackCompleteEventName() {
     return (
@@ -185,11 +185,11 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Meldet genau einen Treffer im letzten Angriffsframe.
-   * @param {Phaser.Physics.Arcade.Sprite} target - Angegriffener Gegner.
-   * @param {number} hitRange - Maximale horizontale Trefferentfernung.
-   * @param {number} groundTolerance - Erlaubter Abstand der Fußpunkte.
-   * @returns {boolean} `true`, wenn der Angriff den Gegner neu trifft.
+   * Consumes attack hit.
+   * @param {Phaser.Physics.Arcade.Sprite} target - The target game object.
+   * @param {number} hitRange - The hit range value.
+   * @param {number} groundTolerance - The ground tolerance value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   consumeAttackHit(target, hitRange, groundTolerance) {
     if (!this.isAttackImpactReady(target)) return false;
@@ -206,9 +206,9 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Prüft Angriffsstatus, Zielzustand und aktiven Trefferframe.
-   * @param {Phaser.Physics.Arcade.Sprite} target - Angegriffener Gegner.
-   * @returns {boolean} `true`, wenn eine Trefferprüfung sinnvoll ist.
+   * Checks the attack impact ready condition.
+   * @param {Phaser.Physics.Arcade.Sprite} target - The target game object.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isAttackImpactReady(target) {
     const attackKey = this.anims.currentAnim?.key;
@@ -223,12 +223,12 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Prüft Blickrichtung, Reichweite und Höhenabstand des Angriffsziels.
-   * @param {Phaser.Physics.Arcade.Sprite} target - Angegriffener Gegner.
-   * @param {number} distanceX - Horizontaler Abstand zum Ziel.
-   * @param {number} hitRange - Maximale horizontale Trefferentfernung.
-   * @param {number} groundTolerance - Erlaubter Abstand der Fußpunkte.
-   * @returns {boolean} `true`, wenn das Ziel getroffen werden darf.
+   * Checks the target in attack range condition.
+   * @param {Phaser.Physics.Arcade.Sprite} target - The target game object.
+   * @param {number} distanceX - The distance x value.
+   * @param {number} hitRange - The hit range value.
+   * @param {number} groundTolerance - The ground tolerance value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isTargetInAttackRange(target, distanceX, hitRange, groundTolerance) {
     const facingDirection = this.flipX ? -1 : 1;
@@ -241,8 +241,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Beendet den Angriffszustand und stellt die neutrale Haltung wieder her.
-   * @returns {void}
+   * Completes attack.
+   * @returns {void} No value is returned.
    */
   finishAttack() {
     if (!this.isAttacking) return;
@@ -254,9 +254,9 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Zeigt nach einem normalen Gegnertreffer kurz den ersten K.-o.-Frame.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} `true`, wenn die Trefferreaktion gestartet wurde.
+   * Handles take hit.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   takeHit(time) {
     if (this.isKnockedOut || this.isHit) return false;
@@ -272,8 +272,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Beendet die kurze Trefferreaktion und stellt den Standframe wieder her.
-   * @returns {void}
+   * Completes hit reaction.
+   * @returns {void} No value is returned.
    */
   finishHitReaction() {
     if (!this.isHit) return;
@@ -283,8 +283,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Sperrt die Steuerung und spielt die K.-o.-Sequenz genau einmal ab.
-   * @returns {boolean} `true`, wenn der K.-o.-Zustand neu ausgelöst wurde.
+   * Handles knock out.
+   * @returns {boolean} Whether the requested condition is met.
    */
   knockOut() {
     if (this.isKnockedOut) return false;
@@ -302,8 +302,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Beendet gemeinsam genutzte Warte-, Lande- und Angriffszustände.
-   * @returns {void}
+   * Handles cancel active action states.
+   * @returns {void} No value is returned.
    */
   cancelActiveActionStates() {
     this.standingStartedAt = null;
@@ -319,9 +319,9 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Registriert eine einmalige Aktion nach dem letzten K.-o.-Frame.
-   * @param {Function} callback - Aktion nach Abschluss der Animation.
-   * @returns {void}
+   * Handles once knock out complete.
+   * @param {Function} callback - The callback to invoke.
+   * @returns {void} No value is returned.
    */
   onceKnockOutComplete(callback) {
     [
@@ -335,8 +335,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Liefert die zur aktuellen Form passende K.-o.-Animation.
-   * @returns {string} Phaser-Animationsschlüssel.
+   * Returns knock out animation key.
+   * @returns {string} The resulting string value.
    */
   getKnockOutAnimationKey() {
     return this.isMutated
@@ -345,8 +345,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Liefert die zur aktuellen Form passende K.-o.-Textur.
-   * @returns {{key: string}} Konfiguration der K.-o.-Textur.
+   * Returns knock out texture.
+   * @returns {{key: string}} The resulting string value.
    */
   getKnockOutTexture() {
     return this.isMutated
@@ -355,8 +355,8 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Stellt den neutralen Standframe ohne laufende Animation dar.
-   * @returns {void}
+   * Shows stand frame.
+   * @returns {void} No value is returned.
    */
   showStandFrame() {
     this.stopWaitBreathing();
@@ -368,24 +368,24 @@ export class Bulldog extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Startet die Atemschleife genau einmal beim aktiven Wartezustand.
-   * @returns {void}
+   * Starts wait breathing.
+   * @returns {void} No value is returned.
    */
   startWaitBreathing() {
     this.audio.startWaitBreathing();
   }
 
   /**
-   * Beendet die Atemschleife unmittelbar bei Bewegung oder einer Aktion.
-   * @returns {void}
+   * Stops wait breathing.
+   * @returns {void} No value is returned.
    */
   stopWaitBreathing() {
     this.audio.stopWaitBreathing();
   }
 
   /**
-   * Prüft, ob die Bulldogge auf einer Kollisionsfläche steht.
-   * @returns {boolean} `true`, wenn ein Sprung erlaubt ist.
+   * Checks the grounded condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isGrounded() {
     return this.body.blocked.down || this.body.touching.down;

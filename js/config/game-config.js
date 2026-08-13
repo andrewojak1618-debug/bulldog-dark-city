@@ -9,6 +9,8 @@ import { GameOverScene } from "../../classes/core/scenes/game-over-scene.class.j
 import { VictoryScene } from "../../classes/core/scenes/victory-scene.class.js";
 import { GameEndscreenScene } from
   "../../classes/core/scenes/game-endscreen-scene.class.js";
+import { SharpTextPlugin } from
+  "../../classes/core/sharp-text-plugin.class.js";
 import { GAME_DIMENSIONS } from "./game-settings.js";
 
 export const GAME_CONFIG = {
@@ -29,6 +31,13 @@ export const GAME_CONFIG = {
   physics: {
     default: "arcade",
     arcade: { gravity: { y: 900 }, debug: false },
+  },
+  plugins: {
+    scene: [{
+      key: "sharpTextPlugin",
+      plugin: SharpTextPlugin,
+      mapping: "sharpText",
+    }],
   },
   scene: [
     BootScene,

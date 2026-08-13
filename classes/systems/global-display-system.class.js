@@ -1,17 +1,20 @@
 const DISPLAY_STORAGE_KEY = "bulldog-dark-city.display-mode";
 
-/** Verfügbare, kontrolliert abgestimmte Bildschirmdarstellungen. */
+/**
+ * Defines the display modes configuration.
+ */
 export const DISPLAY_MODES = Object.freeze({
   standard: "standard",
   oled: "oled",
 });
 
-/** Verwaltet eine persistente, moderate Aufhellung für dunkle Displays. */
+/**
+ * Manages global display system behavior.
+ */
 export class GlobalDisplaySystem {
   /**
-   * Erstellt die Anzeigeeinstellung aus einem sicheren Speicherzugriff.
-   * @param {Storage|null} [storage=GlobalDisplaySystem.getDefaultStorage()]
-   * Persistenter Browserspeicher oder ein Testersatz.
+   * Creates a new instance.
+   * @param {Storage|null} [storage=GlobalDisplaySystem.getDefaultStorage()] - The storage implementation to use.
    */
   constructor(storage = GlobalDisplaySystem.getDefaultStorage()) {
     this.storage = storage;
@@ -20,7 +23,10 @@ export class GlobalDisplaySystem {
     this.mode = this.readStoredMode();
   }
 
-  /** @returns {Storage|null} Verfügbarer Browserspeicher oder null. */
+  /**
+   * Returns default storage.
+   * @returns {Storage|null} The resulting value.
+   */
   static getDefaultStorage() {
     try {
       return globalThis.localStorage ?? null;
@@ -30,23 +36,26 @@ export class GlobalDisplaySystem {
   }
 
   /**
-   * Verknüpft die Einstellung mit dem erzeugten Phaser-Canvas.
-   * @param {Phaser.Game} game - Laufende Phaser-Spielinstanz.
-   * @returns {void}
+   * Handles attach game.
+   * @param {Phaser.Game} game - The game value.
+   * @returns {void} No value is returned.
    */
   attachGame(game) {
     this.canvas = game?.canvas ?? null;
     this.applyToCanvas();
   }
 
-  /** @returns {string} Aktueller Bildschirmmodus. */
+  /**
+   * Returns mode.
+   * @returns {string} The resulting string value.
+   */
   getMode() {
     return this.mode;
   }
 
   /**
-   * Wechselt zwischen Originaldarstellung und OLED-Aufhellung.
-   * @returns {string} Neu gesetzter Bildschirmmodus.
+   * Toggles the current state.
+   * @returns {string} The resulting string value.
    */
   toggle() {
     const nextMode = this.mode === DISPLAY_MODES.oled
@@ -57,9 +66,9 @@ export class GlobalDisplaySystem {
   }
 
   /**
-   * Setzt ausschließlich einen bekannten Bildschirmmodus.
-   * @param {string} mode - Gewünschter Modusschlüssel.
-   * @returns {void}
+   * Sets mode.
+   * @param {string} mode - The mode value.
+   * @returns {void} No value is returned.
    */
   setMode(mode) {
     const nextMode = this.isKnownMode(mode) ? mode : DISPLAY_MODES.standard;
@@ -74,9 +83,9 @@ export class GlobalDisplaySystem {
   }
 
   /**
-   * Informiert eine Oberfläche sofort und bei jeder Änderung.
-   * @param {(mode: string) => void} listener - Empfänger des Modusschlüssels.
-   * @returns {Function} Funktion zum Abmelden des Empfängers.
+   * Handles on change.
+   * @param {(mode: string) => void} listener - The listener value.
+   * @returns {Function} The generated callback function.
    */
   onChange(listener) {
     this.listeners.add(listener);
@@ -84,7 +93,10 @@ export class GlobalDisplaySystem {
     return () => this.listeners.delete(listener);
   }
 
-  /** @returns {string} Persistierter oder sicherer Standardmodus. */
+  /**
+   * Reads stored mode.
+   * @returns {string} The resulting string value.
+   */
   readStoredMode() {
     try {
       const storedMode = this.storage?.getItem(DISPLAY_STORAGE_KEY);
@@ -96,7 +108,10 @@ export class GlobalDisplaySystem {
     }
   }
 
-  /** @returns {void} Speichert die aktuelle Anzeigeeinstellung. */
+  /**
+   * Handles store mode.
+   * @returns {void} No value is returned.
+   */
   storeMode() {
     try {
       this.storage?.setItem(DISPLAY_STORAGE_KEY, this.mode);
@@ -105,20 +120,25 @@ export class GlobalDisplaySystem {
     }
   }
 
-  /** @returns {void} Überträgt den Modusschlüssel auf das Spiel-Canvas. */
+  /**
+   * Applies to canvas.
+   * @returns {void} No value is returned.
+   */
   applyToCanvas() {
     if (this.canvas?.dataset) this.canvas.dataset.displayMode = this.mode;
   }
 
   /**
-   * Prüft einen Modusschlüssel gegen die zentrale Auswahlliste.
-   * @param {string|null|undefined} mode - Zu prüfender Wert.
-   * @returns {boolean} Ob der Wert unterstützt wird.
+   * Checks the known mode condition.
+   * @param {string|null|undefined} mode - The mode value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isKnownMode(mode) {
     return Object.values(DISPLAY_MODES).includes(mode);
   }
 }
 
-/** Gemeinsame Instanz für Startmenü und alle Level. */
+/**
+ * Defines the global display system configuration.
+ */
 export const globalDisplaySystem = new GlobalDisplaySystem();

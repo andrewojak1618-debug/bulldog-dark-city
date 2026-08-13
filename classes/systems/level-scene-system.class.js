@@ -3,13 +3,15 @@ import { PLAYER_CAMERA } from
   "../../js/config/player-camera-settings.js";
 import { LevelHudSystem } from "./level-hud-system.class.js";
 
-/** Bündelt identische Grundfunktionen der aufeinanderfolgenden Level. */
+/**
+ * Manages level scene system behavior.
+ */
 export class LevelSceneSystem {
   /**
-   * Übernimmt den optionalen Spielerzustand und den Einlaufstatus.
-   * @param {Phaser.Scene} scene - Zu initialisierende Levelszene.
-   * @param {object} data - Optionale Daten des vorherigen Levels.
-   * @returns {void}
+   * Initializes the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} data - The data value.
+   * @returns {void} No value is returned.
    */
   static initialize(scene, data) {
     scene.initialPlayerState = data.playerState ?? {};
@@ -17,9 +19,9 @@ export class LevelSceneSystem {
   }
 
   /**
-   * Erstellt das gemeinsame HUD und weist seine Systeme der Szene zu.
-   * @param {Phaser.Scene} scene - Aktive Levelszene mit Spielfigur.
-   * @returns {void}
+   * Creates hud.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static createHud(scene) {
     const hud = LevelHudSystem.create(
@@ -31,9 +33,9 @@ export class LevelSceneSystem {
   }
 
   /**
-   * Aktiviert die gemeinsame weiche Kameraführung und Deadzone.
-   * @param {Phaser.Scene} scene - Aktive Levelszene mit Spielfigur.
-   * @returns {void}
+   * Configures camera.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static configureCamera(scene) {
     scene.cameras.main.startFollow(
@@ -45,9 +47,9 @@ export class LevelSceneSystem {
   }
 
   /**
-   * Bindet die einmalige Rückkehr zum Hauptmenü an Escape.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @returns {void}
+   * Binds menu shortcut.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static bindMenuShortcut(scene) {
     scene.input.keyboard?.once("keydown-ESC", () => {

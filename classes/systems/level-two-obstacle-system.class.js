@@ -2,13 +2,13 @@ import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
- * Lädt und erzeugt die Hindernisse des zweiten Levels.
+ * Manages level two obstacle system behavior.
  */
 export class LevelTwoObstacleSystem {
   /**
-   * Lädt das Spritesheet der Nuklearbox.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     this.loadSpritesheet(scene, LEVEL_TWO.nuclearBoxObstacle);
@@ -16,21 +16,21 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Lädt ein konfiguriertes Hindernis-Spritesheet.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Zentrale Asset-Konfiguration.
-   * @returns {void}
+   * Loads spritesheet.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @returns {void} No value is returned.
    */
   static loadSpritesheet(scene, settings) {
     AssetLoaderSystem.loadSpritesheet(scene, settings);
   }
 
   /**
-   * Erstellt alle konfigurierten Nuklearboxen mit Sprungkollision.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @param {number} surfaceY - Vertikale Position der Bodenlaufkante.
-   * @returns {Phaser.GameObjects.Sprite[]} Erstellte Nuklearboxen.
+   * Creates nuclear boxes.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {number} surfaceY - The surface y value.
+   * @returns {Phaser.GameObjects.Sprite[]} The resulting collection.
    */
   static createNuclearBoxes(scene, platforms, surfaceY) {
     const settings = LEVEL_TWO.nuclearBoxObstacle;
@@ -44,10 +44,10 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Erstellt die jeweils nur von einer Nuklearbox erreichbaren Plattformen.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @returns {Phaser.GameObjects.Sprite[]} Erstellte Lichtplattformen.
+   * Creates floating light platforms.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @returns {Phaser.GameObjects.Sprite[]} The resulting collection.
    */
   static createFloatingLightPlatforms(scene, platforms) {
     const settings = LEVEL_TWO.floatingLightPlatform;
@@ -59,12 +59,12 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Erstellt eine Plattform samt synchroner Kollisionsfläche und Bewegung.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @param {object} settings - Zentrale Plattformkonfiguration.
-   * @param {object} placement - Position und optionale Bewegung.
-   * @returns {Phaser.GameObjects.Sprite} Erstellte Plattformgrafik.
+   * Creates floating light platform.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} placement - The placement value.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   static createFloatingLightPlatform(scene, platforms, settings, placement) {
     const platform = this.createFloatingPlatformSprite(
@@ -85,13 +85,13 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Bewegt Grafik und Kollisionsfläche gemeinsam in einer Endlosschleife.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite} platform - Sichtbare Plattform.
-   * @param {Phaser.GameObjects.Rectangle} collision - Kollisionsfläche.
-   * @param {object} settings - Zentrale Plattformkonfiguration.
-   * @param {object} placement - Position und optionale Bewegung.
-   * @returns {Phaser.Tweens.Tween|null} Plattform-Tween oder null.
+   * Creates floating platform motion.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} platform - The platform value.
+   * @param {Phaser.GameObjects.Rectangle} collision - The collision value.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} placement - The placement value.
+   * @returns {Phaser.Tweens.Tween|null} The created instance.
    */
   static createFloatingPlatformMotion(
     scene,
@@ -101,8 +101,21 @@ export class LevelTwoObstacleSystem {
     placement,
   ) {
     if (!placement.motion) return null;
+    return scene.tweens.add(this.getFloatingPlatformTween(
+      platform, collision, settings, placement,
+    ));
+  }
 
-    return scene.tweens.add({
+  /**
+   * Returns the floating platform tween settings.
+   * @param {Phaser.GameObjects.Sprite} platform - The platform sprite.
+   * @param {Phaser.GameObjects.Rectangle} collision - The collision object.
+   * @param {object} settings - The platform settings.
+   * @param {object} placement - The platform placement.
+   * @returns {object} The tween settings.
+   */
+  static getFloatingPlatformTween(platform, collision, settings, placement) {
+    return {
       targets: [platform, collision],
       x: this.getFloatingPlatformTargetX(settings, placement.motion),
       duration: placement.motion.durationMs,
@@ -110,14 +123,14 @@ export class LevelTwoObstacleSystem {
       yoyo: true,
       repeat: -1,
       onUpdate: () => this.syncFloatingPlatformBody(platform, collision),
-    });
+    };
   }
 
   /**
-   * Synchronisiert Hitbox und Fahrer unmittelbar mit der sichtbaren Plattform.
-   * @param {Phaser.GameObjects.Sprite} platform - Sichtbare Plattform.
-   * @param {Phaser.GameObjects.Rectangle} collision - Kollisionsfläche.
-   * @returns {void}
+   * Synchronizes floating platform body.
+   * @param {Phaser.GameObjects.Sprite} platform - The platform value.
+   * @param {Phaser.GameObjects.Rectangle} collision - The collision value.
+   * @returns {void} No value is returned.
    */
   static syncFloatingPlatformBody(platform, collision) {
     const previousX = collision.body?.center.x ?? collision.x;
@@ -127,10 +140,10 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Aktualisiert, auf welcher Lichtplattform die Spielfigur gerade steht.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Spielfigur.
-   * @param {Phaser.GameObjects.Sprite[]} platforms - Lichtplattformen.
-   * @returns {void}
+   * Updates player platform contact.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {Phaser.GameObjects.Sprite[]} platforms - The platforms value.
+   * @returns {void} No value is returned.
    */
   static updatePlayerPlatformContact(player, platforms = []) {
     const platform = platforms.find((entry) =>
@@ -142,10 +155,10 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Verschiebt den erkannten Fahrer im selben Schritt wie die Plattform.
-   * @param {Phaser.GameObjects.Sprite} platform - Bewegte Lichtplattform.
-   * @param {number} deltaX - Aktuelle horizontale Plattformbewegung.
-   * @returns {void}
+   * Handles carry platform rider.
+   * @param {Phaser.GameObjects.Sprite} platform - The platform value.
+   * @param {number} deltaX - The delta x value.
+   * @returns {void} No value is returned.
    */
   static carryPlatformRider(platform, deltaX) {
     const player = platform.getData("rider");
@@ -155,10 +168,10 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Prüft den Bodenkontakt und die horizontale Überlappung zur Plattform.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Spielfigur.
-   * @param {Phaser.GameObjects.Rectangle|undefined} collision - Plattformkante.
-   * @returns {boolean} `true`, wenn die Figur auf dieser Plattform steht.
+   * Checks the player standing on condition.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {Phaser.GameObjects.Rectangle|undefined} collision - The collision value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isPlayerStandingOn(player, collision) {
     if (!player?.body || !collision?.body) return false;
@@ -172,10 +185,10 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Verschiebt Grafik und dynamische Hitbox der Spielfigur gemeinsam.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Spielfigur.
-   * @param {number} deltaX - Bewegung der Plattform seit dem letzten Frame.
-   * @returns {void}
+   * Moves player horizontally.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} deltaX - The delta x value.
+   * @returns {void} No value is returned.
    */
   static movePlayerHorizontally(player, deltaX) {
     player.x += deltaX;
@@ -183,10 +196,10 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Berechnet das Ziel anhand des sichtbaren Abstands zur Zielplattform.
-   * @param {object} settings - Zentrale Plattformkonfiguration.
-   * @param {object} motion - Bewegungsparameter.
-   * @returns {number} Horizontale Zielposition der bewegten Plattform.
+   * Returns floating platform target x.
+   * @param {object} settings - The configuration values to use.
+   * @param {object} motion - The motion value.
+   * @returns {number} The resulting numeric value.
    */
   static getFloatingPlatformTargetX(settings, motion) {
     const target = settings.placements[motion.targetPlacementIndex];
@@ -195,11 +208,11 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Erzeugt eine Lichtplattform anhand ihrer sichtbaren Oberkante.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Zentrale Plattformkonfiguration.
-   * @param {{x: number, visualTopY: number}} placement - Position der Plattform.
-   * @returns {Phaser.GameObjects.Sprite} Erstellte Plattformgrafik.
+   * Creates floating platform sprite.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {{x: number, visualTopY: number}} placement - The placement value.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   static createFloatingPlatformSprite(scene, settings, placement) {
     return scene.add
@@ -211,12 +224,12 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Erstellt die Laufkante nach demselben Kollisionsmodell wie in Level 1.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @param {object} settings - Zentrale Plattformkonfiguration.
-   * @param {{x: number, visualTopY: number}} placement - Position der Plattform.
-   * @returns {Phaser.GameObjects.Rectangle} Erstellte Kollisionsfläche.
+   * Creates floating platform collision.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {object} settings - The configuration values to use.
+   * @param {{x: number, visualTopY: number}} placement - The placement value.
+   * @returns {Phaser.GameObjects.Rectangle} The resulting data object.
    */
   static createFloatingPlatformCollision(
     scene,
@@ -224,29 +237,35 @@ export class LevelTwoObstacleSystem {
     settings,
     placement,
   ) {
-    const scale = settings.displayWidth / settings.frameWidth;
-    const surfaceY =
-      placement.visualTopY +
-      settings.surfaceOffsetY * scale +
-      settings.collisionOffsetY;
-    const collisionWidth = settings.displayWidth - settings.edgeInset * 2;
-    const collision = scene.add.rectangle(
-      placement.x,
-      surfaceY + settings.collisionHeight / 2,
-      collisionWidth,
-      settings.collisionHeight,
-    );
-
+    const dimensions = this.getFloatingCollisionDimensions(settings, placement);
+    const collision = scene.add.rectangle(placement.x, dimensions.centerY,
+      dimensions.width, settings.collisionHeight);
     collision.setVisible(false);
     platforms.add(collision);
     return collision;
   }
 
   /**
-   * Registriert eine stabilisierte grüne Pulsanimation genau einmal.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Zentrale Animationskonfiguration.
-   * @returns {void}
+   * Returns floating platform collision dimensions.
+   * @param {object} settings - The platform settings.
+   * @param {object} placement - The platform placement.
+   * @returns {{centerY: number, width: number}} The collision dimensions.
+   */
+  static getFloatingCollisionDimensions(settings, placement) {
+    const scale = settings.displayWidth / settings.frameWidth;
+    const surfaceY = placement.visualTopY +
+      settings.surfaceOffsetY * scale + settings.collisionOffsetY;
+    return {
+      centerY: surfaceY + settings.collisionHeight / 2,
+      width: settings.displayWidth - settings.edgeInset * 2,
+    };
+  }
+
+  /**
+   * Registers animation.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @returns {void} No value is returned.
    */
   static registerAnimation(scene, settings) {
     if (scene.anims.exists(settings.animationKey)) return;
@@ -264,12 +283,12 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Erzeugt eine sichtbare und animierte Hindernisgrafik.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Zentrale Hinderniskonfiguration.
-   * @param {number} x - Horizontale Position des Hindernisses.
-   * @param {number} bottomY - Vertikale Position der sichtbaren Unterkante.
-   * @returns {Phaser.GameObjects.Sprite} Erstellte Hindernisgrafik.
+   * Creates sprite.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {number} x - The horizontal position.
+   * @param {number} bottomY - The bottom y value.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   static createSprite(scene, settings, x, bottomY) {
     return scene.add
@@ -281,13 +300,13 @@ export class LevelTwoObstacleSystem {
   }
 
   /**
-   * Fügt eine faire, unsichtbare Hitbox zur Plattformgruppe hinzu.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Kollisionsgruppe.
-   * @param {object} settings - Zentrale Hinderniskonfiguration.
-   * @param {number} x - Horizontale Position der Kollisionsfläche.
-   * @param {number} bottomY - Unterkante der Kollisionsfläche.
-   * @returns {Phaser.GameObjects.Rectangle} Erstellte Kollisionsfläche.
+   * Creates collision.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @param {object} settings - The configuration values to use.
+   * @param {number} x - The horizontal position.
+   * @param {number} bottomY - The bottom y value.
+   * @returns {Phaser.GameObjects.Rectangle} The resulting data object.
    */
   static createCollision(scene, platforms, settings, x, bottomY) {
     const collision = scene.add.rectangle(

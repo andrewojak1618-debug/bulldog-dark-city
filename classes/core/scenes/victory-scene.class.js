@@ -13,16 +13,20 @@ import { SCENES } from "../../../js/config/game-settings.js";
 import { ENDSCREEN_RESULT } from
   "../../../js/config/game-endscreen-settings.js";
 
-/** Spielt nach dem besiegten Endgegner die abschließende Videosequenz ab. */
+/**
+ * Manages victory scene behavior.
+ */
 export class VictoryScene extends Phaser.Scene {
-  /** Erstellt die Szene mit ihrem eindeutigen Szenenschlüssel. */
+  /**
+   * Creates a new instance.
+   */
   constructor() {
     super(SCENES.victory);
   }
 
   /**
-   * Lädt das weboptimierte Endvideo mit Ton.
-   * @returns {void}
+   * Preloads the current state.
+   * @returns {void} No value is returned.
    */
   preload() {
     const { video } = ENDING;
@@ -30,36 +34,60 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Erstellt Video, Abschlussereignisse und verzögerte Skip-Steuerung.
-   * @returns {void}
+   * Creates the current state.
+   * @returns {void} No value is returned.
    */
   create() {
     setMuteButtonVisibility(false);
-    const { width, height } = this.scale;
-    const { video, depths } = ENDING;
     this.cameras.main.setBackgroundColor("#000000");
-    this.isFinished = false;
-    this.isSkipping = false;
-    this.isFallbackVisible = false;
-    this.isVideoSized = false;
-    this.video = this.add.video(width / 2, height / 2, video.key)
-      .setDepth(depths.video)
-      .setAlpha(0)
-      .setMute(globalMuteSystem.isMuted())
-      .setVolume(video.volume);
-    this.unregisterVideoMute = globalMuteSystem.registerVideo(this.video);
-    this.video.once("created", () => EndingVideoSystem.sizeAndReveal(this));
-    this.video.once("playing", () => EndingVideoSystem.sizeAndReveal(this));
-    this.video.once("complete", () => this.finish());
-    this.video.once("error", () => this.showFallback());
+    this.initializeVideoState();
+    this.createVideo();
+    this.bindVideoEvents();
     this.scheduleSkip();
     this.events.once("shutdown", () => this.cleanup());
     EndingVideoSystem.start(this);
   }
 
   /**
-   * Aktiviert den sichtbaren Leertastenhinweis leicht zeitversetzt.
-   * @returns {void}
+   * Initializes the video lifecycle state.
+   * @returns {void} No value is returned.
+   */
+  initializeVideoState() {
+    this.isFinished = false;
+    this.isSkipping = false;
+    this.isFallbackVisible = false;
+    this.isVideoSized = false;
+  }
+
+  /**
+   * Creates the victory video object.
+   * @returns {void} No value is returned.
+   */
+  createVideo() {
+    const { width, height } = this.scale;
+    const { video, depths } = ENDING;
+    this.video = this.add.video(width / 2, height / 2, video.key)
+      .setDepth(depths.video)
+      .setAlpha(0)
+      .setMute(globalMuteSystem.isMuted())
+      .setVolume(video.volume);
+    this.unregisterVideoMute = globalMuteSystem.registerVideo(this.video);
+  }
+
+  /**
+   * Binds the victory video lifecycle events.
+   * @returns {void} No value is returned.
+   */
+  bindVideoEvents() {
+    this.video.once("created", () => EndingVideoSystem.sizeAndReveal(this));
+    this.video.once("playing", () => EndingVideoSystem.sizeAndReveal(this));
+    this.video.once("complete", () => this.finish());
+    this.video.once("error", () => this.showFallback());
+  }
+
+  /**
+   * Handles schedule skip.
+   * @returns {void} No value is returned.
    */
   scheduleSkip() {
     this.skipTimer = this.time.delayedCall(
@@ -69,40 +97,68 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Aktiviert den passenden Skip-Hinweis für Tastatur oder Touch.
-   * @returns {void}
+   * Enables skip.
+   * @returns {void} No value is returned.
    */
   enableSkip() {
-    const keyboard = this.input.keyboard;
     if (this.isFinished) return;
+    this.createSkipHint();
+    this.bindKeyboardSkip();
+    this.bindTouchSkip();
+  }
+
+  /**
+   * Creates the skip hint for the active input layout.
+   * @returns {void} No value is returned.
+   */
+  createSkipHint() {
     const { width, height } = this.scale;
     const { skip, depths } = ENDING;
-    const isTouchMode = InputDeviceDetector.isTouchLayout();
-    const hintStyle = isTouchMode ? {
-      ...skip,
-      hint: skip.touchHint,
-      actionHint: skip.touchActionHint,
-    } : skip;
+    const hintStyle = this.getSkipHintStyle(skip);
     this.skipHint = new IntroSkipHint(
       this,
       width / 2,
       height - skip.hintOffsetY,
       hintStyle,
     ).setDepth(depths.skipHint).setAlpha(skip.hintAlpha);
-    if (keyboard) {
-      this.skipHandler = (event) => this.handleSkip(event);
-      keyboard.on("keydown-SPACE", this.skipHandler);
-    }
-    if (isTouchMode) {
-      this.touchSkipHandler = () => this.startSkip();
-      this.input.on("pointerdown", this.touchSkipHandler);
-    }
   }
 
   /**
-   * Verhindert Wiederholungen und startet eine weiche Videoausblendung.
-   * @param {KeyboardEvent} event - Auslösendes Leertastenereignis.
-   * @returns {void}
+   * Returns skip hint settings for the active input layout.
+   * @param {object} skip - The base skip settings.
+   * @returns {object} The active skip hint settings.
+   */
+  getSkipHintStyle(skip) {
+    if (!InputDeviceDetector.isTouchLayout()) return skip;
+    return { ...skip, hint: skip.touchHint,
+      actionHint: skip.touchActionHint };
+  }
+
+  /**
+   * Binds keyboard video skipping.
+   * @returns {void} No value is returned.
+   */
+  bindKeyboardSkip() {
+    const keyboard = this.input.keyboard;
+    if (!keyboard) return;
+    this.skipHandler = (event) => this.handleSkip(event);
+    keyboard.on("keydown-SPACE", this.skipHandler);
+  }
+
+  /**
+   * Binds touch video skipping.
+   * @returns {void} No value is returned.
+   */
+  bindTouchSkip() {
+    if (!InputDeviceDetector.isTouchLayout()) return;
+    this.touchSkipHandler = () => this.startSkip();
+    this.input.on("pointerdown", this.touchSkipHandler);
+  }
+
+  /**
+   * Handles skip.
+   * @param {KeyboardEvent} event - The triggering event.
+   * @returns {void} No value is returned.
    */
   handleSkip(event) {
     if (event.repeat) return;
@@ -111,8 +167,8 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Startet die gemeinsame Ausblendung für Tastatur und Touch genau einmal.
-   * @returns {void}
+   * Starts skip.
+   * @returns {void} No value is returned.
    */
   startSkip() {
     if (this.isSkipping || this.isFinished) return;
@@ -131,8 +187,8 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Beendet die Endsequenz genau einmal und öffnet den gemeinsamen Endscreen.
-   * @returns {void}
+   * Completes the current state.
+   * @returns {void} No value is returned.
    */
   finish() {
     if (this.isFinished) return;
@@ -145,8 +201,8 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Zeigt bei einem Videofehler kurz einen lesbaren Abschlussbildschirm.
-   * @returns {void}
+   * Shows fallback.
+   * @returns {void} No value is returned.
    */
   showFallback() {
     if (this.isFinished || this.isFallbackVisible) return;
@@ -163,8 +219,8 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Entfernt Timer, Eingabeereignisse, Hinweis und Video sicher.
-   * @returns {void}
+   * Handles cleanup.
+   * @returns {void} No value is returned.
    */
   cleanup() {
     this.disableSkip();
@@ -179,8 +235,8 @@ export class VictoryScene extends Phaser.Scene {
   }
 
   /**
-   * Entfernt Skip-Timer, Eingabeereignisse und sichtbaren Hinweis.
-   * @returns {void}
+   * Handles disable skip.
+   * @returns {void} No value is returned.
    */
   disableSkip() {
     this.skipTimer?.remove(false);

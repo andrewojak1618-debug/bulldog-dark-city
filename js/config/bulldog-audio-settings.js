@@ -1,7 +1,7 @@
 import { getAssetPath } from "./asset-paths.js";
 
 /**
- * Zentrale Audiodaten und Auslösewerte der Bulldogge.
+ * Defines the bulldog audio configuration.
  */
 export const BULLDOG_AUDIO = Object.freeze({
   mutationTransform: Object.freeze({

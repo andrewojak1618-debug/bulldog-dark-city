@@ -2,41 +2,66 @@ import { TEST_LEVEL } from "../../js/config/test-level-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
- * Lädt, erstellt und aktualisiert die visuelle Umgebung von Level eins.
+ * Manages level environment system behavior.
  */
 export class LevelEnvironmentSystem {
   /**
-   * Lädt alle Hintergründe, Parallax-Ebenen, Züge und Dekorationen.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     const assets = TEST_LEVEL.assets;
     scene.load.image(assets.cityBackground.key, assets.cityBackground.path);
-    [
-      assets.skyscraperParallax,
-      assets.midgroundBuildings,
-      assets.fenceObjects,
-    ].forEach((asset) => AssetLoaderSystem.loadSpritesheet(scene, asset));
-    [
-      assets.cloudParallax,
-      assets.foregroundCloudParallax,
-      assets.elevatedRoadParallax,
-      assets.bridgeTrain,
-      assets.secondaryBridgeTrain,
-    ].forEach((asset) => scene.load.image(asset.key, asset.path));
+    this.getSpritesheetAssets(assets).forEach((asset) =>
+      AssetLoaderSystem.loadSpritesheet(scene, asset)
+    );
+    this.getImageAssets(assets).forEach((asset) =>
+      scene.load.image(asset.key, asset.path)
+    );
   }
 
   /**
-   * Erstellt die komplette gestaffelte Levelumgebung.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @returns {void}
+   * Returns the environment spritesheet assets.
+   * @param {object} assets - The level asset settings.
+   * @returns {object[]} The spritesheet assets.
+   */
+  static getSpritesheetAssets(assets) {
+    return [assets.skyscraperParallax, assets.midgroundBuildings,
+      assets.fenceObjects];
+  }
+
+  /**
+   * Returns the environment image assets.
+   * @param {object} assets - The level asset settings.
+   * @returns {object[]} The image assets.
+   */
+  static getImageAssets(assets) {
+    return [assets.cloudParallax, assets.foregroundCloudParallax,
+      assets.elevatedRoadParallax, assets.bridgeTrain,
+      assets.secondaryBridgeTrain];
+  }
+
+  /**
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static create(scene) {
     const { width, height, backgroundColor } = TEST_LEVEL.world;
     scene.add
       .rectangle(width / 2, height / 2, width, height, backgroundColor)
       .setDepth(-20);
+    this.createBackgroundLayers(scene);
+    this.createAnimatedLayers(scene);
+  }
+
+  /**
+   * Creates the static and parallax background layers.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
+   */
+  static createBackgroundLayers(scene) {
     this.createCityBackground(scene);
     this.createCloudLayer(scene, TEST_LEVEL.assets.cloudParallax, -7);
     this.createSkyscrapers(scene);
@@ -47,14 +72,22 @@ export class LevelEnvironmentSystem {
       -3,
     );
     this.createElevatedRoad(scene);
+  }
+
+  /**
+   * Creates the moving and foreground environment layers.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
+   */
+  static createAnimatedLayers(scene) {
     this.createBridgeTrains(scene);
     this.createFenceObjects(scene);
   }
 
   /**
-   * Füllt das Canvas mit dem bereits weich verbundenen Stadtbild.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @returns {void}
+   * Creates city background.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static createCityBackground(scene) {
     const background = TEST_LEVEL.assets.cityBackground;
@@ -69,20 +102,11 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Erstellt eine konfigurierte transparente Wolkenebene.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @param {{
-   *   key: string,
-   *   sourceWidth: number,
-   *   sourceHeight: number,
-   *   displayHeight: number,
-   *   offsetX: number,
-   *   offsetY: number,
-   *   scrollFactor: number,
-   *   alpha: number
-   * }} clouds - Zentrale Wolkenkonfiguration.
-   * @param {number} depth - Zeichenebene.
-   * @returns {void}
+   * Creates cloud layer.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{ key: string, sourceWidth: number, sourceHeight: number, displayHeight: number, offsetX: number, offsetY: number, scrollFactor: number, alpha: number }} clouds - The clouds value.
+   * @param {number} depth - The depth value.
+   * @returns {void} No value is returned.
    */
   static createCloudLayer(scene, clouds, depth) {
     const displayWidth =
@@ -99,9 +123,9 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Erstellt die langsam mitscrollende Hochhaus-Silhouette.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @returns {void}
+   * Creates skyscrapers.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static createSkyscrapers(scene) {
     const skyscrapers = TEST_LEVEL.assets.skyscraperParallax;
@@ -122,46 +146,44 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Setzt die Gebäudevarianten als durchgehende Midground-Ebene zusammen.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @returns {void}
+   * Creates midground buildings.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static createMidgroundBuildings(scene) {
     const buildings = TEST_LEVEL.assets.midgroundBuildings;
-    const displayWidth =
-      buildings.frameWidth *
-      (buildings.displayHeight / buildings.frameHeight);
+    const displayWidth = this.getFrameDisplayWidth(buildings);
     const segmentStep = displayWidth - buildings.seamOverlap;
-    const segmentCount =
-      Math.ceil(TEST_LEVEL.world.width / segmentStep) + 1;
-
-    scene.midgroundBuildings = Array.from(
-      { length: segmentCount },
-      (_, index) => {
-        const frame =
-          buildings.frameSequence[
-            index % buildings.frameSequence.length
-          ];
-
-        return scene.add
-          .image(
-            index * segmentStep,
-            buildings.bottomY,
-            buildings.key,
-            frame,
-          )
-          .setOrigin(0, 1)
-          .setScrollFactor(buildings.scrollFactor, 0)
-          .setDisplaySize(displayWidth, buildings.displayHeight)
-          .setDepth(buildings.depth);
-      },
+    const count = Math.ceil(TEST_LEVEL.world.width / segmentStep) + 1;
+    scene.midgroundBuildings = Array.from({ length: count }, (_, index) =>
+      this.createBuildingSegment(scene, buildings, displayWidth,
+        segmentStep, index)
     );
   }
 
   /**
-   * Setzt die durchgehende Hochstraße in den nahen Mittelgrund.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @returns {void}
+   * Creates one midground building segment.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The building settings.
+   * @param {number} width - The rendered frame width.
+   * @param {number} step - The horizontal segment step.
+   * @param {number} index - The segment index.
+   * @returns {Phaser.GameObjects.Image} The created segment.
+   */
+  static createBuildingSegment(scene, settings, width, step, index) {
+    const frame = settings.frameSequence[index % settings.frameSequence.length];
+    return scene.add.image(index * step, settings.bottomY,
+      settings.key, frame)
+      .setOrigin(0, 1)
+      .setScrollFactor(settings.scrollFactor, 0)
+      .setDisplaySize(width, settings.displayHeight)
+      .setDepth(settings.depth);
+  }
+
+  /**
+   * Creates elevated road.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static createElevatedRoad(scene) {
     const road = TEST_LEVEL.assets.elevatedRoadParallax;
@@ -177,9 +199,9 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Erstellt beide Züge mit ihrer gemeinsamen Bewegungslogik.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @returns {void}
+   * Creates bridge trains.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static createBridgeTrains(scene) {
     const trains = [
@@ -195,54 +217,53 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Verbindet die Zaun- und Objektvarianten über die gesamte Levelbreite.
-   *
-   * Die Motive bleiben reine Dekoration und erhalten deshalb bewusst
-   * keinen Physikkörper. Ihre gemeinsame Größe und Bodenhöhe werden
-   * ausschließlich über die zentrale Levelkonfiguration gesteuert.
-   *
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @returns {void}
+   * Creates fence objects.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static createFenceObjects(scene) {
     const fences = TEST_LEVEL.assets.fenceObjects;
-    const displayWidth =
-      fences.frameWidth * (fences.displayHeight / fences.frameHeight);
+    const displayWidth = this.getFrameDisplayWidth(fences);
     const segmentStep = displayWidth - fences.seamOverlap;
-    const segmentCount =
-      Math.ceil(TEST_LEVEL.world.width / segmentStep) + 1;
-
-    scene.fenceObjects = Array.from(
-      { length: segmentCount },
-      (_, index) => {
-        const frame =
-          fences.frameSequence[index % fences.frameSequence.length];
-        const x = index * segmentStep;
-
-        return scene.add
-          .image(x, fences.groundY, fences.key, frame)
-          .setOrigin(0, 1)
-          .setDisplaySize(displayWidth, fences.displayHeight)
-          .setDepth(fences.depth);
-      },
+    const count = Math.ceil(TEST_LEVEL.world.width / segmentStep) + 1;
+    scene.fenceObjects = Array.from({ length: count }, (_, index) =>
+      this.createFenceSegment(scene, fences, displayWidth, segmentStep, index)
     );
   }
 
   /**
-   * Erstellt einen Zug an der Startseite seiner Fahrtrichtung.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @param {{
-   *   key: string,
-   *   sourceWidth: number,
-   *   sourceHeight: number,
-   *   displayHeight: number,
-   *   trackY: number,
-   *   scrollFactor: number,
-   *   direction: number,
-   *   depth: number,
-   *   startPadding: number
-   * }} train - Darstellungs- und Bewegungsdaten.
-   * @returns {Phaser.GameObjects.Image} Erstelltes Zug-Sprite.
+   * Returns a frame's rendered width.
+   * @param {object} settings - The frame settings.
+   * @returns {number} The rendered width.
+   */
+  static getFrameDisplayWidth(settings) {
+    return settings.frameWidth *
+      (settings.displayHeight / settings.frameHeight);
+  }
+
+  /**
+   * Creates one fence segment.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The fence settings.
+   * @param {number} width - The rendered frame width.
+   * @param {number} step - The horizontal segment step.
+   * @param {number} index - The segment index.
+   * @returns {Phaser.GameObjects.Image} The created segment.
+   */
+  static createFenceSegment(scene, settings, width, step, index) {
+    const frame = settings.frameSequence[index % settings.frameSequence.length];
+    return scene.add.image(index * step, settings.groundY,
+      settings.key, frame)
+      .setOrigin(0, 1)
+      .setDisplaySize(width, settings.displayHeight)
+      .setDepth(settings.depth);
+  }
+
+  /**
+   * Creates moving train.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{ key: string, sourceWidth: number, sourceHeight: number, displayHeight: number, trackY: number, scrollFactor: number, direction: number, depth: number, startPadding: number }} train - The train value.
+   * @returns {Phaser.GameObjects.Image} The resulting data object.
    */
   static createMovingTrain(scene, train) {
     const displayWidth =
@@ -261,10 +282,10 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Aktualisiert Bewegung und Wiederholungspausen beider Züge.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @param {number} delta - Vergangene Zeit seit dem letzten Frame in ms.
-   * @returns {void}
+   * Updates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static update(scene, delta) {
     scene.bridgeTrains?.forEach((trainState) =>
@@ -273,11 +294,11 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Aktualisiert genau einen Zug inklusive Pause und Austrittskontrolle.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @param {{sprite: Phaser.GameObjects.Image, settings: object, cooldownMs: number}} trainState - Zugzustand.
-   * @param {number} delta - Vergangene Zeit seit dem letzten Frame in ms.
-   * @returns {void}
+   * Updates train.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{sprite: Phaser.GameObjects.Image, settings: object, cooldownMs: number}} trainState - The train state value.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @returns {void} No value is returned.
    */
   static updateTrain(scene, trainState, delta) {
     const { sprite, settings } = trainState;
@@ -297,13 +318,13 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Zählt die Wiederholungspause herunter und setzt den Zug danach zurück.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @param {object} trainState - Zugzustand.
-   * @param {number} delta - Vergangene Zeit seit dem letzten Frame in ms.
-   * @param {number} cameraOffset - Aktueller Parallax-Versatz.
-   * @param {number} halfWidth - Halbe Darstellungsbreite.
-   * @returns {void}
+   * Updates train cooldown.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} trainState - The train state value.
+   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
+   * @param {number} cameraOffset - The camera offset value.
+   * @param {number} halfWidth - The half width value.
+   * @returns {void} No value is returned.
    */
   static updateTrainCooldown(
     scene, trainState, delta, cameraOffset, halfWidth,
@@ -316,13 +337,13 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Prüft, ob ein Zug seinen sichtbaren Fahrbereich verlassen hat.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @param {Phaser.GameObjects.Image} sprite - Bewegter Zug.
-   * @param {object} settings - Zugkonfiguration.
-   * @param {number} cameraOffset - Aktueller Parallax-Versatz.
-   * @param {number} halfWidth - Halbe Darstellungsbreite.
-   * @returns {boolean} `true` nach dem vollständigen Verlassen des Canvas.
+   * Checks the train exited condition.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Image} sprite - The sprite value.
+   * @param {object} settings - The configuration values to use.
+   * @param {number} cameraOffset - The camera offset value.
+   * @param {number} halfWidth - The half width value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static hasTrainExited(scene, sprite, settings, cameraOffset, halfWidth) {
     const screenLeft = sprite.x - halfWidth - cameraOffset;
@@ -335,13 +356,13 @@ export class LevelEnvironmentSystem {
   }
 
   /**
-   * Setzt einen Zug nach seiner Pause an den passenden Einfahrtsrand.
-   * @param {Phaser.Scene} scene - Aktive Levelszene.
-   * @param {Phaser.GameObjects.Image} sprite - Zurückzusetzender Zug.
-   * @param {{direction: number}} settings - Fahrtrichtung.
-   * @param {number} cameraOffset - Aktueller Parallax-Versatz.
-   * @param {number} halfWidth - Halbe Darstellungsbreite.
-   * @returns {void}
+   * Resets train at entry.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Image} sprite - The sprite value.
+   * @param {{direction: number}} settings - The configuration values to use.
+   * @param {number} cameraOffset - The camera offset value.
+   * @param {number} halfWidth - The half width value.
+   * @returns {void} No value is returned.
    */
   static resetTrainAtEntry(
     scene,

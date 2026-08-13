@@ -5,13 +5,13 @@ import {
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
- * Steuert Sichtbarkeit und Laufübergang am rechten Ende von Level eins.
+ * Manages level exit system behavior.
  */
 export class LevelExitSystem {
   /**
-   * Lädt den Spritesheet des Cyber-City-Ausgangsschilds.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     AssetLoaderSystem.loadImage(scene, {
@@ -27,9 +27,9 @@ export class LevelExitSystem {
   }
 
   /**
-   * Erstellt einen zunächst verborgenen Ausgang und seine Animation.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {LevelExitSystem} Steuerung des Levelausgangs.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {LevelExitSystem} The created instance.
    */
   static create(scene) {
     this.registerAnimation(scene);
@@ -37,9 +37,9 @@ export class LevelExitSystem {
   }
 
   /**
-   * Registriert die Leuchtsequenz nur einmal im globalen Animationsmanager.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {void}
+   * Registers animation.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static registerAnimation(scene) {
     if (scene.anims.exists(LEVEL_EXIT.animationKey)) return;
@@ -55,33 +55,38 @@ export class LevelExitSystem {
   }
 
   /**
-   * Erstellt das verborgene Schild am Boden des rechten Levelendes.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
    */
   constructor(scene) {
     this.scene = scene;
     this.isUnlocked = false;
     this.isTransitioning = false;
     this.hasCompleted = false;
-    this.post = scene.add
-      .image(LEVEL_EXIT.x, LEVEL_EXIT.groundY, LEVEL_EXIT.postTextureKey)
-      .setOrigin(0.5, 1)
-      .setDisplaySize(LEVEL_EXIT.displayWidth, LEVEL_EXIT.displayHeight)
-      .setDepth(LEVEL_EXIT.depth)
-      .setAlpha(0)
-      .setVisible(false);
-    this.sign = scene.add
-      .sprite(LEVEL_EXIT.x, LEVEL_EXIT.groundY, LEVEL_EXIT.textureKey, 0)
-      .setOrigin(0.5, 1)
-      .setDisplaySize(LEVEL_EXIT.displayWidth, LEVEL_EXIT.displayHeight)
-      .setDepth(LEVEL_EXIT.depth + 0.1)
-      .setAlpha(0)
-      .setVisible(false);
+    this.post = this.createExitObject(scene, "image", LEVEL_EXIT.postTextureKey)
+      .setAlpha(0).setVisible(false);
+    this.sign = this.createExitObject(scene, "sprite", LEVEL_EXIT.textureKey, 0)
+      .setDepth(LEVEL_EXIT.depth + 0.1).setAlpha(0).setVisible(false);
   }
 
   /**
-   * Macht den Ausgang nach dem besiegten Hundefänger sichtbar.
-   * @returns {boolean} `true`, wenn der Ausgang erstmals geöffnet wurde.
+   * Creates one exit sign display object.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {"image"|"sprite"} type - The display object type.
+   * @param {string} texture - The texture key.
+   * @param {number} [frame] - The optional texture frame.
+   * @returns {Phaser.GameObjects.Image|Phaser.GameObjects.Sprite} The exit object.
+   */
+  createExitObject(scene, type, texture, frame) {
+    return scene.add[type](LEVEL_EXIT.x, LEVEL_EXIT.groundY, texture, frame)
+      .setOrigin(0.5, 1)
+      .setDisplaySize(LEVEL_EXIT.displayWidth, LEVEL_EXIT.displayHeight)
+      .setDepth(LEVEL_EXIT.depth);
+  }
+
+  /**
+   * Handles unlock.
+   * @returns {boolean} Whether the requested condition is met.
    */
   unlock() {
     if (this.isUnlocked) return false;
@@ -98,9 +103,9 @@ export class LevelExitSystem {
   }
 
   /**
-   * Prüft den Ausgang und bewegt die Bulldogge während des Bildauslaufs.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {boolean} `true`, sobald Level zwei gestartet werden darf.
+   * Updates the current state.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   update(player) {
     if (!this.isUnlocked || this.hasCompleted) return false;
@@ -116,9 +121,9 @@ export class LevelExitSystem {
   }
 
   /**
-   * Öffnet die rechte Weltgrenze und sperrt die normale Spielersteuerung.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @returns {void}
+   * Starts transition.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @returns {void} No value is returned.
    */
   startTransition(player) {
     this.isTransitioning = true;

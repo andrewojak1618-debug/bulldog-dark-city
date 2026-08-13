@@ -1,4 +1,6 @@
-/** Eindeutige Aktionsschlüssel der mobilen Spielsteuerung. */
+/**
+ * Defines the touch actions configuration.
+ */
 export const TOUCH_ACTIONS = Object.freeze({
   left: "left",
   right: "right",
@@ -9,13 +11,17 @@ export const TOUCH_ACTIONS = Object.freeze({
   nuclearBone: "nuclearBone",
 });
 
-/** Profilgrenzen für ergonomisch getrennte Smartphone- und Tabletlayouts. */
+/**
+ * Defines the touch layout breakpoints configuration.
+ */
 export const TOUCH_LAYOUT_BREAKPOINTS = Object.freeze({
   tabletLongSide: 960,
   tabletShortSide: 600,
 });
 
-/** Randabstände und Zwischenräume der beiden Touchlayout-Profile. */
+/**
+ * Defines the touch layout profiles configuration.
+ */
 export const TOUCH_LAYOUT_PROFILES = Object.freeze({
   phone: Object.freeze({
     edgeInsetX: 18,
@@ -35,7 +41,9 @@ export const TOUCH_LAYOUT_PROFILES = Object.freeze({
   }),
 });
 
-/** Zentrale Darstellung und Grundgrößen der mobilen Touchbuttons. */
+/**
+ * Defines the touch controls configuration.
+ */
 export const TOUCH_CONTROLS = Object.freeze({
   depth: 300,
   idleAlpha: 0.36,
@@ -56,7 +64,7 @@ export const TOUCH_CONTROLS = Object.freeze({
     Object.freeze({ action: TOUCH_ACTIONS.mutation, x: 0, y: 0,
       size: 66, label: "M", fontSize: 22 }),
     Object.freeze({ action: TOUCH_ACTIONS.attack, x: 0, y: 0,
-      size: 68, label: "J", fontSize: 26 }),
+      size: 68, label: "F", fontSize: 26 }),
     Object.freeze({ action: TOUCH_ACTIONS.jump, x: 0, y: 0,
       size: 72, label: "↑", fontSize: 32 }),
     Object.freeze({ action: TOUCH_ACTIONS.normalBone, x: 0, y: 0,
@@ -71,10 +79,10 @@ const CONTROLS_BY_ACTION = Object.freeze(Object.fromEntries(
 ));
 
 /**
- * Wählt anhand beider Viewportseiten das passende Touchlayout.
- * @param {number} viewportWidth - Sichtbare Browserbreite in CSS-Pixeln.
- * @param {number} viewportHeight - Sichtbare Browserhöhe in CSS-Pixeln.
- * @returns {"phone"|"tablet"} Name des passenden Layoutprofils.
+ * Returns touch layout profile.
+ * @param {number} viewportWidth - The viewport width value.
+ * @param {number} viewportHeight - The viewport height value.
+ * @returns {"phone"|"tablet"} The resulting value.
  */
 export function getTouchLayoutProfile(viewportWidth, viewportHeight) {
   const longSide = Math.max(viewportWidth, viewportHeight);
@@ -85,21 +93,21 @@ export function getTouchLayoutProfile(viewportWidth, viewportHeight) {
 }
 
 /**
- * Liest einen sicheren, nicht negativen Randwert.
- * @param {Object} safeArea - Übermittelte Safe-Area-Werte.
- * @param {"left"|"right"|"bottom"} side - Gewünschte Seite.
- * @returns {number} Verwendbarer Randwert in Canvas-Pixeln.
+ * Returns safe inset.
+ * @param {Object} safeArea - The safe area value.
+ * @param {"left"|"right"|"bottom"} side - The side value.
+ * @returns {number} The resulting numeric value.
  */
 function getSafeInset(safeArea, side) {
   return Math.max(0, Number(safeArea?.[side]) || 0);
 }
 
 /**
- * Berechnet die beiden Bewegungsbuttons ab der linken unteren Ecke.
- * @param {number} canvasHeight - Interne Canvashöhe.
- * @param {Object} profile - Aktives Layoutprofil.
- * @param {Object} safeArea - Safe Area in Canvas-Pixeln.
- * @returns {Object} Positionen für Links und Rechts.
+ * Returns movement positions.
+ * @param {number} canvasHeight - The canvas height value.
+ * @param {Object} profile - The profile value.
+ * @param {Object} safeArea - The safe area value.
+ * @returns {Object} The resulting data object.
  */
 function getMovementPositions(canvasHeight, profile, safeArea) {
   const left = CONTROLS_BY_ACTION[TOUCH_ACTIONS.left];
@@ -117,12 +125,12 @@ function getMovementPositions(canvasHeight, profile, safeArea) {
 }
 
 /**
- * Berechnet Sprung und Angriff ab der rechten unteren Ecke.
- * @param {number} canvasWidth - Interne Canvasbreite.
- * @param {number} canvasHeight - Interne Canvashöhe.
- * @param {Object} profile - Aktives Layoutprofil.
- * @param {Object} safeArea - Safe Area in Canvas-Pixeln.
- * @returns {Object} Positionen für Sprung und Angriff.
+ * Returns primary action positions.
+ * @param {number} canvasWidth - The canvas width value.
+ * @param {number} canvasHeight - The canvas height value.
+ * @param {Object} profile - The profile value.
+ * @param {Object} safeArea - The safe area value.
+ * @returns {Object} The resulting data object.
  */
 function getPrimaryActionPositions(
   canvasWidth,
@@ -132,66 +140,97 @@ function getPrimaryActionPositions(
 ) {
   const jump = CONTROLS_BY_ACTION[TOUCH_ACTIONS.jump];
   const attack = CONTROLS_BY_ACTION[TOUCH_ACTIONS.attack];
-  const rightEdge = canvasWidth - getSafeInset(safeArea, "right") -
-    profile.edgeInsetX;
-  const bottomEdge = canvasHeight - getSafeInset(safeArea, "bottom") -
-    profile.bottomInset;
+  const rightEdge = getRightEdge(canvasWidth, profile, safeArea);
+  const bottomEdge = getBottomEdge(canvasHeight, profile, safeArea);
   return {
-    [jump.action]: {
-      x: rightEdge - jump.size / 2,
-      y: bottomEdge - jump.size / 2,
-    },
-    [attack.action]: {
-      x: rightEdge - jump.size - profile.actionGap - attack.size / 2,
-      y: bottomEdge - attack.size / 2,
-    },
+    [jump.action]: getControlPosition(rightEdge, bottomEdge, jump),
+    [attack.action]: getControlPosition(
+      rightEdge - jump.size - profile.actionGap, bottomEdge, attack,
+    ),
   };
 }
 
 /**
- * Ordnet Mutation und Wurfknochen in einer zweiten rechten Reihe an.
- * @param {number} canvasWidth - Interne Canvasbreite.
- * @param {number} canvasHeight - Interne Canvashöhe.
- * @param {Object} profile - Aktives Layoutprofil.
- * @param {Object} safeArea - Safe Area in Canvas-Pixeln.
- * @returns {Object} Positionen der optionalen Aktionsbuttons.
+ * Returns the right control edge.
+ * @param {number} canvasWidth - The canvas width.
+ * @param {object} profile - The active touch profile.
+ * @param {object} safeArea - The safe area insets.
+ * @returns {number} The right edge position.
+ */
+function getRightEdge(canvasWidth, profile, safeArea) {
+  return canvasWidth - getSafeInset(safeArea, "right") - profile.edgeInsetX;
+}
+
+/**
+ * Returns the bottom control edge.
+ * @param {number} canvasHeight - The canvas height.
+ * @param {object} profile - The active touch profile.
+ * @param {object} safeArea - The safe area insets.
+ * @returns {number} The bottom edge position.
+ */
+function getBottomEdge(canvasHeight, profile, safeArea) {
+  return canvasHeight - getSafeInset(safeArea, "bottom") -
+    profile.bottomInset;
+}
+
+/**
+ * Returns a control position anchored by its right and bottom edges.
+ * @param {number} right - The right edge.
+ * @param {number} bottom - The bottom edge.
+ * @param {object} control - The control settings.
+ * @returns {{x: number, y: number}} The control position.
+ */
+function getControlPosition(right, bottom, control) {
+  return { x: right - control.size / 2, y: bottom - control.size / 2 };
+}
+
+/**
+ * Returns utility positions.
+ * @param {number} canvasWidth - The canvas width value.
+ * @param {number} canvasHeight - The canvas height value.
+ * @param {Object} profile - The profile value.
+ * @param {Object} safeArea - The safe area value.
+ * @returns {Object} The resulting data object.
  */
 function getUtilityPositions(canvasWidth, canvasHeight, profile, safeArea) {
-  const mutation = CONTROLS_BY_ACTION[TOUCH_ACTIONS.mutation];
-  const nuclear = CONTROLS_BY_ACTION[TOUCH_ACTIONS.nuclearBone];
-  const normal = CONTROLS_BY_ACTION[TOUCH_ACTIONS.normalBone];
-  const jump = CONTROLS_BY_ACTION[TOUCH_ACTIONS.jump];
-  const attack = CONTROLS_BY_ACTION[TOUCH_ACTIONS.attack];
-  const rightEdge = canvasWidth - getSafeInset(safeArea, "right") -
-    profile.edgeInsetX;
-  const primaryTop = canvasHeight - getSafeInset(safeArea, "bottom") -
-    profile.bottomInset - Math.max(jump.size, attack.size) - profile.rowGap;
-  const nuclearRight = rightEdge - mutation.size - profile.utilityGap;
-  const normalRight = nuclearRight - nuclear.size - profile.utilityGap;
-  return {
-    [mutation.action]: {
-      x: rightEdge - mutation.size / 2,
-      y: primaryTop - mutation.size / 2,
-    },
-    [nuclear.action]: {
-      x: nuclearRight - nuclear.size / 2,
-      y: primaryTop - nuclear.size / 2,
-    },
-    [normal.action]: {
-      x: normalRight - normal.size / 2,
-      y: primaryTop - normal.size / 2,
-    },
-  };
+  const actions = [TOUCH_ACTIONS.mutation, TOUCH_ACTIONS.nuclearBone,
+    TOUCH_ACTIONS.normalBone];
+  const rightEdge = getRightEdge(canvasWidth, profile, safeArea);
+  const bottomEdge = getBottomEdge(canvasHeight, profile, safeArea);
+  const primarySize = Math.max(
+    CONTROLS_BY_ACTION[TOUCH_ACTIONS.jump].size,
+    CONTROLS_BY_ACTION[TOUCH_ACTIONS.attack].size,
+  );
+  return createUtilityRow(actions, rightEdge,
+    bottomEdge - primarySize - profile.rowGap, profile.utilityGap);
 }
 
 /**
- * Erstellt alle Positionen randbasiert für das aktuelle Gerät.
- * @param {number} canvasWidth - Interne Canvasbreite.
- * @param {number} canvasHeight - Interne Canvashöhe.
- * @param {number} viewportWidth - Sichtbare Browserbreite.
- * @param {number} viewportHeight - Sichtbare Browserhöhe.
- * @param {Object} [safeArea={}] - Safe Area in Canvas-Pixeln.
- * @returns {Object[]} Touchbuttons mit berechneten Positionen.
+ * Creates positions for a right-aligned utility control row.
+ * @param {string[]} actions - The ordered utility actions.
+ * @param {number} rightEdge - The right row edge.
+ * @param {number} bottomEdge - The bottom row edge.
+ * @param {number} gap - The gap between controls.
+ * @returns {Object} The positions keyed by action.
+ */
+function createUtilityRow(actions, rightEdge, bottomEdge, gap) {
+  let currentRight = rightEdge;
+  return Object.fromEntries(actions.map((action) => {
+    const control = CONTROLS_BY_ACTION[action];
+    const entry = [action, getControlPosition(currentRight, bottomEdge, control)];
+    currentRight -= control.size + gap;
+    return entry;
+  }));
+}
+
+/**
+ * Creates touch control layout.
+ * @param {number} canvasWidth - The canvas width value.
+ * @param {number} canvasHeight - The canvas height value.
+ * @param {number} viewportWidth - The viewport width value.
+ * @param {number} viewportHeight - The viewport height value.
+ * @param {Object} [safeArea={}] - The safe area value.
+ * @returns {Object[]} The resulting collection.
  */
 export function createTouchControlLayout(
   canvasWidth,
@@ -202,13 +241,27 @@ export function createTouchControlLayout(
 ) {
   const profileName = getTouchLayoutProfile(viewportWidth, viewportHeight);
   const profile = TOUCH_LAYOUT_PROFILES[profileName];
-  const positions = {
-    ...getMovementPositions(canvasHeight, profile, safeArea),
-    ...getPrimaryActionPositions(canvasWidth, canvasHeight, profile, safeArea),
-    ...getUtilityPositions(canvasWidth, canvasHeight, profile, safeArea),
-  };
+  const positions = createControlPositions(
+    canvasWidth, canvasHeight, profile, safeArea,
+  );
   return TOUCH_CONTROLS.controls.map((control) => ({
     ...control,
     ...positions[control.action],
   }));
+}
+
+/**
+ * Creates all touch control positions.
+ * @param {number} width - The canvas width.
+ * @param {number} height - The canvas height.
+ * @param {object} profile - The active touch profile.
+ * @param {object} safeArea - The safe area insets.
+ * @returns {Object} The positions keyed by action.
+ */
+function createControlPositions(width, height, profile, safeArea) {
+  return {
+    ...getMovementPositions(height, profile, safeArea),
+    ...getPrimaryActionPositions(width, height, profile, safeArea),
+    ...getUtilityPositions(width, height, profile, safeArea),
+  };
 }

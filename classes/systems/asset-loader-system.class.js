@@ -1,10 +1,12 @@
-/** Stellt gemeinsame Loader-Hilfen für konfigurierte Assets bereit. */
+/**
+ * Manages asset loader system behavior.
+ */
 export class AssetLoaderSystem {
   /**
-   * Laedt ein Bild nur, wenn dessen Textur noch nicht im Cache liegt.
-   * @param {Phaser.Scene} scene - Szene mit aktivem Phaser-Loader.
-   * @param {{key: string, path: string}} asset - Assetkonfiguration.
-   * @returns {boolean} `true`, wenn das Bild neu eingereiht wurde.
+   * Loads image.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{key: string, path: string}} asset - The asset value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static loadImage(scene, asset) {
     if (scene.textures.exists(asset.key)) return false;
@@ -13,10 +15,10 @@ export class AssetLoaderSystem {
   }
 
   /**
-   * Lädt ein gleichmäßig gerastertes Sprite-Sheet.
-   * @param {Phaser.Scene} scene - Szene mit aktivem Phaser-Loader.
-   * @param {{key: string, path: string, frameWidth: number, frameHeight: number}} asset - Assetkonfiguration.
-   * @returns {boolean} `true`, wenn das Sprite-Sheet neu eingereiht wurde.
+   * Loads spritesheet.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{key: string, path: string, frameWidth: number, frameHeight: number}} asset - The asset value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static loadSpritesheet(scene, asset) {
     if (scene.textures.exists(asset.key)) return false;
@@ -28,10 +30,10 @@ export class AssetLoaderSystem {
   }
 
   /**
-   * Laedt Audio nur, wenn der Schluessel noch nicht im Cache liegt.
-   * @param {Phaser.Scene} scene - Szene mit aktivem Phaser-Loader.
-   * @param {{key: string, path: string|string[]}} asset - Audiokonfiguration.
-   * @returns {boolean} `true`, wenn die Audiodatei neu eingereiht wurde.
+   * Loads audio.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{key: string, path: string|string[]}} asset - The asset value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static loadAudio(scene, asset) {
     if (scene.cache.audio.exists(asset.key)) return false;

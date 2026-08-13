@@ -14,12 +14,14 @@ import {
   MUTANT_CAT_TEXTURE,
 } from "../../js/config/mutant-cat-settings.js";
 
-/** Verbindet die mutierte Katze mit Level-2-Physik und Animation. */
+/**
+ * Manages mutant cat system behavior.
+ */
 export class MutantCatSystem {
   /**
-   * Lädt das vorbereitete Katzen-Spritesheet.
-   * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     [
@@ -37,10 +39,10 @@ export class MutantCatSystem {
   }
 
   /**
-   * Erstellt die Katze und verbindet sie mit allen Levelplattformen.
-   * @param {Phaser.Scene} scene - Zugehörige Level-2-Szene.
-   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - Levelplattformen.
-   * @returns {MutantCat[]} Erstellte mutierte Katzen.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The platforms value.
+   * @returns {MutantCat[]} The resulting collection.
    */
   static create(scene, platforms) {
     MutantCatAnimationSystem.register(scene);
@@ -59,12 +61,12 @@ export class MutantCatSystem {
   }
 
   /**
-   * Aktualisiert Verhalten und verarbeitet einen Angriffstreffer genau einmal.
-   * @param {MutantCat[]} cats - Mutierte Katzen des Levels.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} `true`, wenn dieser Treffer die Bulldogge K. o. setzt.
+   * Updates the current state.
+   * @param {MutantCat[]} cats - The cats value.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static update(cats, player, health, time) {
     let wasKnockedOut = false;
@@ -80,11 +82,11 @@ export class MutantCatSystem {
   }
 
   /**
-   * Leitet einen gültigen Spielerangriff genau einmal an die Katze weiter.
-   * @param {MutantCat} cat - Mutierte Katze des Levels.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {void}
+   * Resolves player attack.
+   * @param {MutantCat} cat - The mutant cat instance.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
    */
   static resolvePlayerAttack(cat, player, time) {
     const wasHit = player?.consumeAttackHit(
@@ -96,11 +98,11 @@ export class MutantCatSystem {
   }
 
   /**
-   * Zieht Lebenspunkte ab und startet Trefferreaktion oder K.-o.-Sequenz.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health - Lebenspunkte.
-   * @param {number} time - Aktuelle Szenenzeit in Millisekunden.
-   * @returns {boolean} `true`, wenn der Angriff die Bulldogge K. o. setzt.
+   * Resolves cat attack.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static resolveCatAttack(player, health, time) {
     if (!BulldogMutationStateSystem.canReceiveNormalDamage(player)) {

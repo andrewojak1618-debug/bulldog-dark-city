@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 
 /**
- * Bildet die gemeinsame Basis für physikbasierte Gegner.
+ * Manages enemy behavior.
  */
 export class Enemy extends Phaser.Physics.Arcade.Sprite {}

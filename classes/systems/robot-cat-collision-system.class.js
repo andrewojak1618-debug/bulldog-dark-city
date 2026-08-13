@@ -1,12 +1,14 @@
 import { ROBOT_CAT } from "../../js/config/robot-cat-settings.js";
 
-/** Erstellt und synchronisiert die Blockierfläche der Roboterkatze. */
+/**
+ * Manages robot cat collision system behavior.
+ */
 export class RobotCatCollisionSystem {
   /**
-   * Erstellt eine statische Hitbox innerhalb der sichtbaren Roboterkontur.
-   * @param {Phaser.Scene} scene - Aktive Level-3-Szene.
-   * @param {number} groundY - Unterkante der Roboterkatze.
-   * @returns {Phaser.GameObjects.Rectangle} Unsichtbare Roboter-Hitbox.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} groundY - The ground y value.
+   * @returns {Phaser.GameObjects.Rectangle} The resulting data object.
    */
   static create(scene, groundY) {
     const collision = scene.add.rectangle(
@@ -20,11 +22,11 @@ export class RobotCatCollisionSystem {
   }
 
   /**
-   * Erlaubt die seitliche Blockade nur auf der gemeinsamen Laufebene.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatze mit Hitbox.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Steuerbare Bulldogge.
-   * @param {number} surfaceY - Technische Laufkante des Levels.
-   * @returns {boolean} Ob Phaser die seitliche Kollision auflösen darf.
+   * Checks the block grounded player condition.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {number} surfaceY - The surface y value.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static canBlockGroundedPlayer(robotCat, player, surfaceY) {
     const collision = robotCat?.getData("collision");
@@ -33,10 +35,10 @@ export class RobotCatCollisionSystem {
   }
 
   /**
-   * Aktiviert oder deaktiviert die seitliche Blockierfläche.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @param {boolean} isEnabled - Gewünschter Kollisionszustand.
-   * @returns {void}
+   * Sets enabled.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {boolean} isEnabled - The is enabled value.
+   * @returns {void} No value is returned.
    */
   static setEnabled(robotCat, isEnabled) {
     const collision = robotCat.getData("collision");
@@ -44,9 +46,9 @@ export class RobotCatCollisionSystem {
   }
 
   /**
-   * Richtet die Blockierfläche an der sichtbaren Roboterkatze aus.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Roboterkatzen-Sprite.
-   * @returns {void}
+   * Synchronizes the current state.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
    */
   static sync(robotCat) {
     const collision = robotCat.getData("collision");

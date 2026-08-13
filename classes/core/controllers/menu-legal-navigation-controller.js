@@ -1,15 +1,15 @@
 /**
- * Liefert die rechtliche Navigation des Hauptmenüs.
- * @returns {HTMLElement|null} Navigation oder `null`.
+ * Returns menu legal navigation.
+ * @returns {HTMLElement|null} The resulting value.
  */
 function getMenuLegalNavigation() {
   return document.getElementById("menu-legal-navigation");
 }
 
 /**
- * Schaltet Sichtbarkeit und Tastaturzugriff des Impressums gemeinsam um.
- * @param {boolean} isVisible - Ob das Impressum erreichbar sein soll.
- * @returns {void}
+ * Sets menu legal navigation visibility.
+ * @param {boolean} isVisible - The is visible value.
+ * @returns {void} No value is returned.
  */
 export function setMenuLegalNavigationVisibility(isVisible) {
   const navigation = getMenuLegalNavigation();

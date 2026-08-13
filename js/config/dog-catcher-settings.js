@@ -4,7 +4,7 @@ const DOG_CATCHER_BASE_PATH = getAssetPath("sprites", "enemies/dog_catcher");
 const DOG_CATCHER_DISPLAY_SIZE = 206;
 
 /**
- * Zentrale Texturschlüssel und Quelldaten des Hundefängers.
+ * Defines the dog catcher textures configuration.
  */
 export const DOG_CATCHER_TEXTURES = Object.freeze({
   walk: Object.freeze({
@@ -38,7 +38,7 @@ export const DOG_CATCHER_TEXTURES = Object.freeze({
 });
 
 /**
- * Eindeutige Phaser-Schlüssel der Hundefänger-Animationen.
+ * Defines the dog catcher animation keys configuration.
  */
 export const DOG_CATCHER_ANIMATION_KEYS = Object.freeze({
   walk: "dog-catcher-walk",
@@ -47,13 +47,15 @@ export const DOG_CATCHER_ANIMATION_KEYS = Object.freeze({
   dead: "dog-catcher-dead",
 });
 
-/** Eindeutige Fachereignisse des Hundefängers. */
+/**
+ * Defines the dog catcher events configuration.
+ */
 export const DOG_CATCHER_EVENTS = Object.freeze({
   defeated: "dog-catcher-defeated",
 });
 
 /**
- * Zentrale Abspielwerte der Hundefänger-Animationen.
+ * Defines the dog catcher animations configuration.
  */
 export const DOG_CATCHER_ANIMATIONS = Object.freeze([
   Object.freeze({
@@ -88,7 +90,7 @@ export const DOG_CATCHER_ANIMATIONS = Object.freeze([
 ]);
 
 /**
- * Physik-, Wahrnehmungs- und Bewegungswerte des ersten Testgegners.
+ * Defines the dog catcher configuration.
  */
 export const DOG_CATCHER = Object.freeze({
   spawnX: 1830,
@@ -109,16 +111,15 @@ export const DOG_CATCHER = Object.freeze({
   attackRange: 130,
   attackHitRange: 130,
   attackDamage: 10,
-  attackCooldownMs: 1500,
+  attackCooldownMs: 2_200,
   biteHitRange: 145,
   biteGroundLevelTolerance: 48,
-  biteHitsToDefeat: 4,
+  biteHitsToDefeat: 3,
   hitReactionMs: 220,
 });
 
 /**
- * Darstellung und Einstiegspunkt der lokalen Reichweiten-Diagnose.
- * Die Ansicht wird nur im Vite-Entwicklungsmodus per URL-Parameter aktiv.
+ * Defines the dog catcher range debug configuration.
  */
 export const DOG_CATCHER_RANGE_DEBUG = Object.freeze({
   queryParameter: "debugDogCatcherRanges",

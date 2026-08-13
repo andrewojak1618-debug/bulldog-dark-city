@@ -173,7 +173,8 @@ Desktop:
 
 - `A` / `D` oder Pfeiltasten: Laufen
 - `W`, Pfeil hoch oder Leertaste: Springen
-- `F`, `J` oder linke Maustaste: Angreifen
+- `F` oder linke Maustaste: Angreifen
+- `J`: optionale Alternativtaste für den Angriff
 - `M`: Mutation bei voller Serumleiste
 - `K` / `L`: eingesammelten Wurfknochen verwenden
 - `ESC`: zurück zum Hauptmenü

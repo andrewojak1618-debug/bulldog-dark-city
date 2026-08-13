@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
-import { basename, extname, join } from "node:path";
+import { basename, dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { parseAst } from "rollup/parseAst";
 
 const PROJECT_ROOT = fileURLToPath(new URL("../", import.meta.url));
 const SOURCE_DIRECTORIES = Object.freeze(["classes", "js", "styles"]);
@@ -13,8 +14,17 @@ const ROOT_SOURCE_FILES = Object.freeze([
 ]);
 const CODE_EXTENSIONS = new Set([".js", ".css"]);
 const MAXIMUM_LINES_PER_FILE = 400;
+const MAXIMUM_LINES_PER_FUNCTION = 14;
+const APPLICATION_ENTRY = join(PROJECT_ROOT, "script.js");
+const FUNCTION_TYPES = new Set([
+  "FunctionDeclaration",
+  "FunctionExpression",
+  "ArrowFunctionExpression",
+]);
 
-/** Sammelt relevante Code-Dateien rekursiv ein. */
+/**
+ * Collects code files.
+ */
 async function collectCodeFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const nestedFiles = await Promise.all(entries.map((entry) =>
@@ -23,14 +33,18 @@ async function collectCodeFiles(directory) {
   return nestedFiles.flat();
 }
 
-/** Liefert Dateien eines Verzeichniseintrags oder steigt rekursiv hinab. */
+/**
+ * Collects entry files.
+ */
 async function collectEntryFiles(directory, entry) {
   const path = join(directory, entry.name);
   if (entry.isDirectory()) return collectCodeFiles(path);
   return CODE_EXTENSIONS.has(extname(entry.name)) ? [path] : [];
 }
 
-/** Liest alle produktiven JavaScript- und CSS-Dateien ein. */
+/**
+ * Reads production files.
+ */
 async function readProductionFiles() {
   const files = await Promise.all(SOURCE_DIRECTORIES.map((directory) =>
     collectCodeFiles(join(PROJECT_ROOT, directory))
@@ -46,9 +60,9 @@ async function readProductionFiles() {
 }
 
 /**
- * Sammelt alle lokal verfügbaren benannten ES-Modul-Imports.
- * @param {string} content - JavaScript-Quelltext.
- * @returns {Set<string>} Lokal verfügbare Importnamen.
+ * Collects named imports.
+ * @param {string} content - The source content to process.
+ * @returns {Set<string>} The resulting string value.
  */
 function collectNamedImports(content) {
   const imports = new Set();
@@ -63,9 +77,9 @@ function collectNamedImports(content) {
 }
 
 /**
- * Entfernt Kommentare, damit Dokumentation nicht als Codeverwendung gilt.
- * @param {string} content - JavaScript-Quelltext.
- * @returns {string} Quelltext ohne Kommentare.
+ * Removes java script comments.
+ * @param {string} content - The source content to process.
+ * @returns {string} The resulting string value.
  */
 function removeJavaScriptComments(content) {
   return content.replace(/\/\*[\s\S]*?\*\//g, "")
@@ -73,9 +87,9 @@ function removeJavaScriptComments(content) {
 }
 
 /**
- * Findet verwendete System- und Controller-Klassen ohne lokalen Import.
- * @param {string} content - JavaScript-Quelltext.
- * @returns {string[]} Namen fehlender Architekturimporte.
+ * Finds missing architecture imports.
+ * @param {string} content - The source content to process.
+ * @returns {string[]} The resulting string value.
  */
 function findMissingArchitectureImports(content) {
   const executableContent = removeJavaScriptComments(content);
@@ -94,6 +108,82 @@ function findMissingArchitectureImports(content) {
   });
 }
 
+/**
+ * Collects local module paths.
+ * @param {string} path - The target file or module path.
+ * @param {string} content - The source content to process.
+ * @returns {string[]} The resulting string value.
+ */
+function collectLocalModulePaths(path, content) {
+  const pattern = /(?:import|export)\s+(?:[\s\S]*?\s+from\s+)?["'](\.[^"']+)["']/g;
+  return [...content.matchAll(pattern)].map((match) =>
+    resolve(dirname(path), match[1]));
+}
+
+/**
+ * Collects reachable modules.
+ * @param {Map<string, string>} modules - The modules value.
+ * @returns {Set<string>} The resulting string value.
+ */
+function collectReachableModules(modules) {
+  const reachable = new Set();
+  const visit = (path) => {
+    if (reachable.has(path) || !modules.has(path)) return;
+    reachable.add(path);
+    collectLocalModulePaths(path, modules.get(path)).forEach(visit);
+  };
+  visit(APPLICATION_ENTRY);
+  return reachable;
+}
+
+/**
+ * Walks an abstract syntax tree.
+ * @param {object} node - The current syntax node.
+ * @param {Function} visit - The visitor callback.
+ * @returns {void} No value is returned.
+ */
+function walkSyntaxTree(node, visit) {
+  if (!node || typeof node !== "object") return;
+  if (FUNCTION_TYPES.has(node.type)) visit(node);
+  Object.entries(node).forEach(([key, value]) => {
+    if (["start", "end", "loc"].includes(key)) return;
+    if (Array.isArray(value)) value.forEach((child) =>
+      walkSyntaxTree(child, visit));
+    else if (value?.type) walkSyntaxTree(value, visit);
+  });
+}
+
+/**
+ * Counts meaningful source lines in one function.
+ * @param {string} source - The function source.
+ * @returns {number} The meaningful line count.
+ */
+function countFunctionLines(source) {
+  return source.split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !/^[\[\]{}(),;]+$/.test(line))
+    .length;
+}
+
+/**
+ * Finds functions that exceed the project guideline.
+ * @param {string} path - The source file path.
+ * @param {string} content - The source content.
+ * @returns {object[]} The function-length violations.
+ */
+function findLongFunctions(path, content) {
+  const violations = [];
+  walkSyntaxTree(parseAst(content), (node) => {
+    const source = content.slice(node.start, node.end);
+    const lineCount = countFunctionLines(source);
+    const isHtmlTemplate = /`[\s\S]*<[^>]+>/.test(source);
+    if (lineCount > MAXIMUM_LINES_PER_FUNCTION && !isHtmlTemplate) {
+      violations.push({ file: path.replace(PROJECT_ROOT, ""), lineCount });
+    }
+  });
+  return violations;
+}
+
 test("Produktionsdateien bleiben innerhalb der 400-Zeilen-Regel", async () => {
   const files = await readProductionFiles();
   const violations = files.filter(({ content }) =>
@@ -105,6 +195,19 @@ test("Produktionsdateien bleiben innerhalb der 400-Zeilen-Regel", async () => {
     violations.map(({ path }) => path.replace(PROJECT_ROOT, "")),
     [],
   );
+});
+
+test("Produktionsfunktionen bleiben innerhalb der 14-Zeilen-Regel", async () => {
+  const files = await readProductionFiles();
+  const javascriptFiles = files.filter(({ path }) => extname(path) === ".js");
+  const configPath = join(PROJECT_ROOT, "vite.config.js");
+  javascriptFiles.push({ path: configPath,
+    content: await readFile(configPath, "utf8") });
+  const violations = javascriptFiles.flatMap(({ path, content }) =>
+    findLongFunctions(path, content)
+  );
+
+  assert.deepEqual(violations, []);
 });
 
 test("Produktionscode enthält keine finalen Debug-Ausgaben", async () => {
@@ -155,6 +258,19 @@ test("verwendete Systeme und Controller sind lokal importiert", async () => {
       name,
     }));
   });
+
+  assert.deepEqual(violations, []);
+});
+
+test("Produktionsmodule sind vom Anwendungseinstieg erreichbar", async () => {
+  const files = await readProductionFiles();
+  const modules = new Map(files
+    .filter(({ path }) => extname(path) === ".js")
+    .map(({ path, content }) => [resolve(path), content]));
+  const reachable = collectReachableModules(modules);
+  const violations = [...modules.keys()]
+    .filter((path) => !reachable.has(path))
+    .map((path) => path.replace(PROJECT_ROOT, ""));
 
   assert.deepEqual(violations, []);
 });

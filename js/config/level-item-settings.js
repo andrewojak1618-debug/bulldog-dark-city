@@ -1,7 +1,7 @@
 import { getAssetPath } from "./asset-paths.js";
 
 /**
- * Gemeinsame Framewerte der vorbereiteten Level-Items.
+ * Defines the item frame configuration.
  */
 const ITEM_FRAME = Object.freeze({
   width: 128,
@@ -9,11 +9,25 @@ const ITEM_FRAME = Object.freeze({
 });
 
 /**
- * Texturen, Animationen und Testpositionen der Level-Items.
+ * Defines the level items configuration.
  */
 export const LEVEL_ITEMS = Object.freeze({
   depth: 8,
   pickupTweenMs: 140,
+  feedback: Object.freeze({
+    healthFull: Object.freeze({
+      text: "LEBEN BEREITS VOLL",
+      cooldownMs: 2_500,
+      durationMs: 1_100,
+      riseY: 22,
+      fontFamily: "Permanent Marker",
+      fontSize: 16,
+      color: "#ffd6e8",
+      backgroundColor: "rgba(20, 5, 18, 0.88)",
+      paddingX: 8,
+      paddingY: 4,
+    }),
+  }),
   pickupEffects: Object.freeze({
     goldenCoin: Object.freeze({
       key: "item-golden-coin-pickup-splash-animation",
@@ -198,9 +212,14 @@ export const LEVEL_ITEMS = Object.freeze({
       yoyo: true,
     }),
   }),
-  placements: Object.freeze([
-    Object.freeze({ type: "health", x: 305, y: 445, size: 54 }),
-    Object.freeze({ type: "coin", x: 430, y: 325, size: 50 }),
-    Object.freeze({ type: "serum", x: 650, y: 235, size: 58 }),
-  ]),
+  placements: Object.freeze({
+    initial: Object.freeze([
+      Object.freeze({ type: "coin", x: 430, y: 325, size: 50 }),
+      Object.freeze({ type: "serum", x: 650, y: 235, size: 58 }),
+    ]),
+    afterFirstCombat: Object.freeze([
+      Object.freeze({ type: "health", x: 2_055, y: 445, size: 54 }),
+      Object.freeze({ type: "health", x: 2_180, y: 445, size: 54 }),
+    ]),
+  }),
 });

@@ -1,5 +1,5 @@
 /**
- * Levelübergreifende Kamera-Dynamik für die steuerbare Bulldogge.
+ * Defines the player camera configuration.
  */
 export const PLAYER_CAMERA = Object.freeze({
   lerpX: 0.1,

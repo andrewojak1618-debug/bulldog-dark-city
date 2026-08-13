@@ -3,13 +3,15 @@ import {
   MUTANT_CAT_STATES,
 } from "../../js/config/mutant-cat-settings.js";
 
-/** Bündelt Reichweiten- und Höhenprüfungen der mutierten Katze. */
+/**
+ * Manages mutant cat detection system behavior.
+ */
 export class MutantCatDetectionSystem {
   /**
-   * Prüft horizontale Entfernung und annähernd gleiche Laufhöhe.
-   * @param {Phaser.Physics.Arcade.Sprite} cat - Prüfende Katze.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {boolean} Ob die Katze die Bulldogge bemerkt.
+   * Checks the detect condition.
+   * @param {Phaser.Physics.Arcade.Sprite} cat - The mutant cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static canDetect(cat, player) {
     if (!player?.body || !cat.body) return false;
@@ -18,10 +20,10 @@ export class MutantCatDetectionSystem {
   }
 
   /**
-   * Begrenzt Aufmerksamkeit und Angriff auf die erlaubte Laufhöhe.
-   * @param {Phaser.Physics.Arcade.Sprite} cat - Prüfende Katze.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {boolean} Ob die vertikale Entfernung zulässig ist.
+   * Checks the within height condition.
+   * @param {Phaser.Physics.Arcade.Sprite} cat - The mutant cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isWithinHeight(cat, player) {
     if (!player?.body || !cat.body) return false;
@@ -30,10 +32,10 @@ export class MutantCatDetectionSystem {
   }
 
   /**
-   * Prüft, ob die Katze ihre aktive Begegnung beenden soll.
-   * @param {Phaser.Physics.Arcade.Sprite} cat - Prüfende Katze.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {boolean} Ob die Katze zur Patrouille zurückkehren soll.
+   * Checks the disengage condition.
+   * @param {Phaser.Physics.Arcade.Sprite} cat - The mutant cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static shouldDisengage(cat, player) {
     if (!this.isWithinHeight(cat, player)) return true;
@@ -45,10 +47,10 @@ export class MutantCatDetectionSystem {
   }
 
   /**
-   * Liefert den absoluten horizontalen Abstand zur Bulldogge.
-   * @param {Phaser.Physics.Arcade.Sprite} cat - Prüfende Katze.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Begegnende Bulldogge.
-   * @returns {number} Horizontaler Abstand in Pixeln.
+   * Returns horizontal distance.
+   * @param {Phaser.Physics.Arcade.Sprite} cat - The mutant cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {number} The resulting numeric value.
    */
   static getHorizontalDistance(cat, player) {
     return player ? Math.abs(player.x - cat.x) : Number.POSITIVE_INFINITY;

@@ -3,13 +3,14 @@ import { COLLECTIBLE_KEYS, HUD } from "../../js/config/hud-settings.js";
 import { InputDeviceDetector } from
   "../input/input-device-detector.class.js";
 
-/** Zeigt die verfügbare Mutationstaste bei vollständig gefülltem Serum. */
+/**
+ * Manages mutation ready prompt behavior.
+ */
 export class MutationReadyPrompt extends Phaser.GameObjects.Container {
   /**
-   * Erstellt die zunächst verborgene, kamerafeste Mutationsanzeige.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @param {import("../systems/collectible-system.class.js").CollectibleSystem}
-   * collectibles - Aktuelle Sammelstände.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import("../systems/collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
    */
   constructor(scene, collectibles) {
     const settings = HUD.mutationReady;
@@ -24,20 +25,13 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt Tastenkappe und erklärende Beschriftung.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {Phaser.GameObjects.GameObject[]} Elemente des Hinweises.
+   * Creates content.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.GameObject[]} The resulting collection.
    */
   createContent(scene) {
     if (InputDeviceDetector.isTouchLayout()) {
-      return [
-        scene.add.text(
-          0,
-          12,
-          "PRESS M MUTATION",
-          this.settings.labelStyle,
-        ).setOrigin(0, 0.5),
-      ];
+      return [this.createTouchLabel(scene)];
     }
     const keyCap = this.createKeyCap(scene);
     const keyText = scene.add.text(24, 12, "M", this.settings.keyStyle)
@@ -48,9 +42,19 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet eine kompakte Tastenkappe mit leichtem Schatten.
-   * @param {Phaser.Scene} scene - Zugehörige Spielszene.
-   * @returns {Phaser.GameObjects.Graphics} Erzeugte Tastenkappe.
+   * Creates the touch-layout mutation label.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.Text} The touch label.
+   */
+  createTouchLabel(scene) {
+    return scene.add.text(0, 12, "PRESS M MUTATION",
+      this.settings.labelStyle).setOrigin(0, 0.5);
+  }
+
+  /**
+   * Creates key cap.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.Graphics} The resulting data object.
    */
   createKeyCap(scene) {
     const { keyWidth, keyHeight } = this.settings;
@@ -64,9 +68,9 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Reagiert auf den Serumstand und entfernt den Listener beim Zerstören.
-   * @param {import("../systems/collectible-system.class.js").CollectibleSystem} collectibles - Sammelstände.
-   * @returns {void}
+   * Binds collectibles.
+   * @param {import("../systems/collectible-system.class.js").CollectibleSystem} collectibles - The collectibles value.
+   * @returns {void} No value is returned.
    */
   bindCollectibles(collectibles) {
     const update = (key, count) => {
@@ -81,9 +85,9 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Schaltet die Anzeige abhängig vom vollständigen Serumstand.
-   * @param {number} count - Aktuell gesammelte Serum-Items.
-   * @returns {void}
+   * Sets ready.
+   * @param {number} count - The count value.
+   * @returns {void} No value is returned.
    */
   setReady(count) {
     const isReady = count >= HUD.serum.fill.maximum;
@@ -93,12 +97,16 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
     if (!isReady) this.stopPulse();
   }
 
-  /** Stellt den Hinweis nach einem HUD-Wechsel nur bei vollem Serum wieder her. */
+  /**
+   * Restores visibility.
+   */
   restoreVisibility() {
     this.setVisible(this.isReady);
   }
 
-  /** Startet den dezenten Neon-Puls der Bereitschaftsanzeige. */
+  /**
+   * Starts pulse.
+   */
   startPulse() {
     this.setAlpha(this.settings.pulseAlphaMax);
     this.pulseTween = this.scene.tweens.add({
@@ -111,7 +119,9 @@ export class MutationReadyPrompt extends Phaser.GameObjects.Container {
     });
   }
 
-  /** Beendet den Puls und stellt die volle Deckkraft wieder her. */
+  /**
+   * Stops pulse.
+   */
   stopPulse() {
     this.pulseTween?.stop();
     this.pulseTween = null;

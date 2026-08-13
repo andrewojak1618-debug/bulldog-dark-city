@@ -2,13 +2,13 @@ import { DOG_CATCHER_ANIMATIONS } from
   "../../js/config/dog-catcher-settings.js";
 
 /**
- * Registriert die Animationen des Hundefängers.
+ * Manages dog catcher animation system behavior.
  */
 export class DogCatcherAnimationSystem {
   /**
-   * Erstellt jede Animation höchstens einmal im globalen Phaser-Manager.
-   * @param {Phaser.Scene} scene - Szene mit geladenen Gegnertexturen.
-   * @returns {void}
+   * Registers the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static register(scene) {
     DOG_CATCHER_ANIMATIONS.forEach((animation) => {
@@ -23,11 +23,10 @@ export class DogCatcherAnimationSystem {
   }
 
   /**
-   * Erstellt eine konfigurierte Framefolge oder eine fortlaufende Sequenz.
-   * @param {Phaser.Scene} scene - Szene mit globalem Animationsmanager.
-   * @param {{textureKey: string, endFrame: number,
-   * frameOrder?: ReadonlyArray<number>}} animation - Animationsdaten.
-   * @returns {Array<Phaser.Types.Animations.AnimationFrame>} Phaser-Frames.
+   * Creates frames.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{textureKey: string, endFrame: number, frameOrder?: ReadonlyArray<number>}} animation - The animation configuration to use.
+   * @returns {Array<Phaser.Types.Animations.AnimationFrame>} The resulting collection.
    */
   static createFrames(scene, animation) {
     if (animation.frameOrder) {

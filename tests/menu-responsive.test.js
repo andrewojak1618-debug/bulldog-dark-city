@@ -1,146 +1,91 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import {
-  MENU_LAYOUT,
-  TOUCH_MENU_LAYOUT,
-  getMenuLayout,
-} from "../js/config/menu-layout.js";
+import { MENU_LAYOUT, TOUCH_MENU_LAYOUT, getMenuLayout } from
+  "../js/config/menu-layout.js";
 
-const GAME_CSS = readFileSync(
-  new URL("../styles/game.css", import.meta.url),
-  "utf8",
-);
+const GAME_CSS = readFileSync(new URL("../styles/game.css", import.meta.url), "utf8");
 const RESPONSIVE_CSS = readFileSync(
   new URL("../styles/responsive.css", import.meta.url),
   "utf8",
 );
+const MENU_CSS = readFileSync(
+  new URL("../styles/menu-interface.css", import.meta.url),
+  "utf8",
+);
+const MENU_INTERFACE = readFileSync(
+  new URL("../classes/ui/html-menu-interface.class.js", import.meta.url),
+  "utf8",
+);
 
-test("Desktopmenü behält seine bisherige Anordnung", () => {
+test("Desktop menu keeps its established left-side arrangement", () => {
   assert.equal(getMenuLayout(false), MENU_LAYOUT);
-  assert.equal(MENU_LAYOUT.mainMenu.buttonWidth, 176);
-  assert.equal(MENU_LAYOUT.mainMenu.buttonHeight, 38);
+  assert.match(MENU_CSS, /\.menu-interface__actions \{[\s\S]*?left: 4\.1667%;/);
+  assert.match(MENU_CSS, /width: 24\.4444%;/);
 });
 
-test("Touchmenü verwendet mindestens 16 CSS-Pixel große Texte", () => {
-  const smallestLandscapeScale = 320 / 480;
-  const effectiveFontSize = TOUCH_MENU_LAYOUT.mainMenu.fontSize
-    .replace("px", "") * smallestLandscapeScale;
-
+test("Touch menu uses at least 16 CSS pixels for readable text", () => {
   assert.equal(getMenuLayout(true), TOUCH_MENU_LAYOUT);
-  assert.ok(effectiveFontSize >= 16);
-  assert.ok(TOUCH_MENU_LAYOUT.version.fontSize * smallestLandscapeScale >= 16);
-  assert.ok(TOUCH_MENU_LAYOUT.inputHint.fontSize * smallestLandscapeScale >= 16);
-  assert.ok(
-    TOUCH_MENU_LAYOUT.unavailableLabel.fontSize * smallestLandscapeScale >= 16,
-  );
+  assert.match(MENU_CSS, /font-size: max\(16px, 3\.3333cqw\);/);
+  assert.match(MENU_CSS, /font-size: max\(16px, 1\.3889cqw\);/);
 });
 
-test("Touchmenü bietet mindestens 44 CSS-Pixel große Bedienflächen", () => {
-  const smallestLandscapeScale = 320 / 480;
-  const mainMenuHitSize = TOUCH_MENU_LAYOUT.mainMenu.hitHeight *
-    smallestLandscapeScale;
-
-  assert.ok(mainMenuHitSize >= 44);
+test("Touch menu exposes thumb-friendly semantic button surfaces", () => {
+  assert.match(MENU_CSS, /min-height: 9\.1667cqw;/);
+  assert.match(MENU_CSS, /touch-action: manipulation;/);
 });
 
-test("Touchhinweis bleibt drei Sekunden sichtbar", () => {
-  assert.equal(TOUCH_MENU_LAYOUT.inputHint.popupDurationMs, 3000);
-  assert.ok(TOUCH_MENU_LAYOUT.inputHint.fadeDurationMs > 0);
+test("Input hint gives way to the centered version after its device delay", () => {
+  assert.match(MENU_INTERFACE, /keyboard: 5000/);
+  assert.match(MENU_INTERFACE, /touch: 3000/);
+  assert.match(MENU_INTERFACE, /version\.classList\.remove/);
+  assert.match(MENU_CSS, /menu-interface__input-hint--hidden/);
+  assert.match(MENU_CSS, /\.menu-interface__version \{[\s\S]*?left: 50%;/);
+  assert.match(MENU_CSS, /menu-interface__version--hidden/);
 });
 
-test("iPad-Mini-Menüelemente erfüllen Größe und gemeinsame Ausrichtung", () => {
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.mute-toggle,[\s\S]*?width: 44px;[\s\S]*?height: 44px;/,
-  );
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.github-profile-link \{[\s\S]*?right: 22px;/,
-  );
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.github-profile-link::before \{[\s\S]*?font-size: 16px;/,
-  );
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.legal-navigation-link \{[\s\S]*?min-height: 44px;/,
-  );
+test("iPad Mini menu actions meet size and alignment requirements", () => {
+  assert.match(GAME_CSS, /body\.is-touch-layout \.mute-toggle,[\s\S]*?width: 44px;[\s\S]*?height: 44px;/);
+  assert.match(GAME_CSS, /body\.is-touch-layout \.github-profile-link__label \{[\s\S]*?font-size: 16px;/);
   assert.match(GAME_CSS, /\.legal-navigation-link \{[\s\S]*?font-size: 16px;/);
 });
 
-test("iPad Mini erhält ein deutlich größeres Tablet-UI-Profil", () => {
-  assert.match(
-    GAME_CSS,
-    /@media \(min-width: 960px\) and \(min-height: 600px\)/,
-  );
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.mute-toggle,[\s\S]*?width: 56px;[\s\S]*?height: 56px;/,
-  );
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.github-profile-link::before \{[\s\S]*?font-size: 20px;/,
-  );
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.legal-navigation-link \{[\s\S]*?font-size: 20px;/,
-  );
+test("iPad Mini receives a dedicated tablet UI profile", () => {
+  assert.match(GAME_CSS, /@media \(min-width: 960px\) and \(min-height: 600px\)/);
+  assert.match(GAME_CSS, /body\.is-touch-layout \.github-profile-link__label \{[\s\S]*?font-size: 20px;/);
+  assert.match(GAME_CSS, /body\.is-touch-layout \.legal-navigation-link \{[\s\S]*?font-size: 20px;/);
 });
 
-test("iPad Pro erhält ein eigenständiges Large-Tablet-Profil", () => {
-  assert.match(
-    GAME_CSS,
-    /@media \(min-width: 1280px\) and \(min-height: 800px\)/,
-  );
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.mute-toggle,[\s\S]*?width: 68px;[\s\S]*?height: 68px;/,
-  );
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.github-profile-link::before \{[\s\S]*?font-size: 24px;/,
-  );
-  assert.match(
-    GAME_CSS,
-    /body\.is-touch-layout \.legal-navigation-link \{[\s\S]*?font-size: 24px;/,
-  );
+test("iPad Pro receives a dedicated large-tablet UI profile", () => {
+  assert.match(GAME_CSS, /@media \(min-width: 1280px\) and \(min-height: 800px\)/);
+  assert.match(GAME_CSS, /body\.is-touch-layout \.github-profile-link__label \{[\s\S]*?font-size: 24px;/);
+  assert.match(GAME_CSS, /body\.is-touch-layout \.legal-navigation-link \{[\s\S]*?font-size: 24px;/);
 });
 
-test("4K-Touchmenü skaliert externe Aktionen wie das Phaser-Canvas", () => {
-  assert.match(
-    RESPONSIVE_CSS,
-    /@media \(min-width: 1920px\) and \(min-height: 1080px\)/,
-  );
-  assert.match(
-    RESPONSIVE_CSS,
-    /body\.is-touch-layout \.mute-toggle,[\s\S]*?width: min\(6\.1111vw, 9\.1667svh\);/,
-  );
-  assert.match(
-    RESPONSIVE_CSS,
-    /body\.is-touch-layout \.github-profile-link::before \{[\s\S]*?font-size: min\(2\.2222vw, 3\.3333svh\);/,
-  );
-  assert.match(
-    RESPONSIVE_CSS,
-    /body\.is-touch-layout \.legal-navigation-link \{[\s\S]*?font-size: min\(3\.3333vw, 5svh\);/,
-  );
-  assert.match(
-    RESPONSIVE_CSS,
-    /body\.is-touch-layout \.site-footer \{[\s\S]*?transform: translate\(58px, -50%\);/,
-  );
+test("4K touch menu scales external actions with the canvas", () => {
+  assert.match(RESPONSIVE_CSS, /@media \(min-width: 1920px\) and \(min-height: 1080px\)/);
+  assert.match(RESPONSIVE_CSS, /body\.is-touch-layout \.github-profile-link__label \{[\s\S]*?font-size: min\(2\.2222vw, 3\.3333svh\);/);
+  assert.match(RESPONSIVE_CSS, /body\.is-touch-layout \.site-footer \{[\s\S]*?right: calc\(/);
 });
 
-test("4K-Desktop skaliert Canvas und externe Menüelemente gemeinsam", () => {
-  assert.match(
-    RESPONSIVE_CSS,
-    /body:not\(\.is-touch-layout\) #game \{[\s\S]*?width: min\(84\.375vw, 150svh, 2160px\);/,
-  );
-  assert.match(
-    RESPONSIVE_CSS,
-    /body:not\(\.is-touch-layout\) \.mute-toggle \{[\s\S]*?width: min\(2\.5781vw, 4\.5833svh, 66px\);/,
-  );
-  assert.match(
-    RESPONSIVE_CSS,
-    /body:not\(\.is-touch-layout\) \.legal-navigation-link \{[\s\S]*?font-size: min\(1\.1719vw, 2\.0833svh, 30px\);/,
-  );
+test("Impressum stays directly left of the GitHub action", () => {
+  assert.match(GAME_CSS, /#game \{[\s\S]*?--menu-footer-bottom: 22px;/);
+  assert.match(GAME_CSS, /\.site-footer \{[\s\S]*?right: 62px;[\s\S]*?bottom: var\(--menu-footer-bottom\);/);
+  assert.match(GAME_CSS, /body\.is-touch-layout #game \{[\s\S]*?--menu-footer-bottom: 12px;/);
+  assert.match(GAME_CSS, /body\.is-touch-layout \.site-footer \{[\s\S]*?right: 76px;[\s\S]*?bottom: var\(--menu-footer-bottom\);/);
+  assert.match(GAME_CSS, /\.site-footer \{[\s\S]*?align-items: flex-end;/);
+  assert.match(GAME_CSS, /\.legal-navigation-link \{[\s\S]*?line-height: 1;/);
+  assert.match(GAME_CSS, /body\.is-touch-layout \.legal-navigation-link \{[\s\S]*?place-items: end center;/);
+});
+
+test("Centered version shares the legal navigation bottom edge", () => {
+  assert.match(MENU_CSS, /\.menu-interface__version \{[\s\S]*?bottom: var\(--menu-footer-bottom\);[\s\S]*?left: 50%;[\s\S]*?line-height: 1;/);
+  assert.match(RESPONSIVE_CSS, /body:not\(\.is-touch-layout\) #game \{[\s\S]*?--menu-footer-bottom: min\(3\.0556vw, 4\.5833svh, 44px\);/);
+  assert.match(RESPONSIVE_CSS, /body\.is-touch-layout #game \{[\s\S]*?--menu-footer-bottom: min\(1\.6667vw, 2\.5svh\);/);
+});
+
+test("4K desktop scales canvas and external actions together", () => {
+  assert.match(GAME_CSS, /width: min\([^;]*var\(--game-content-max-width\)\);/);
+  assert.doesNotMatch(RESPONSIVE_CSS, /width: min\([^;]*2160px/);
+  assert.match(RESPONSIVE_CSS, /body:not\(\.is-touch-layout\) \.mute-toggle \{[\s\S]*?width: min\(3\.0556vw, 4\.5833svh, 44px\);/);
 });

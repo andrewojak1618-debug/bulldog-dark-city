@@ -17,7 +17,8 @@ test("Desktop-Erklärung entspricht der ergonomischen Tastaturbelegung", () => {
   const controls = PLAYER_GUIDE.desktop.controls;
 
   assert.ok(controls.some(({ input, action }) =>
-    input === "F / J / Linksklick" && action === "Angreifen"
+    input === "F / Linksklick" &&
+      action === "Angreifen (J optional)"
   ));
   assert.ok(controls.some(({ input, action }) =>
     input === "M" && action.includes("Mutation")
@@ -29,6 +30,9 @@ test("Desktop-Erklärung entspricht der ergonomischen Tastaturbelegung", () => {
 
 test("Touch-Erklärung nennt Mutation und beide Wurfknochen", () => {
   const controls = PLAYER_GUIDE.touch.controls;
+  assert.ok(controls.some(({ input, action }) =>
+    input === "F" && action === "Angreifen"
+  ));
   assert.ok(controls.some(({ input }) => input === "M"));
   assert.ok(controls.some(({ input }) => input === "K / L"));
 });

@@ -14,17 +14,20 @@ import { RobotCatAudioSystem } from
 
 const ANIMATION_COMPLETE_PREFIX = "animationcomplete-";
 
-/** Verarbeitet Bulldoggen-Treffer und den Lebenszustand der Roboterkatze. */
+/**
+ * Manages robot cat combat system behavior.
+ */
 export class RobotCatCombatSystem {
   /**
-   * Prüft pro Frame, ob der aktive Bulldoggen-Angriff den Boss trifft.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Angegriffene Roboterkatze.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Angreifende Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health - Bossleben.
-   * @returns {boolean} Ob in diesem Frame Schaden verursacht wurde.
+   * Updates the current state.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static update(robotCat, player, health) {
     if (!this.isImpactFrameReady(robotCat, player, health)) return false;
+    if (!this.canReceiveMeleeAttack(robotCat, player)) return false;
     if (!this.isTargetInRange(robotCat, player)) return false;
     player.attackHitConsumed = true;
     return this.applyDamage(
@@ -35,11 +38,24 @@ export class RobotCatCombatSystem {
   }
 
   /**
-   * Wendet Nahkampf- oder Projektilschaden einheitlich auf den Boss an.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Getroffene Roboterkatze.
-   * @param {import("./health-system.class.js").HealthSystem} health - Bossleben.
-   * @param {number} damage - Abzuziehende Lebenspunkte.
-   * @returns {boolean} Ob der Schaden übernommen wurde.
+   * Checks the receive melee attack condition.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
+   */
+  static canReceiveMeleeAttack(robotCat, player) {
+    return Boolean(
+      player?.isMutated ||
+      robotCat?.getData?.("movementState") === ROBOT_CAT_STATES.walking,
+    );
+  }
+
+  /**
+   * Applies damage.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {number} damage - The amount of damage to apply.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static applyDamage(robotCat, health, damage) {
     if (!robotCat?.active || health.getCurrent() <= 0) return false;
@@ -53,11 +69,11 @@ export class RobotCatCombatSystem {
   }
 
   /**
-   * Prüft Angriff, Trefferframe sowie den aktiven Lebenszustand des Bosses.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Angegriffene Roboterkatze.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Angreifende Bulldogge.
-   * @param {import("./health-system.class.js").HealthSystem} health - Bossleben.
-   * @returns {boolean} Ob der aktuelle Angriffsframe treffen darf.
+   * Checks the impact frame ready condition.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isImpactFrameReady(robotCat, player, health) {
     if (!robotCat?.active || health.getCurrent() <= 0 ||
@@ -71,10 +87,10 @@ export class RobotCatCombatSystem {
   }
 
   /**
-   * Prüft Blickrichtung sowie horizontale und vertikale Schlagreichweite.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Angegriffene Roboterkatze.
-   * @param {Phaser.Physics.Arcade.Sprite} player - Angreifende Bulldogge.
-   * @returns {boolean} Ob der Boss innerhalb der Schlagreichweite steht.
+   * Checks the target in range condition.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @param {Phaser.Physics.Arcade.Sprite} player - The player-controlled bulldog.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isTargetInRange(robotCat, player) {
     const direction = player.flipX ? -1 : 1;
@@ -88,9 +104,9 @@ export class RobotCatCombatSystem {
   }
 
   /**
-   * Spielt die Treffersequenz einmal ab und pausiert dabei die Bewegung.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Getroffene Roboterkatze.
-   * @returns {void}
+   * Shows hit feedback.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
    */
   static showHitFeedback(robotCat) {
     const eventName = ANIMATION_COMPLETE_PREFIX +
@@ -109,9 +125,9 @@ export class RobotCatCombatSystem {
   }
 
   /**
-   * Kehrt ohne Positionswechsel in den vorherigen Bewegungszustand zurück.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Getroffene Roboterkatze.
-   * @returns {void}
+   * Completes hit feedback.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
    */
   static finishHitFeedback(robotCat) {
     robotCat.setData("isHitReacting", false);
@@ -127,19 +143,35 @@ export class RobotCatCombatSystem {
   }
 
   /**
-   * Stoppt Bewegung und spielt beim neunten Treffer die finale Sequenz ab.
-   * @param {Phaser.GameObjects.Sprite} robotCat - Besiegte Roboterkatze.
-   * @returns {void}
+   * Handles defeat.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
    */
   static defeat(robotCat) {
-    const hitEventName = ANIMATION_COMPLETE_PREFIX +
-      ROBOT_CAT_HIT_TEXTURE.animationKey;
-    robotCat.off(hitEventName);
+    robotCat.off(ANIMATION_COMPLETE_PREFIX + ROBOT_CAT_HIT_TEXTURE.animationKey);
     robotCat.setData("isHitReacting", false);
     robotCat.setData("isDefeated", true);
     RobotCatAudioSystem.stopThrustFlight(robotCat);
+    this.disableCollision(robotCat);
+    this.playDefeatAnimation(robotCat);
+  }
+
+  /**
+   * Disables the defeated robot cat's collision body.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
+   */
+  static disableCollision(robotCat) {
     const collision = robotCat.getData("collision");
     if (collision?.body) collision.body.enable = false;
+  }
+
+  /**
+   * Plays the robot cat defeat animation on the ground.
+   * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
+   * @returns {void} No value is returned.
+   */
+  static playDefeatAnimation(robotCat) {
     robotCat.setActive(true).setVisible(true).setAlpha(1);
     robotCat.anims.stop();
     robotCat.setY(robotCat.getData("groundY"))

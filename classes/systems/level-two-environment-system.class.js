@@ -2,13 +2,13 @@ import { LEVEL_TWO } from "../../js/config/level-two-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
- * Lädt und erzeugt alle rein visuellen Umgebungsebenen von Level zwei.
+ * Manages level two environment system behavior.
  */
 export class LevelTwoEnvironmentSystem {
   /**
-   * Lädt Hintergrund, Helikopter und Parallax-Spritesheets.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static load(scene) {
     AssetLoaderSystem.loadImage(scene, LEVEL_TWO.background);
@@ -19,9 +19,9 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Lädt alle Einzelbilder der Helikopteranimation.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {void}
+   * Loads helicopter.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   static loadHelicopter(scene) {
     LEVEL_TWO.helicopter.frames.forEach((frame) => {
@@ -30,9 +30,9 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Erzeugt alle Umgebungsebenen in ihrer festgelegten Tiefenreihenfolge.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {object} Referenzen auf Hintergrund, Helikopter und Ebenen.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {object} The resulting data object.
    */
   static create(scene) {
     return {
@@ -45,8 +45,8 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Gibt die Parallax-Ebenen in ihrer fachlichen Reihenfolge zurück.
-   * @returns {object[]} Konfigurierte Parallax-Ebenen.
+   * Returns parallax layers.
+   * @returns {object[]} The resulting collection.
    */
   static getParallaxLayers() {
     return [
@@ -59,9 +59,9 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Füllt das Canvas mit dem grünen Level-2-Haupthintergrund.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {Phaser.GameObjects.Image} Erstellter Hintergrund.
+   * Creates main background.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.Image} The resulting data object.
    */
   static createMainBackground(scene) {
     const background = LEVEL_TWO.background;
@@ -75,9 +75,9 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Erstellt den animierten Katzen-Helikopter mit sicherem Fallback.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @returns {Phaser.GameObjects.Sprite|null} Helikopter oder Fallback.
+   * Creates helicopter.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {Phaser.GameObjects.Sprite|null} The resulting data object.
    */
   static createHelicopter(scene) {
     const settings = LEVEL_TWO.helicopter;
@@ -91,21 +91,21 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Filtert nicht geladene Helikopterframes aus dem Fallback-Pfad.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Helikopter-Konfiguration.
-   * @returns {object[]} Verfügbare Frame-Konfigurationen.
+   * Returns available helicopter frames.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @returns {object[]} The resulting collection.
    */
   static getAvailableHelicopterFrames(scene, settings) {
     return settings.frames.filter((frame) => scene.textures.exists(frame.key));
   }
 
   /**
-   * Registriert die Helikopteranimation genau einmal.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Helikopter-Konfiguration.
-   * @param {object[]} frames - Verfügbare Animationsframes.
-   * @returns {void}
+   * Registers helicopter animation.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {object[]} frames - The frames value.
+   * @returns {void} No value is returned.
    */
   static registerHelicopterAnimation(scene, settings, frames) {
     if (frames.length < 2 || scene.anims.exists(settings.animationKey)) return;
@@ -119,11 +119,11 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Erzeugt und skaliert den Helikopter am rechten Canvasrand.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} settings - Helikopter-Konfiguration.
-   * @param {object[]} frames - Verfügbare Animationsframes.
-   * @returns {Phaser.GameObjects.Sprite} Erstellter Helikopter.
+   * Creates helicopter sprite.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} settings - The configuration values to use.
+   * @param {object[]} frames - The frames value.
+   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
    */
   static createHelicopterSprite(scene, settings, frames) {
     const width = this.getHelicopterDisplayWidth(settings);
@@ -139,9 +139,9 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Berechnet die proportionale Darstellungsbreite des Helikopters.
-   * @param {object} settings - Helikopter-Konfiguration.
-   * @returns {number} Darstellungsbreite in Pixeln.
+   * Returns helicopter display width.
+   * @param {object} settings - The configuration values to use.
+   * @returns {number} The resulting numeric value.
    */
   static getHelicopterDisplayWidth(settings) {
     return settings.frameWidth *
@@ -149,11 +149,11 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Startet Flug- und Schwebe-Tween des Helikopters.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite} helicopter - Animiertes Flugobjekt.
-   * @param {object} settings - Helikopter-Konfiguration.
-   * @returns {void}
+   * Handles animate helicopter.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} helicopter - The helicopter value.
+   * @param {object} settings - The configuration values to use.
+   * @returns {void} No value is returned.
    */
   static animateHelicopter(scene, helicopter, settings) {
     this.createFlightTween(scene, helicopter, settings);
@@ -161,11 +161,11 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Bewegt den Helikopter wiederholt von rechts nach links.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite} helicopter - Animiertes Flugobjekt.
-   * @param {object} settings - Helikopter-Konfiguration.
-   * @returns {Phaser.Tweens.Tween} Erstellter Flug-Tween.
+   * Creates flight tween.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} helicopter - The helicopter value.
+   * @param {object} settings - The configuration values to use.
+   * @returns {Phaser.Tweens.Tween} The created instance.
    */
   static createFlightTween(scene, helicopter, settings) {
     const width = this.getHelicopterDisplayWidth(settings);
@@ -181,11 +181,11 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Ergänzt die ruhige vertikale Schwebewegung des Helikopters.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {Phaser.GameObjects.Sprite} helicopter - Animiertes Flugobjekt.
-   * @param {object} settings - Helikopter-Konfiguration.
-   * @returns {Phaser.Tweens.Tween} Erstellter Schwebe-Tween.
+   * Creates hover tween.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Sprite} helicopter - The helicopter value.
+   * @param {object} settings - The configuration values to use.
+   * @returns {Phaser.Tweens.Tween} The created instance.
    */
   static createHoverTween(scene, helicopter, settings) {
     return scene.tweens.add({
@@ -199,10 +199,10 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Baut eine konfigurierte Ebene aus gleich großen Einzelbildern.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} layer - Zentrale Einstellungen der Ebene.
-   * @returns {Phaser.GameObjects.Image[]} Erstellte Bildsegmente.
+   * Creates parallax segments.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} layer - The layer value.
+   * @returns {Phaser.GameObjects.Image[]} The resulting collection.
    */
   static createParallaxSegments(scene, layer) {
     const width = layer.frameWidth *
@@ -218,13 +218,13 @@ export class LevelTwoEnvironmentSystem {
   }
 
   /**
-   * Erzeugt ein einzelnes Segment einer Parallax-Ebene.
-   * @param {Phaser.Scene} scene - Aktive Level-2-Szene.
-   * @param {object} layer - Zentrale Einstellungen der Ebene.
-   * @param {number} width - Darstellungsbreite eines Segments.
-   * @param {number} step - Horizontaler Abstand der Segmente.
-   * @param {number} index - Position innerhalb der Ebene.
-   * @returns {Phaser.GameObjects.Image} Erstelltes Segment.
+   * Creates parallax segment.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {object} layer - The layer value.
+   * @param {number} width - The width in pixels.
+   * @param {number} step - The step value.
+   * @param {number} index - The zero-based item index.
+   * @returns {Phaser.GameObjects.Image} The resulting data object.
    */
   static createParallaxSegment(scene, layer, width, step, index) {
     const frame = layer.frameSequence[index % layer.frameSequence.length];

@@ -1,6 +1,8 @@
 import { getAssetPath } from "./asset-paths.js";
 
-/** Zentrale Audiodaten der Roboterkatze. */
+/**
+ * Defines the robot cat audio configuration.
+ */
 export const ROBOT_CAT_AUDIO = Object.freeze({
   clawAttack: Object.freeze({
     key: "robot-cat-claw-attack-sound",

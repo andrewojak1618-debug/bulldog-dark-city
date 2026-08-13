@@ -1,15 +1,15 @@
 import Phaser from "phaser";
 
 /**
- * Stellt die Leertaste und ihre Aktion als gemeinsamen Introhinweis dar.
+ * Manages intro skip hint behavior.
  */
 export class IntroSkipHint extends Phaser.GameObjects.Container {
   /**
-   * Erstellt die zentrierte Tastenkappe mit ergänzender Aktionsbeschriftung.
-   * @param {Phaser.Scene} scene - Szene, in der der Hinweis angezeigt wird.
-   * @param {number} x - Horizontale Mittelpunktposition.
-   * @param {number} y - Untere Position des Hinweises.
-   * @param {Object} style - Zentrale Darstellungswerte des Hinweises.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {Object} style - The style value.
    */
   constructor(scene, x, y, style) {
     super(scene, x, y);
@@ -29,11 +29,11 @@ export class IntroSkipHint extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt eine Textbeschriftung mit dem gemeinsamen Schriftstil.
-   * @param {Phaser.Scene} scene - Zugehörige Phaser-Szene.
-   * @param {string} text - Sichtbare Beschriftung.
-   * @param {Object} style - Zentrale Darstellungswerte.
-   * @returns {Phaser.GameObjects.Text} Erstellte Beschriftung.
+   * Creates label.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {string} text - The text value.
+   * @param {Object} style - The style value.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createLabel(scene, text, style) {
     return scene.add
@@ -46,11 +46,11 @@ export class IntroSkipHint extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Berechnet die Positionen der Tastenkappe und Aktionsbeschriftung.
-   * @param {number} actionWidth - Breite der Aktionsbeschriftung.
-   * @param {number} keyLabelWidth - Breite der Tastenbeschriftung.
-   * @param {Object} style - Zentrale Darstellungswerte.
-   * @returns {{keyX: number, keyWidth: number, actionX: number}} Positionen.
+   * Returns layout.
+   * @param {number} actionWidth - The action width value.
+   * @param {number} keyLabelWidth - The key label width value.
+   * @param {Object} style - The style value.
+   * @returns {{keyX: number, keyWidth: number, actionX: number}} The resulting numeric value.
    */
   getLayout(actionWidth, keyLabelWidth, style) {
     const keyWidth = Math.max(
@@ -68,11 +68,11 @@ export class IntroSkipHint extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt die gezeichnete Fläche der Tastenkappe.
-   * @param {Phaser.Scene} scene - Zugehörige Phaser-Szene.
-   * @param {{keyX: number, keyWidth: number}} layout - Tastenposition.
-   * @param {Object} style - Zentrale Darstellungswerte.
-   * @returns {Phaser.GameObjects.Graphics} Gezeichnete Tastenkappe.
+   * Creates key background.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{keyX: number, keyWidth: number}} layout - The layout value.
+   * @param {Object} style - The style value.
+   * @returns {Phaser.GameObjects.Graphics} The resulting data object.
    */
   createKeyBackground(scene, layout, style) {
     const background = scene.add.graphics();
@@ -88,11 +88,11 @@ export class IntroSkipHint extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet einen leicht nach unten versetzten Schatten der Tastenkappe.
-   * @param {Phaser.GameObjects.Graphics} background - Zeichenfläche.
-   * @param {{keyX: number, keyWidth: number}} layout - Tastenposition.
-   * @param {Object} style - Zentrale Darstellungswerte.
-   * @returns {void}
+   * Draws key shadow.
+   * @param {Phaser.GameObjects.Graphics} background - The background value.
+   * @param {{keyX: number, keyWidth: number}} layout - The layout value.
+   * @param {Object} style - The style value.
+   * @returns {void} No value is returned.
    */
   drawKeyShadow(background, layout, style) {
     background.fillStyle(style.keyShadowColor, style.keyShadowAlpha);
@@ -106,11 +106,11 @@ export class IntroSkipHint extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet Füllung und Rand der Tastenkappe mit derselben Kontur.
-   * @param {Phaser.GameObjects.Graphics} background - Zeichenfläche.
-   * @param {{keyX: number, keyWidth: number}} layout - Tastenposition.
-   * @param {Object} style - Zentrale Darstellungswerte.
-   * @returns {void}
+   * Draws key shape.
+   * @param {Phaser.GameObjects.Graphics} background - The background value.
+   * @param {{keyX: number, keyWidth: number}} layout - The layout value.
+   * @param {Object} style - The style value.
+   * @returns {void} No value is returned.
    */
   drawKeyShape(background, layout, style) {
     const left = layout.keyX - layout.keyWidth / 2;

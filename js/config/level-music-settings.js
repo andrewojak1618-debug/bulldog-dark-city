@@ -1,7 +1,7 @@
 import { getAssetPath } from "./asset-paths.js";
 
 /**
- * Zentrale Musik- und Übergangswerte der Spiellevel.
+ * Defines the level music configuration.
  */
 export const LEVEL_MUSIC = Object.freeze({
   opening: Object.freeze({

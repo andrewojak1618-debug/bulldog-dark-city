@@ -11,27 +11,27 @@ const LOCAL_START_SCENES = new Set([
 ]);
 
 /**
- * Startet das Spiel und leitet anschließend zum Hauptmenü weiter.
+ * Manages boot scene behavior.
  */
 export class BootScene extends Phaser.Scene {
   /**
-   * Erstellt die Startszene mit ihrem eindeutigen Szenenschlüssel.
+   * Creates a new instance.
    */
   constructor() {
     super(SCENES.boot);
   }
 
   /**
-   * Wechselt nach dem Start direkt in die Menüszene.
-   * @returns {void}
+   * Creates the current state.
+   * @returns {void} No value is returned.
    */
   create() {
     this.scene.start(this.getInitialScene());
   }
 
   /**
-   * Erlaubt lokal einen direkten Einstieg in relevante Abnahmeszenen.
-   * @returns {string} Schlüssel der ersten sichtbaren Szene.
+   * Returns initial scene.
+   * @returns {string} The resulting string value.
    */
   getInitialScene() {
     if (!import.meta.env.DEV) return SCENES.menu;

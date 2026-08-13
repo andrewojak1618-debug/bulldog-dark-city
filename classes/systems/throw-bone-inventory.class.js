@@ -1,8 +1,10 @@
-/** Verwaltet die beiden Wurfknochen-Vorräte und informiert ihre Anzeige. */
+/**
+ * Manages throw bone inventory behavior.
+ */
 export class ThrowBoneInventory {
   /**
-   * Erstellt einen leeren Vorrat für alle bekannten Knochenarten.
-   * @param {string[]} types - Erlaubte Knochenarten.
+   * Creates a new instance.
+   * @param {string[]} types - The types value.
    */
   constructor(types = []) {
     this.counts = new Map(types.map((type) => [type, 0]));
@@ -10,18 +12,18 @@ export class ThrowBoneInventory {
   }
 
   /**
-   * Gibt den aktuellen Vorrat einer Knochenart zurück.
-   * @param {string} type - Abzufragende Knochenart.
-   * @returns {number} Aktuell verfügbare Anzahl.
+   * Returns count.
+   * @param {string} type - The requested item type.
+   * @returns {number} The resulting numeric value.
    */
   getCount(type) {
     return this.counts.get(type) ?? 0;
   }
 
   /**
-   * Fügt einen Knochen hinzu und informiert alle Beobachter.
-   * @param {string} type - Eingesammelte Knochenart.
-   * @returns {boolean} Ob die bekannte Knochenart aufgenommen wurde.
+   * Collects the current state.
+   * @param {string} type - The requested item type.
+   * @returns {boolean} Whether the requested condition is met.
    */
   collect(type) {
     if (!this.counts.has(type)) return false;
@@ -31,9 +33,9 @@ export class ThrowBoneInventory {
   }
 
   /**
-   * Verbraucht genau einen Knochen, sofern ein Vorrat vorhanden ist.
-   * @param {string} type - Zu verbrauchende Knochenart.
-   * @returns {boolean} Ob ein Knochen verbraucht wurde.
+   * Consumes the current state.
+   * @param {string} type - The requested item type.
+   * @returns {boolean} Whether the requested condition is met.
    */
   consume(type) {
     const count = this.getCount(type);
@@ -44,9 +46,9 @@ export class ThrowBoneInventory {
   }
 
   /**
-   * Registriert einen Listener und übermittelt sofort alle Anfangswerte.
-   * @param {Function} listener - Empfänger für Typ und aktuellen Vorrat.
-   * @returns {Function} Funktion zum Entfernen des Listeners.
+   * Handles on change.
+   * @param {Function} listener - The listener value.
+   * @returns {Function} The generated callback function.
    */
   onChange(listener) {
     this.listeners.add(listener);
@@ -55,9 +57,9 @@ export class ThrowBoneInventory {
   }
 
   /**
-   * Informiert alle Listener über den veränderten Vorrat.
-   * @param {string} type - Veränderte Knochenart.
-   * @returns {void}
+   * Handles emit change.
+   * @param {string} type - The requested item type.
+   * @returns {void} No value is returned.
    */
   emitChange(type) {
     const count = this.getCount(type);

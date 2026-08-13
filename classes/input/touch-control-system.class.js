@@ -11,34 +11,36 @@ import { TouchControlButton } from
 import { InputDeviceDetector } from
   "./input-device-detector.class.js";
 
-/** Erstellt und verwaltet die mobile Steuerung einer Gameplay-Szene. */
+/**
+ * Manages touch control system behavior.
+ */
 export class TouchControlSystem {
   /**
-   * Erstellt eine responsive Steuerung, die sich dem Gerätetyp anpasst.
-   * @param {Phaser.Scene} scene - Aktive Gameplay-Szene.
-   * @param {import("./input-system.class.js").InputSystem} input - Eingaben.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Spielfigur.
-   * @param {{showThrowControls?: boolean}} [options={}] - Leveloptionen.
-   * @returns {TouchControlSystem} Responsive Steuerung der Gameplay-Szene.
+   * Creates the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import("./input-system.class.js").InputSystem} input - The active input system.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {{showThrowControls?: boolean}} [options={}] - The optional configuration values.
+   * @returns {TouchControlSystem} The created instance.
    */
   static create(scene, input, player, options = {}) {
     return new TouchControlSystem(scene, input, player, options);
   }
 
   /**
-   * Erkennt Touchgeräte und den ausschließlich lokalen Testschalter.
-   * @returns {boolean} Ob Touchbuttons angezeigt werden sollen.
+   * Checks the supported condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   static isSupported() {
     return InputDeviceDetector.isTouchLayout();
   }
 
   /**
-   * Erstellt Buttons und bindet sichere Rücksetzereignisse.
-   * @param {Phaser.Scene} scene - Aktive Gameplay-Szene.
-   * @param {import("./input-system.class.js").InputSystem} input - Eingaben.
-   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - Spielfigur.
-   * @param {{showThrowControls?: boolean}} options - Leveloptionen.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {import("./input-system.class.js").InputSystem} input - The active input system.
+   * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
+   * @param {{showThrowControls?: boolean}} options - The optional configuration values.
    */
   constructor(scene, input, player, options) {
     this.scene = scene;
@@ -55,14 +57,18 @@ export class TouchControlSystem {
     this.bindLifecycle();
   }
 
-  /** Erstellt stabile Callback-Referenzen für globale Browserereignisse. */
+  /**
+   * Initializes callbacks.
+   */
   initializeCallbacks() {
     this.releaseControls = () => this.releaseAll();
     this.handleViewportChange = () => this.refreshViewportLayout();
     this.preventContextMenu = (event) => event.preventDefault();
   }
 
-  /** Aktualisiert Positionen und Sichtbarkeit nach einer Viewportänderung. */
+  /**
+   * Handles refresh viewport layout.
+   */
   refreshViewportLayout() {
     this.releaseAll();
     this.updateControlLayout();
@@ -70,9 +76,9 @@ export class TouchControlSystem {
   }
 
   /**
-   * Erzeugt die für das aktuelle Level benötigten Touchbuttons.
-   * @param {boolean} showThrowControls - Ob Wurfbuttons angelegt werden.
-   * @returns {TouchControlButton[]} Erzeugte Touchbuttons.
+   * Creates buttons.
+   * @param {boolean} showThrowControls - The show throw controls value.
+   * @returns {TouchControlButton[]} The resulting collection.
    */
   createButtons(showThrowControls) {
     const controls = this.getVisibleControls(showThrowControls);
@@ -82,9 +88,9 @@ export class TouchControlSystem {
   }
 
   /**
-   * Erstellt einen Touchbutton mit der gemeinsamen Eingabeweiterleitung.
-   * @param {Object} settings - Darstellung und Aktion des Buttons.
-   * @returns {TouchControlButton} Erzeugter Touchbutton.
+   * Creates button.
+   * @param {Object} settings - The configuration values to use.
+   * @returns {TouchControlButton} The created instance.
    */
   createButton(settings) {
     return new TouchControlButton(
@@ -95,9 +101,9 @@ export class TouchControlSystem {
   }
 
   /**
-   * Filtert Wurfbuttons außerhalb des dritten Levels heraus.
-   * @param {boolean} showThrowControls - Ob K- und L-Buttons benötigt werden.
-   * @returns {Object[]} Sichtbare Buttonkonfigurationen.
+   * Returns visible controls.
+   * @param {boolean} showThrowControls - The show throw controls value.
+   * @returns {Object[]} The resulting collection.
    */
   getVisibleControls(showThrowControls = false) {
     return TOUCH_CONTROLS.controls.filter(
@@ -106,8 +112,8 @@ export class TouchControlSystem {
   }
 
   /**
-   * Berechnet Smartphone- oder Tabletpositionen für die aktuelle Ansicht.
-   * @returns {void}
+   * Updates control layout.
+   * @returns {void} No value is returned.
    */
   updateControlLayout() {
     const layout = this.createCurrentLayout();
@@ -118,7 +124,10 @@ export class TouchControlSystem {
     });
   }
 
-  /** @returns {Object[]} Touchlayout für den aktuellen Browser-Viewport. */
+  /**
+   * Creates current layout.
+   * @returns {Object[]} The resulting collection.
+   */
   createCurrentLayout() {
     const viewport = window.visualViewport ?? window;
     return createTouchControlLayout(
@@ -131,8 +140,8 @@ export class TouchControlSystem {
   }
 
   /**
-   * Überträgt CSS-Safe-Areas proportional in interne Canvas-Pixel.
-   * @returns {{left: number, right: number, bottom: number}} Sichere Ränder.
+   * Returns safe area insets.
+   * @returns {{left: number, right: number, bottom: number}} The resulting numeric value.
    */
   getSafeAreaInsets() {
     const bounds = this.scene.game.canvas.getBoundingClientRect();
@@ -146,9 +155,9 @@ export class TouchControlSystem {
   }
 
   /**
-   * Liest einen durch CSS `env()` aufgelösten Safe-Area-Wert.
-   * @param {string} property - Name der CSS Custom Property.
-   * @returns {number} Wert in CSS-Pixeln.
+   * Reads safe area value.
+   * @param {string} property - The property value.
+   * @returns {number} The resulting numeric value.
    */
   readSafeAreaValue(property) {
     const value = getComputedStyle(document.documentElement)
@@ -157,8 +166,8 @@ export class TouchControlSystem {
   }
 
   /**
-   * Verbirgt Wurfbuttons, bis der passende Knochen eingesammelt wurde.
-   * @returns {void}
+   * Hides empty throw controls.
+   * @returns {void} No value is returned.
    */
   hideEmptyThrowControls() {
     this.buttons.filter((button) => button.settings.throwControl)
@@ -170,10 +179,9 @@ export class TouchControlSystem {
   }
 
   /**
-   * Verbindet die mobilen Wurfbuttons mit dem aktuellen Knochenvorrat.
-   * @param {import("../systems/throw-bone-inventory.class.js").ThrowBoneInventory}
-   * inventory - Vorrat des dritten Levels.
-   * @returns {void}
+   * Binds throw inventory.
+   * @param {import("../systems/throw-bone-inventory.class.js").ThrowBoneInventory} inventory - The active inventory instance.
+   * @returns {void} No value is returned.
    */
   bindThrowInventory(inventory) {
     this.throwInventoryUnsubscribe?.();
@@ -183,10 +191,10 @@ export class TouchControlSystem {
   }
 
   /**
-   * Schaltet genau den Button der veränderten Knochenart sichtbar oder aus.
-   * @param {"normal"|"nuclear"} type - Veränderte Knochenart.
-   * @param {number} count - Aktuell verfügbarer Vorrat.
-   * @returns {void}
+   * Updates throw control.
+   * @param {"normal"|"nuclear"} type - The requested item type.
+   * @param {number} count - The count value.
+   * @returns {void} No value is returned.
    */
   updateThrowControl(type, count) {
     const action = type === "normal" ?
@@ -204,8 +212,8 @@ export class TouchControlSystem {
   }
 
   /**
-   * Synchronisiert alle Buttons mit Mobil-, Tablet- oder Desktoplayout.
-   * @returns {void}
+   * Updates layout visibility.
+   * @returns {void} No value is returned.
    */
   updateLayoutVisibility() {
     this.isTouchLayoutVisible = TouchControlSystem.isSupported();
@@ -220,8 +228,8 @@ export class TouchControlSystem {
   }
 
   /**
-   * Bindet K.-o., Fokusverlust, Drehung und Szenenende sicher an die Controls.
-   * @returns {void}
+   * Binds lifecycle.
+   * @returns {void} No value is returned.
    */
   bindLifecycle() {
     this.player.once(BULLDOG_EVENTS.knockedOut, () => this.disable());
@@ -229,7 +237,9 @@ export class TouchControlSystem {
     this.bindSceneLifecycle();
   }
 
-  /** Bindet globale Ereignisse, die gehaltene Touchzustände beenden. */
+  /**
+   * Binds window lifecycle.
+   */
   bindWindowLifecycle() {
     window.addEventListener("blur", this.releaseControls);
     window.addEventListener("resize", this.handleViewportChange);
@@ -241,7 +251,9 @@ export class TouchControlSystem {
     document.addEventListener("visibilitychange", this.releaseControls);
   }
 
-  /** Bindet Canvas- und Szenenereignisse der Touchsteuerung. */
+  /**
+   * Binds scene lifecycle.
+   */
   bindSceneLifecycle() {
     this.scene.game.canvas.addEventListener(
       "contextmenu",
@@ -251,8 +263,8 @@ export class TouchControlSystem {
   }
 
   /**
-   * Löst alle gehaltenen Buttons und leert die Touchzustände.
-   * @returns {void}
+   * Handles release all.
+   * @returns {void} No value is returned.
    */
   releaseAll() {
     this.buttons.forEach((button) => button.release());
@@ -260,8 +272,8 @@ export class TouchControlSystem {
   }
 
   /**
-   * Sperrt und versteckt alle Controls nach dem K.-o. der Spielfigur.
-   * @returns {void}
+   * Handles disable.
+   * @returns {void} No value is returned.
    */
   disable() {
     this.isDisabled = true;
@@ -271,8 +283,8 @@ export class TouchControlSystem {
   }
 
   /**
-   * Entfernt globale Browserereignisse beim Szenenwechsel.
-   * @returns {void}
+   * Releases the current state.
+   * @returns {void} No value is returned.
    */
   destroy() {
     this.releaseAll();
@@ -282,7 +294,9 @@ export class TouchControlSystem {
     this.unbindSceneLifecycle();
   }
 
-  /** Entfernt die zuvor gebundenen globalen Browserereignisse. */
+  /**
+   * Handles unbind window lifecycle.
+   */
   unbindWindowLifecycle() {
     window.removeEventListener("blur", this.releaseControls);
     window.removeEventListener("resize", this.handleViewportChange);
@@ -297,7 +311,9 @@ export class TouchControlSystem {
     document.removeEventListener("visibilitychange", this.releaseControls);
   }
 
-  /** Entfernt den Canvas-Listener der Touchsteuerung. */
+  /**
+   * Handles unbind scene lifecycle.
+   */
   unbindSceneLifecycle() {
     this.scene.game.canvas.removeEventListener(
       "contextmenu",

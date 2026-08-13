@@ -1,11 +1,11 @@
 /**
- * Verwaltet begrenzte Lebenspunkte und informiert die HUD-Anzeige.
+ * Manages health system behavior.
  */
 export class HealthSystem {
   /**
-   * Erstellt einen vollständig gefüllten Lebenspunktevorrat.
-   * @param {number} maximum - Maximale Lebenspunkte.
-   * @param {number} [current=maximum] - Zu übernehmende Lebenspunkte.
+   * Creates a new instance.
+   * @param {number} maximum - The maximum value.
+   * @param {number} [current=maximum] - The current value.
    */
   constructor(maximum = 100, current = maximum) {
     this.maximum = Number.isFinite(maximum) ? Math.max(0, maximum) : 100;
@@ -17,17 +17,17 @@ export class HealthSystem {
   }
 
   /**
-   * Gibt den aktuellen Lebenspunktestand für einen Szenenwechsel zurück.
-   * @returns {number} Aktuelle Lebenspunkte.
+   * Returns current.
+   * @returns {number} The resulting numeric value.
    */
   getCurrent() {
     return this.current;
   }
 
   /**
-   * Zieht Schaden ab, ohne den Wert unter null fallen zu lassen.
-   * @param {number} amount - Abzuziehende Lebenspunkte.
-   * @returns {number} Verbleibende Lebenspunkte.
+   * Handles take damage.
+   * @param {number} amount - The amount value.
+   * @returns {number} The resulting numeric value.
    */
   takeDamage(amount) {
     this.current = Math.max(0, this.current - Math.max(0, amount));
@@ -36,9 +36,9 @@ export class HealthSystem {
   }
 
   /**
-   * Heilt bis zum konfigurierten Maximum.
-   * @param {number} amount - Hinzuzufügende Lebenspunkte.
-   * @returns {number} Aktuelle Lebenspunkte.
+   * Handles heal.
+   * @param {number} amount - The amount value.
+   * @returns {number} The resulting numeric value.
    */
   heal(amount) {
     this.current = Math.min(
@@ -50,17 +50,17 @@ export class HealthSystem {
   }
 
   /**
-   * Prüft, ob keine weiteren Lebenspunkte aufgenommen werden können.
-   * @returns {boolean} `true`, wenn die Lebenspunkte vollständig gefüllt sind.
+   * Checks the full condition.
+   * @returns {boolean} Whether the requested condition is met.
    */
   isFull() {
     return this.current >= this.maximum;
   }
 
   /**
-   * Registriert eine Anzeige für künftige Änderungen.
-   * @param {(current: number, maximum: number) => void} listener - Callback.
-   * @returns {() => void} Funktion zum Entfernen des Callbacks.
+   * Handles on change.
+   * @param {(current: number, maximum: number) => void} listener - The listener value.
+   * @returns {() => void} No value is returned.
    */
   onChange(listener) {
     this.listeners.add(listener);
@@ -69,8 +69,8 @@ export class HealthSystem {
   }
 
   /**
-   * Informiert alle registrierten Anzeigen über den neuen Wert.
-   * @returns {void}
+   * Handles emit change.
+   * @returns {void} No value is returned.
    */
   emitChange() {
     this.listeners.forEach((listener) => {

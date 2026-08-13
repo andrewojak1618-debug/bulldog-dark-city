@@ -1,12 +1,12 @@
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
 
 /**
- * Lädt, startet und beendet die Hintergrundmusik einer Spielszene.
+ * Manages background music system behavior.
  */
 export class BackgroundMusicSystem {
   /**
-   * Verknüpft die Musik mit dem Lebenszyklus der zugehörigen Szene.
-   * @param {Phaser.Scene} scene - Aktive Spielszene.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
    */
   constructor(scene) {
     this.scene = scene;
@@ -15,20 +15,19 @@ export class BackgroundMusicSystem {
   }
 
   /**
-   * Lädt einen zentral konfigurierten Musiktitel.
-   * @param {Phaser.Scene} scene - Szene mit Phaser-Loader.
-   * @param {{key: string, path: string}} track - Zu ladender Titel.
-   * @returns {void}
+   * Loads the current state.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {{key: string, path: string}} track - The track value.
+   * @returns {void} No value is returned.
    */
   static load(scene, track) {
     AssetLoaderSystem.loadAudio(scene, track);
   }
 
   /**
-   * Startet einen Titel einmalig und blendet ihn weich ein.
-   * @param {{key: string, volume: number, loop: boolean,
-   * fadeInMs: number}} track - Abspielwerte des Titels.
-   * @returns {void}
+   * Plays the current state.
+   * @param {{key: string, volume: number, loop: boolean, fadeInMs: number}} track - The track value.
+   * @returns {void} No value is returned.
    */
   play(track) {
     if (this.music?.isPlaying && this.music.key === track.key) return;
@@ -47,9 +46,9 @@ export class BackgroundMusicSystem {
   }
 
   /**
-   * Blendet den aktiven Titel aus und gibt die Audioinstanz frei.
-   * @param {number} duration - Dauer der Ausblendung in Millisekunden.
-   * @returns {void}
+   * Fades out and stop.
+   * @param {number} duration - The duration in milliseconds.
+   * @returns {void} No value is returned.
    */
   fadeOutAndStop(duration) {
     if (!this.music?.isPlaying) return;
@@ -64,8 +63,8 @@ export class BackgroundMusicSystem {
   }
 
   /**
-   * Beendet und entfernt den aktuell verwalteten Titel sofort.
-   * @returns {void}
+   * Stops the current state.
+   * @returns {void} No value is returned.
    */
   stop() {
     if (!this.music) return;

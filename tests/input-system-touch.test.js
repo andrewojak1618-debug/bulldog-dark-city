@@ -5,8 +5,8 @@ import { TOUCH_ACTIONS } from
   "../js/config/touch-control-settings.js";
 
 /**
- * Erstellt die für InputSystem erforderlichen Phaser-Schnittstellen als Stubs.
- * @returns {object} Minimale testbare Szene.
+ * Creates scene stub.
+ * @returns {object} The resulting data object.
  */
 function createSceneStub() {
   const cursors = { left: { isDown: false }, right: { isDown: false } };

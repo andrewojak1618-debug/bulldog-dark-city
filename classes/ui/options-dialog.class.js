@@ -4,20 +4,21 @@ import { OptionsScrollView } from "./options-scroll-view.class.js";
 import { OptionsDisplaySection } from "./options-display-section.class.js";
 
 /**
+ * Defines the OptionsDialogOptions data structure.
  * @typedef {Object} OptionsDialogOptions
- * @property {import("../systems/global-mute-system.class.js").GlobalMuteSystem}
- * muteSystem - Globale Audiosteuerung.
- * @property {import("../systems/global-display-system.class.js").GlobalDisplaySystem}
- * displaySystem - Persistente Bildschirmdarstellung.
- * @property {(() => void)|null} [onClose=null] - Aktion nach dem Schließen.
+ * @property {import("../systems/global-mute-system.class.js").GlobalMuteSystem} muteSystem - The mute system value.
+ * @property {import("../systems/global-display-system.class.js").GlobalDisplaySystem} displaySystem - The display system value.
+ * @property {(() => void)|null} [onClose=null] - The on close value.
  */
 
-/** Zeigt Spielerklärung, Tastenbelegung und globale Toneinstellung. */
+/**
+ * Manages options dialog behavior.
+ */
 export class OptionsDialog extends Phaser.GameObjects.Container {
   /**
-   * Erstellt die vollständige Optionsansicht im Mittelpunkt des Canvas.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {OptionsDialogOptions} options - Abhängigkeiten und Aktionen.
+   * Creates a new instance.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {OptionsDialogOptions} options - The optional configuration values.
    */
   constructor(scene, options) {
     super(scene, scene.scale.width / 2, scene.scale.height / 2);
@@ -33,9 +34,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt Sperrfläche, Panel und alle sichtbaren Inhalte.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Handles build.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   build(scene) {
     this.createBackdrop(scene);
@@ -52,9 +53,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Schließt den Dialog bei einem Klick außerhalb des Panels.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Creates backdrop.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   createBackdrop(scene) {
     const style = PLAYER_GUIDE.style;
@@ -66,9 +67,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet das Panel und blockiert Klicks auf dessen Innenfläche.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Creates panel.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   createPanel(scene) {
     const style = PLAYER_GUIDE.style;
@@ -83,11 +84,11 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeichnet Füllung und Neonrahmen des Optionspanels.
-   * @param {Phaser.GameObjects.Graphics} panel - Zeichenfläche.
-   * @param {number} width - Panelbreite.
-   * @param {number} height - Panelhöhe.
-   * @returns {void}
+   * Draws panel.
+   * @param {Phaser.GameObjects.Graphics} panel - The panel value.
+   * @param {number} width - The width in pixels.
+   * @param {number} height - The height in pixels.
+   * @returns {void} No value is returned.
    */
   drawPanel(panel, width, height) {
     const style = PLAYER_GUIDE.style;
@@ -102,9 +103,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt die zentrale Dialogüberschrift.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Creates title.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   createTitle(scene) {
     const dialog = PLAYER_GUIDE.dialog;
@@ -117,9 +118,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt den maskierten Inhaltsbereich und seine Scrollleiste.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Creates scroll area.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   createScrollArea(scene) {
     this.scrollView = new OptionsScrollView(
@@ -128,9 +129,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Zeigt das Spielziel als kurze Einführung an.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Creates goal.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   createGoal(scene) {
     const layout = PLAYER_GUIDE.contentLayout;
@@ -146,9 +147,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Ordnet Desktop, Ton, Touch und Gamepad vertikal untereinander an.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Creates instructions.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   createInstructions(scene) {
     const layout = PLAYER_GUIDE.contentLayout;
@@ -158,12 +159,12 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt eine Gruppe aus Überschrift und Eingabezeilen.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {number} x - Linke Position.
-   * @param {number} y - Obere Position.
-   * @param {{title: string, controls: ReadonlyArray}} section - Inhalte.
-   * @returns {void}
+   * Creates control section.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {{title: string, controls: ReadonlyArray}} section - The section value.
+   * @returns {void} No value is returned.
    */
   createControlSection(scene, x, y, section) {
     const layout = PLAYER_GUIDE.contentLayout;
@@ -177,21 +178,21 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Fügt ein Element dem beweglichen Inhaltscontainer hinzu.
-   * @param {Phaser.GameObjects.GameObject} gameObject - Neues Inhaltselement.
-   * @returns {void}
+   * Adds to scroll.
+   * @param {Phaser.GameObjects.GameObject} gameObject - The game object value.
+   * @returns {void} No value is returned.
    */
   addToScroll(gameObject) {
     this.scrollView.add(gameObject);
   }
 
   /**
-   * Erstellt eine einzelne Zeile aus Taste und zugehöriger Aktion.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {number} x - Linke Position.
-   * @param {number} y - Vertikale Position.
-   * @param {{input: string, action: string}} control - Tastenbelegung.
-   * @returns {Phaser.GameObjects.Container} Vollständige Zeile.
+   * Creates control row.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {{input: string, action: string}} control - The control value.
+   * @returns {Phaser.GameObjects.Container} The resulting data object.
    */
   createControlRow(scene, x, y, control) {
     const layout = PLAYER_GUIDE.contentLayout;
@@ -207,7 +208,10 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
     return row;
   }
 
-  /** @returns {Phaser.Types.GameObjects.Text.TextStyle} Stil der Listenmarker. */
+  /**
+   * Returns list marker style.
+   * @returns {Phaser.Types.GameObjects.Text.TextStyle} The resulting data object.
+   */
   getListMarkerStyle() {
     return {
       fontFamily: "Arial",
@@ -216,7 +220,10 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
     };
   }
 
-  /** @returns {Phaser.Types.GameObjects.Text.TextStyle} Stil der Listeneinträge. */
+  /**
+   * Returns list item style.
+   * @returns {Phaser.Types.GameObjects.Text.TextStyle} The resulting data object.
+   */
   getListItemStyle() {
     return {
       fontFamily: "Arial",
@@ -226,12 +233,12 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt eine grüne Abschnittsüberschrift.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {number} x - Linke Position.
-   * @param {number} y - Obere Position.
-   * @param {string} text - Sichtbare Beschriftung.
-   * @returns {Phaser.GameObjects.Text} Erstellte Überschrift.
+   * Creates heading.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {string} text - The text value.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createHeading(scene, x, y, text) {
     return scene.add.text(x, y, text, {
@@ -242,13 +249,13 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt umbrechenden Erklärungstext.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {number} x - Linke Position.
-   * @param {number} y - Obere Position.
-   * @param {string} text - Sichtbarer Inhalt.
-   * @param {number} width - Maximale Textbreite.
-   * @returns {Phaser.GameObjects.Text} Erstellter Text.
+   * Creates body text.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {string} text - The text value.
+   * @param {number} width - The width in pixels.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createBodyText(scene, x, y, text, width) {
     return scene.add.text(x, y, text, {
@@ -261,9 +268,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt den globalen Tonumschalter innerhalb der Optionsansicht.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Creates audio action.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   createAudioAction(scene) {
     const layout = PLAYER_GUIDE.contentLayout;
@@ -278,19 +285,19 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt die Überschrift für die globale Toneinstellung.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {number} y - Vertikale Position im Scrollinhalt.
-   * @returns {Phaser.GameObjects.Text} Erstellte Überschrift.
+   * Creates audio heading.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} y - The vertical position.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createAudioHeading(scene, y) {
     return this.createHeading(scene, 0, y, PLAYER_GUIDE.audio.title);
   }
 
   /**
-   * Platziert die Tonaktion mit dem definierten Abstand unter der Überschrift.
-   * @param {Phaser.GameObjects.Text} heading - Zugehörige Überschrift.
-   * @returns {void}
+   * Handles position audio action.
+   * @param {Phaser.GameObjects.Text} heading - The heading value.
+   * @returns {void} No value is returned.
    */
   positionAudioAction(heading) {
     const gap = PLAYER_GUIDE.contentLayout.headingContentGap;
@@ -299,9 +306,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt X und Zurück-Aktion zum Schließen.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Creates close actions.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   createCloseActions(scene) {
     const dialog = PLAYER_GUIDE.dialog;
@@ -316,13 +323,13 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Erstellt eine per Maus und Touch bedienbare Textaktion.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @param {number} x - Horizontale Position.
-   * @param {number} y - Vertikale Position.
-   * @param {string} label - Sichtbare Beschriftung.
-   * @param {() => void} callback - Auszuführende Aktion.
-   * @returns {Phaser.GameObjects.Text} Interaktive Aktion.
+   * Creates action.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {number} x - The horizontal position.
+   * @param {number} y - The vertical position.
+   * @param {string} label - The label value.
+   * @param {() => void} callback - The callback to invoke.
+   * @returns {Phaser.GameObjects.Text} The resulting data object.
    */
   createAction(scene, x, y, label, callback) {
     const action = scene.add.text(x, y, label, {
@@ -341,7 +348,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
     return action;
   }
 
-  /** Verknüpft die Anzeige mit dem persistenten globalen Tonzustand. */
+  /**
+   * Handles subscribe to mute state.
+   */
   subscribeToMuteState() {
     this.unsubscribeMute = this.muteSystem.onChange((muted) => {
       const audio = PLAYER_GUIDE.audio;
@@ -350,9 +359,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
   }
 
   /**
-   * Schließt die Optionsansicht per Escape.
-   * @param {Phaser.Scene} scene - Zugehörige Menüszene.
-   * @returns {void}
+   * Binds keyboard.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @returns {void} No value is returned.
    */
   bindKeyboard(scene) {
     this.keyboard = scene.input.keyboard;
@@ -362,7 +371,9 @@ export class OptionsDialog extends Phaser.GameObjects.Container {
     this.keyboard?.on("keydown-ESC", this.escapeHandler);
   }
 
-  /** Entfernt Listener und schließt den Dialog genau einmal. */
+  /**
+   * Handles close.
+   */
   close() {
     if (this.isClosed) return;
     this.isClosed = true;
