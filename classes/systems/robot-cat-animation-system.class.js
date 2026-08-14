@@ -5,6 +5,7 @@ import {
   ROBOT_CAT_DEAD_TEXTURE,
   ROBOT_CAT_FLIGHT_TEXTURE,
   ROBOT_CAT_HIT_TEXTURE,
+  ROBOT_CAT_SHOOT_TEXTURE,
   ROBOT_CAT_WALK_TEXTURE,
 } from "../../js/config/robot-cat-settings.js";
 import { AssetLoaderSystem } from "./asset-loader-system.class.js";
@@ -35,6 +36,7 @@ export class RobotCatAnimationSystem {
       ROBOT_CAT_HIT_TEXTURE,
       ROBOT_CAT_DEAD_TEXTURE,
       ROBOT_CAT_ATTACK_TEXTURE,
+      ROBOT_CAT_SHOOT_TEXTURE,
       ROBOT_CAT_CLAWS_TEXTURE,
     ];
   }
@@ -50,6 +52,7 @@ export class RobotCatAnimationSystem {
     this.registerSequence(scene, ROBOT_CAT_HIT_TEXTURE);
     this.registerSequence(scene, ROBOT_CAT_DEAD_TEXTURE);
     this.registerSequence(scene, ROBOT_CAT_ATTACK_TEXTURE);
+    this.registerSequence(scene, ROBOT_CAT_SHOOT_TEXTURE);
     this.registerClaws(scene);
   }
 

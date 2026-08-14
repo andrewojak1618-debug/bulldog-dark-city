@@ -84,6 +84,22 @@ export const ROBOT_CAT_ATTACK_TEXTURE = Object.freeze({
 });
 
 /**
+ * Defines the robot cat shooting texture configuration.
+ */
+export const ROBOT_CAT_SHOOT_TEXTURE = Object.freeze({
+  key: "robot-cat-shoot-side",
+  animationKey: "robot-cat-shoot",
+  path: getAssetPath(
+    "sprites",
+    "enemies/robot_cat/shoot/side/spritesheet.png",
+  ),
+  frameWidth: 512,
+  frameHeight: 512,
+  frameCount: 4,
+  frameRate: 5,
+});
+
+/**
  * Defines the robot cat claws texture configuration.
  */
 export const ROBOT_CAT_CLAWS_TEXTURE = Object.freeze({
@@ -97,6 +113,39 @@ export const ROBOT_CAT_CLAWS_TEXTURE = Object.freeze({
   frameHeight: 512,
   frameCount: 3,
   frameRate: 8,
+});
+
+/**
+ * Defines the robot cat homing rocket texture configuration.
+ */
+export const ROBOT_CAT_ROCKET_TEXTURE = Object.freeze({
+  key: "robot-cat-homing-rocket",
+  animationKey: "robot-cat-homing-rocket-fly",
+  path: getAssetPath(
+    "sprites",
+    "environment/vehicles/drones/rocket/rocket-fly-spritesheet.png",
+  ),
+  frameWidth: 512,
+  frameHeight: 512,
+  frameCount: 4,
+  frameRate: 8,
+});
+
+/**
+ * Defines the robot cat rocket explosion texture configuration.
+ */
+export const ROBOT_CAT_ROCKET_EXPLOSION_TEXTURE = Object.freeze({
+  key: "robot-cat-rocket-explosion",
+  animationKey: "robot-cat-rocket-explode",
+  path: getAssetPath(
+    "sprites",
+    "environment/vehicles/drones/rocket/rocket-explosion-spritesheet.png",
+  ),
+  frameWidth: 512,
+  frameHeight: 512,
+  frameCount: 4,
+  frameRate: 10,
+  startFrame: 1,
 });
 
 /**
@@ -149,6 +198,60 @@ export const ROBOT_CAT_ATTACK = Object.freeze({
   dissolveDurationMs: 160,
   depth: 3,
 });
+
+/**
+ * Defines the robot cat rocket barrage configuration.
+ */
+export const ROBOT_CAT_ROCKET_ATTACK = Object.freeze({
+  shotCount: 4,
+  firstShotDelayMs: 600,
+  shotIntervalMs: 300,
+  recoveryMs: 400,
+  launchOffsetX: 60,
+  launchOffsetY: 58,
+  displaySize: 92,
+  explosionDisplaySize: 150,
+  speed: 185,
+  maximumTurnRate: 1.35,
+  lifetimeMs: 4_500,
+  bodyRadius: 55,
+  bodyOffsetX: 200,
+  bodyOffsetY: 201,
+  depth: 8,
+  explosionSoundKey: "robot-cat-rocket-explosion-sound",
+  explosionSoundPath: getAssetPath(
+    "audio",
+    "sfx/level-two-rocket-explosion.ogg",
+  ),
+  explosionSoundVolume: 0.62,
+});
+
+/**
+ * Defines the three robot cat combat phases.
+ */
+export const ROBOT_CAT_PHASES = Object.freeze([
+  Object.freeze({
+    patrolSpeedMultiplier: 1,
+    attackCooldownMs: 2_600,
+    attackDamage: 10,
+    rocketEnabled: false,
+    rocketSpeedMultiplier: 1,
+  }),
+  Object.freeze({
+    patrolSpeedMultiplier: 1.2,
+    attackCooldownMs: 2_100,
+    attackDamage: 15,
+    rocketEnabled: true,
+    rocketSpeedMultiplier: 1,
+  }),
+  Object.freeze({
+    patrolSpeedMultiplier: 1.4,
+    attackCooldownMs: 1_600,
+    attackDamage: 20,
+    rocketEnabled: true,
+    rocketSpeedMultiplier: 1.2,
+  }),
+]);
 
 /**
  * Defines the robot cat combat configuration.

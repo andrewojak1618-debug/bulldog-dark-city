@@ -217,9 +217,16 @@ export const LEVEL_ITEMS = Object.freeze({
       Object.freeze({ type: "coin", x: 430, y: 325, size: 50 }),
       Object.freeze({ type: "serum", x: 650, y: 235, size: 58 }),
     ]),
-    afterFirstCombat: Object.freeze([
-      Object.freeze({ type: "health", x: 2_055, y: 445, size: 54 }),
-      Object.freeze({ type: "health", x: 2_180, y: 445, size: 54 }),
-    ]),
+  }),
+  drops: Object.freeze({
+    dogCatcherHealth: Object.freeze({
+      type: "health",
+      size: 54,
+      offsetX: 0,
+      offsetY: -80,
+      targetY: 445,
+      durationMs: 480,
+      ease: "Bounce.easeOut",
+    }),
   }),
 });

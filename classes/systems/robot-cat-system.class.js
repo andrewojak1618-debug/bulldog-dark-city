@@ -11,6 +11,8 @@ import { RobotCatCollisionSystem } from
   "./robot-cat-collision-system.class.js";
 import { RobotCatFlightSystem } from
   "./robot-cat-flight-system.class.js";
+import { RobotCatRocketSystem } from
+  "./robot-cat-rocket-system.class.js";
 
 /**
  * Manages robot cat system behavior.
@@ -24,6 +26,7 @@ export class RobotCatSystem {
   static load(scene) {
     RobotCatAnimationSystem.load(scene);
     RobotCatAudioSystem.load(scene);
+    RobotCatRocketSystem.load(scene);
   }
 
   /**
@@ -175,7 +178,9 @@ export class RobotCatSystem {
    */
   static getGroundMovement(robotCat, delta) {
     let direction = robotCat.getData("direction") ?? -1;
-    let x = robotCat.x + direction * ROBOT_CAT.patrolSpeed * delta / 1_000;
+    const speedMultiplier = robotCat.getData("speedMultiplier") ?? 1;
+    const speed = ROBOT_CAT.patrolSpeed * speedMultiplier;
+    let x = robotCat.x + direction * speed * delta / 1_000;
     if (x <= ROBOT_CAT.patrolMinX || x >= ROBOT_CAT.patrolMaxX) {
       direction *= -1;
       x = this.clampPatrolX(x);

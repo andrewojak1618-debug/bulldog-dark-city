@@ -21,11 +21,21 @@ test("Level eins bildet eine kurze und gut lesbare Lernbegegnung", () => {
   assert.ok(DOG_CATCHER.attackCooldownMs >= 2_000);
 });
 
-test("Level zwei reduziert Schadensspitzen und lässt Erholungszeit", () => {
-  assert.equal(MUTANT_CAT.patrols.length, 2);
-  assert.equal(MUTANT_CAT.biteHitsToDefeat, 6);
+test("Level zwei nutzt drei robuste Katzen mit kürzeren Angriffspausen", () => {
+  assert.equal(MUTANT_CAT.patrols.length, 3);
+  assert.equal(MUTANT_CAT.biteHitsToDefeat, 7);
   assert.equal(MUTANT_CAT.attackDamage, 20);
-  assert.ok(MUTANT_CAT.attackCooldownMs >= 2_400);
+  assert.equal(MUTANT_CAT.attackCooldownMs, 1_600);
+});
+
+test("the rear cats patrol the same section in opposite directions", () => {
+  const [leftCat, rightCat] = MUTANT_CAT.patrols.slice(1);
+
+  assert.equal(leftCat.minX, rightCat.minX);
+  assert.equal(leftCat.maxX, rightCat.maxX);
+  assert.equal(leftCat.initialDirection, 1);
+  assert.equal(rightCat.initialDirection, -1);
+  assert.ok(leftCat.spawnX < rightCat.spawnX);
 });
 
 test("Level zwei verteilt erreichbare Heil-Checkpoints", () => {

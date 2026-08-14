@@ -3,25 +3,32 @@ import assert from "node:assert/strict";
 import { LEVEL_ITEMS } from "../js/config/level-item-settings.js";
 import { LEVEL_TWO } from "../js/config/level-two-settings.js";
 import { LEVEL_THREE } from "../js/config/level-three-settings.js";
-import { DOG_CATCHER } from "../js/config/dog-catcher-settings.js";
-import { LEVEL_EXIT } from "../js/config/level-exit-settings.js";
 import { ItemFeedbackSystem } from
   "../classes/systems/item-feedback-system.class.js";
 import { LevelItemSystem } from
   "../classes/systems/level-item-system.class.js";
 
-test("Level One health items follow combat and remain before the exit", () => {
-  const initialHealthItems = LEVEL_ITEMS.placements.initial.filter(({ type }) =>
+test("Level One contains only one defeated-dog-catcher health drop", () => {
+  const healthItems = LEVEL_ITEMS.placements.initial.filter(({ type }) =>
     type === "health");
-  const healthItems = LEVEL_ITEMS.placements.afterFirstCombat.filter(({ type }) =>
-    type === "health");
-  assert.equal(initialHealthItems.length, 0);
-  assert.equal(healthItems.length, 2);
-  healthItems.forEach(({ x, y, size }) => {
-    assert.ok(x > DOG_CATCHER.patrolMaxX);
-    assert.ok(x < LEVEL_EXIT.triggerX);
-    assert.ok(x + size / 2 < LEVEL_EXIT.x - LEVEL_EXIT.displayWidth / 2);
-    assert.equal(y, 445);
+  const drop = LEVEL_ITEMS.drops.dogCatcherHealth;
+
+  assert.equal(healthItems.length, 0);
+  assert.equal(drop.type, "health");
+  assert.equal(drop.size, 54);
+  assert.equal(drop.targetY, 445);
+});
+
+test("dog catcher health drops at the defeated enemy position", () => {
+  const settings = LEVEL_ITEMS.drops.dogCatcherHealth;
+  const source = { x: 1_880, y: 390 };
+  const placement = LevelItemSystem.createDropPlacement(source, settings);
+
+  assert.deepEqual(placement, {
+    type: "health",
+    x: source.x,
+    y: source.y + settings.offsetY,
+    size: settings.size,
   });
 });
 

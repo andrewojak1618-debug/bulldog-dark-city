@@ -25,6 +25,11 @@ function createHarness() {
   const video = new EventEmitter();
   video.playCount = 0;
   video.stopCount = 0;
+  video.video = {
+    currentTime: 0,
+    paused: false,
+    ended: false,
+  };
   video.play = () => { video.playCount += 1; };
   video.stop = () => { video.stopCount += 1; };
   const calls = { active: [], inactive: 0, finish: 0 };
@@ -58,16 +63,43 @@ test("intro becomes active only after a renderable first frame", () => {
 });
 
 test("stalled playback hides skip and resumes without another first frame", () => {
-  const { controller, video, calls } = createHarness();
+  const { controller, video, calls, timers } = createHarness();
   controller.start();
   video.emit("created");
   video.emit("stalled");
+  timers.at(-1).callback();
   assert.equal(controller.isActive(), false);
   assert.equal(calls.inactive, 1);
 
   video.emit("playing");
   assert.equal(controller.isActive(), true);
   assert.deepEqual(calls.active, [true, false]);
+});
+
+test("benign browser suspend signal keeps the active intro visible", () => {
+  const { controller, video, calls, timers } = createHarness();
+  controller.start();
+  video.emit("created");
+  video.video.currentTime = 1;
+  video.emit("stalled", video, { type: "suspend" });
+
+  assert.equal(controller.isActive(), true);
+  assert.equal(calls.inactive, 0);
+  assert.deepEqual(calls.active, [true]);
+  assert.equal(timers.length, 1);
+});
+
+test("progressing waiting signal does not interrupt the intro", () => {
+  const { controller, video, calls, timers } = createHarness();
+  controller.start();
+  video.emit("created");
+  video.video.currentTime = 1;
+  video.emit("stalled", video, { type: "waiting" });
+  video.video.currentTime = 1.4;
+  timers.at(-1).callback();
+
+  assert.equal(controller.isActive(), true);
+  assert.equal(calls.inactive, 0);
 });
 
 test("video failure and repeated events finish the intro only once", () => {

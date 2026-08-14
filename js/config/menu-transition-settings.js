@@ -14,6 +14,7 @@ export const MENU_START_TRANSITION = Object.freeze({
     stalledText: "VORSPANN WIRD NACHGELADEN ...",
     lockedText: "VORSPANN WARTET AUF EINGABE ...",
     startTimeout: 8000,
+    stallVerificationDelay: 350,
     stalledTimeout: 5000,
     visibleFrame: Object.freeze({
       x: 0,

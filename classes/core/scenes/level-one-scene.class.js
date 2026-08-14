@@ -54,6 +54,7 @@ export class LevelOneScene extends Phaser.Scene {
    */
   init() {
     this.isLevelCompleting = false;
+    this.hasCompletedFirstCombat = false;
   }
 
   /**
@@ -109,7 +110,7 @@ export class LevelOneScene extends Phaser.Scene {
     this.levelExit = LevelExitSystem.create(this);
     DogCatcherSystem.onceDefeated(
       this.dogCatchers,
-      () => this.completeFirstCombat(),
+      (dogCatcher) => this.completeFirstCombat(dogCatcher),
     );
   }
 
@@ -136,14 +137,18 @@ export class LevelOneScene extends Phaser.Scene {
 
   /**
    * Completes first combat.
+   * @param {import("../../entities/enemies/dog-catcher.class.js").DogCatcher} dogCatcher - The defeated dog catcher.
    * @returns {void} No value is returned.
    */
-  completeFirstCombat() {
+  completeFirstCombat(dogCatcher) {
+    if (this.hasCompletedFirstCombat) return;
+    this.hasCompletedFirstCombat = true;
     this.levelExit.unlock();
-    LevelItemSystem.addPlacements(
+    LevelItemSystem.addDrop(
       this,
       this.levelItems,
-      LEVEL_ITEMS.placements.afterFirstCombat,
+      dogCatcher,
+      LEVEL_ITEMS.drops.dogCatcherHealth,
     );
   }
 

@@ -2,14 +2,19 @@ import {
   ROBOT_CAT,
   ROBOT_CAT_ATTACK,
   ROBOT_CAT_ATTACK_TEXTURE,
-  ROBOT_CAT_CLAWS_TEXTURE,
+  ROBOT_CAT_ROCKET_ATTACK,
+  ROBOT_CAT_SHOOT_TEXTURE,
   ROBOT_CAT_STATES,
   ROBOT_CAT_WALK_TEXTURE,
 } from "../../js/config/robot-cat-settings.js";
 import { BulldogMutationStateSystem } from
   "./bulldog-mutation-state-system.class.js";
-import { RobotCatAudioSystem } from
-  "./robot-cat-audio-system.class.js";
+import { RobotCatClawProjectileSystem } from
+  "./robot-cat-claw-projectile-system.class.js";
+import { RobotCatPhaseSystem } from
+  "./robot-cat-phase-system.class.js";
+import { RobotCatRocketSystem } from
+  "./robot-cat-rocket-system.class.js";
 
 const ANIMATION_COMPLETE_PREFIX = "animationcomplete-";
 const MILLISECONDS_PER_SECOND = 1_000;
@@ -24,10 +29,17 @@ export class RobotCatAttackSystem {
    * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
    * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
    * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The level collision surfaces.
    * @returns {RobotCatAttackSystem} The created instance.
    */
-  static create(scene, robotCat, player, health) {
-    return new RobotCatAttackSystem(scene, robotCat, player, health);
+  static create(scene, robotCat, player, health, platforms) {
+    return new RobotCatAttackSystem(
+      scene,
+      robotCat,
+      player,
+      health,
+      platforms,
+    );
   }
 
   /**
@@ -36,14 +48,23 @@ export class RobotCatAttackSystem {
    * @param {Phaser.GameObjects.Sprite} robotCat - The robot cat instance.
    * @param {import("../entities/characters/bulldog.class.js").Bulldog} player - The player-controlled bulldog.
    * @param {import("./health-system.class.js").HealthSystem} health - The associated health system.
+   * @param {Phaser.Physics.Arcade.StaticGroup} platforms - The level collision surfaces.
    */
-  constructor(scene, robotCat, player, health) {
+  constructor(scene, robotCat, player, health, platforms) {
     this.scene = scene;
     this.robotCat = robotCat;
     this.player = player;
     this.health = health;
-    this.projectiles = new Set();
     this.launchEvent = null;
+    this.rocketEvents = [];
+    this.currentAttackKind = null;
+    this.lastAttackKind = "claw";
+    this.rocketSystem = RobotCatRocketSystem.create(
+      scene, robotCat, player, platforms, health,
+    );
+    this.clawSystem = new RobotCatClawProjectileSystem(
+      scene, player, (time) => this.resolvePlayerHit(time),
+    );
     this.nextAttackAt = scene.time.now + ROBOT_CAT_ATTACK.initialDelayMs;
   }
 
@@ -54,7 +75,9 @@ export class RobotCatAttackSystem {
    * @returns {void} No value is returned.
    */
   update(time, delta) {
-    this.updateProjectiles(time, delta);
+    this.rocketSystem.update(time, delta);
+    this.prioritizePhaseAttack(time);
+    this.clawSystem.update(time, delta);
     if (this.robotCat.getData("isDefeated")) {
       this.cancelAttack(true);
       return;
@@ -66,6 +89,16 @@ export class RobotCatAttackSystem {
     if (this.robotCat.getData("isAttacking")) return;
     if (!this.canStartAttack(time)) return;
     this.startAttack();
+  }
+
+  /**
+   * Makes a newly unlocked phase attack available after hit feedback.
+   * @param {number} time - The current scene time in milliseconds.
+   * @returns {void} No value is returned.
+   */
+  prioritizePhaseAttack(time) {
+    if (!this.robotCat.getData("phaseAttackPending")) return;
+    this.nextAttackAt = Math.min(this.nextAttackAt, time);
   }
 
   /**
@@ -106,8 +139,33 @@ export class RobotCatAttackSystem {
    * @returns {void} No value is returned.
    */
   startAttack() {
+    if (this.shouldUseRocketAttack()) {
+      this.startRocketAttack();
+      return;
+    }
+    this.startClawAttack();
+  }
+
+  /**
+   * Checks whether the next attack should be a rocket barrage.
+   * @returns {boolean} Whether a rocket barrage should start.
+   */
+  shouldUseRocketAttack() {
+    const phase = RobotCatPhaseSystem.getSettings(this.robotCat);
+    if (!phase.rocketEnabled) return false;
+    return this.robotCat.getData("phaseAttackPending") ||
+      this.lastAttackKind !== "rocket";
+  }
+
+  /**
+   * Starts the original claw projectile attack.
+   * @returns {void} No value is returned.
+   */
+  startClawAttack() {
     const texture = ROBOT_CAT_ATTACK_TEXTURE;
     const direction = this.player.x < this.robotCat.x ? -1 : 1;
+    this.currentAttackKind = "claw";
+    this.lastAttackKind = "claw";
     this.robotCat.setData("direction", direction);
     this.robotCat.setData("isAttacking", true);
     this.robotCat.setFlipX(direction > 0)
@@ -115,6 +173,75 @@ export class RobotCatAttackSystem {
       .play(texture.animationKey, true);
     this.scheduleClawLaunch(texture, direction);
     this.bindAttackCompletion();
+  }
+
+  /**
+   * Starts a four-rocket homing barrage.
+   * @returns {void} No value is returned.
+   */
+  startRocketAttack() {
+    const direction = this.player.x < this.robotCat.x ? -1 : 1;
+    this.currentAttackKind = "rocket";
+    this.lastAttackKind = "rocket";
+    this.robotCat.setData("direction", direction);
+    this.robotCat.setData("isAttacking", true);
+    this.robotCat.setData("phaseAttackPending", false);
+    this.robotCat.setFlipX(direction > 0)
+      .setDisplaySize(ROBOT_CAT.displayWidth, ROBOT_CAT.displayHeight)
+      .play(ROBOT_CAT_SHOOT_TEXTURE.animationKey, true);
+    this.scheduleRocketBarrage(direction);
+  }
+
+  /**
+   * Schedules all four rockets and the attack recovery.
+   * @param {-1|1} direction - The horizontal firing direction.
+   * @returns {void} No value is returned.
+   */
+  scheduleRocketBarrage(direction) {
+    const settings = ROBOT_CAT_ROCKET_ATTACK;
+    this.clearRocketEvents();
+    for (let index = 0; index < settings.shotCount; index += 1) {
+      const delay = settings.firstShotDelayMs + index * settings.shotIntervalMs;
+      this.rocketEvents.push(this.scene.time.delayedCall(
+        delay,
+        () => this.launchScheduledRocket(direction),
+      ));
+    }
+    this.scheduleRocketRecovery(settings);
+  }
+
+  /**
+   * Schedules the recovery after the final rocket launch.
+   * @param {object} settings - The rocket barrage settings.
+   * @returns {void} No value is returned.
+   */
+  scheduleRocketRecovery(settings) {
+    const lastShotDelay = settings.firstShotDelayMs +
+      (settings.shotCount - 1) * settings.shotIntervalMs;
+    this.rocketEvents.push(this.scene.time.delayedCall(
+      lastShotDelay + settings.recoveryMs,
+      () => this.finishAttack(),
+    ));
+  }
+
+  /**
+   * Launches a scheduled rocket while the barrage remains active.
+   * @param {-1|1} direction - The horizontal firing direction.
+   * @returns {void} No value is returned.
+   */
+  launchScheduledRocket(direction) {
+    if (!this.robotCat.getData("isAttacking")) return;
+    if (this.currentAttackKind !== "rocket") return;
+    this.rocketSystem.fire(direction);
+  }
+
+  /**
+   * Clears every pending rocket launch and recovery event.
+   * @returns {void} No value is returned.
+   */
+  clearRocketEvents() {
+    this.rocketEvents.forEach((event) => event.remove(false));
+    this.rocketEvents = [];
   }
 
   /**
@@ -153,56 +280,7 @@ export class RobotCatAttackSystem {
    * @returns {void} No value is returned.
    */
   launchClaws(direction) {
-    const settings = ROBOT_CAT_ATTACK;
-    const startX = this.robotCat.x + direction * settings.launchOffsetX;
-    const startY = this.robotCat.y - settings.launchOffsetY;
-    const aim = RobotCatAttackSystem.getAimVector(
-      startX,
-      startY,
-      this.player,
-      direction,
-    );
-    const sprite = this.createClawSprite(startX, startY, direction);
-    RobotCatAudioSystem.playClawAttack(this.scene);
-    this.addProjectile(sprite, aim);
-  }
-
-  /**
-   * Creates claw sprite.
-   * @param {number} startX - The start x value.
-   * @param {number} startY - The start y value.
-   * @param {-1|1} direction - The horizontal movement direction.
-   * @returns {Phaser.GameObjects.Sprite} The resulting data object.
-   */
-  createClawSprite(startX, startY, direction) {
-    const settings = ROBOT_CAT_ATTACK;
-    return this.scene.add.sprite(
-      startX,
-      startY,
-      ROBOT_CAT_CLAWS_TEXTURE.key,
-      0,
-    ).setDisplaySize(
-      settings.projectileDisplaySize,
-      settings.projectileDisplaySize,
-    ).setDepth(settings.depth)
-      .setFlipX(direction > 0)
-      .play(ROBOT_CAT_CLAWS_TEXTURE.animationKey);
-  }
-
-  /**
-   * Adds projectile.
-   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
-   * @param {{x: number, y: number}} aim - The aim value.
-   * @returns {void} No value is returned.
-   */
-  addProjectile(sprite, aim) {
-    const speed = ROBOT_CAT_ATTACK.projectileSpeed;
-    this.projectiles.add({
-      sprite,
-      velocityX: aim.x * speed,
-      velocityY: aim.y * speed,
-      distance: 0,
-    });
+    this.clawSystem.launch(this.robotCat, direction);
   }
 
   /**
@@ -214,76 +292,11 @@ export class RobotCatAttackSystem {
    * @returns {{x: number, y: number}} The resulting numeric value.
    */
   static getAimVector(startX, startY, player, fallbackDirection) {
-    const targetX = player?.body?.center?.x ?? player?.x ?? startX;
-    const targetY = player?.body?.center?.y ?? player?.y ?? startY;
-    const distanceX = targetX - startX;
-    const distanceY = targetY - startY;
-    const length = Math.hypot(distanceX, distanceY);
-    if (length === 0) return { x: fallbackDirection, y: 0 };
-    return { x: distanceX / length, y: distanceY / length };
-  }
-
-  /**
-   * Updates projectiles.
-   * @param {number} time - The current scene time in milliseconds.
-   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
-   * @returns {void} No value is returned.
-   */
-  updateProjectiles(time, delta) {
-    [...this.projectiles].forEach((projectile) => {
-      this.updateProjectile(projectile, time, delta);
-    });
-  }
-
-  /**
-   * Updates projectile.
-   * @param {object} projectile - The projectile value.
-   * @param {number} time - The current scene time in milliseconds.
-   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
-   * @returns {void} No value is returned.
-   */
-  updateProjectile(projectile, time, delta) {
-    this.moveProjectile(projectile, delta);
-    if (this.hitsPlayer(projectile.sprite)) {
-      this.resolvePlayerHit(time);
-      this.dissolveProjectile(projectile);
-      return;
-    }
-    if (projectile.distance >= ROBOT_CAT_ATTACK.projectileDistance) {
-      this.dissolveProjectile(projectile);
-    }
-  }
-
-  /**
-   * Moves projectile.
-   * @param {object} projectile - The projectile value.
-   * @param {number} delta - The elapsed time since the previous frame in milliseconds.
-   * @returns {void} No value is returned.
-   */
-  moveProjectile(projectile, delta) {
-    const factor = delta / MILLISECONDS_PER_SECOND;
-    const movementX = projectile.velocityX * factor;
-    const movementY = projectile.velocityY * factor;
-    projectile.sprite.x += movementX;
-    projectile.sprite.y += movementY;
-    projectile.distance += Math.hypot(movementX, movementY);
-  }
-
-  /**
-   * Handles hits player.
-   * @param {Phaser.GameObjects.Sprite} sprite - The sprite value.
-   * @returns {boolean} Whether the requested condition is met.
-   */
-  hitsPlayer(sprite) {
-    const body = this.player?.body;
-    if (!body?.enable || this.player.isKnockedOut) return false;
-    const radius = ROBOT_CAT_ATTACK.projectileDisplaySize / 2 -
-      ROBOT_CAT_ATTACK.projectileHitboxInset;
-    return !(
-      sprite.x + radius < body.x ||
-      sprite.x - radius > body.x + body.width ||
-      sprite.y + radius < body.y ||
-      sprite.y - radius > body.y + body.height
+    return RobotCatClawProjectileSystem.getAimVector(
+      startX,
+      startY,
+      player,
+      fallbackDirection,
     );
   }
 
@@ -298,7 +311,8 @@ export class RobotCatAttackSystem {
       this.player.isKnockedOut ||
       !BulldogMutationStateSystem.canReceiveNormalDamage(this.player)
     ) return;
-    const remainingHealth = this.health.takeDamage(ROBOT_CAT_ATTACK.damage);
+    const phase = RobotCatPhaseSystem.getSettings(this.robotCat);
+    const remainingHealth = this.health.takeDamage(phase.attackDamage);
     if (remainingHealth === 0) {
       this.player.knockOut();
       return;
@@ -307,32 +321,14 @@ export class RobotCatAttackSystem {
   }
 
   /**
-   * Handles dissolve projectile.
-   * @param {{sprite: Phaser.GameObjects.Sprite}} projectile - The projectile value.
-   * @returns {void} No value is returned.
-   */
-  dissolveProjectile(projectile) {
-    if (!this.projectiles.delete(projectile)) return;
-    projectile.sprite.anims.stop();
-    this.scene.tweens.add({
-      targets: projectile.sprite,
-      alpha: 0,
-      scaleX: projectile.sprite.scaleX * ROBOT_CAT_ATTACK.dissolveScale,
-      scaleY: projectile.sprite.scaleY * ROBOT_CAT_ATTACK.dissolveScale,
-      duration: ROBOT_CAT_ATTACK.dissolveDurationMs,
-      onComplete: () => projectile.sprite.destroy(),
-    });
-  }
-
-  /**
    * Completes attack.
    * @returns {void} No value is returned.
    */
   finishAttack() {
-    this.launchEvent?.remove(false);
-    this.launchEvent = null;
+    this.clearAttackEvents();
     this.robotCat.setData("isAttacking", false);
-    this.nextAttackAt = this.scene.time.now + ROBOT_CAT_ATTACK.cooldownMs;
+    this.currentAttackKind = null;
+    this.nextAttackAt = this.scene.time.now + this.getAttackCooldown();
     if (
       this.robotCat.getData("isDefeated") ||
       this.robotCat.getData("isHitReacting")
@@ -350,15 +346,32 @@ export class RobotCatAttackSystem {
     if (this.robotCat.getData("isAttacking")) {
       this.robotCat.setData("isAttacking", false);
       this.robotCat.off(this.getAttackCompleteEventName());
-      this.launchEvent?.remove(false);
-      this.launchEvent = null;
-      this.nextAttackAt = this.scene.time.now + ROBOT_CAT_ATTACK.cooldownMs;
+      this.clearAttackEvents();
+      this.currentAttackKind = null;
+      this.nextAttackAt = this.scene.time.now + this.getAttackCooldown();
     }
     if (removeProjectiles) {
-      [...this.projectiles].forEach((projectile) => {
-        this.dissolveProjectile(projectile);
-      });
+      this.clawSystem.clear();
+      this.rocketSystem.clear();
     }
+  }
+
+  /**
+   * Clears pending launch events for either attack type.
+   * @returns {void} No value is returned.
+   */
+  clearAttackEvents() {
+    this.launchEvent?.remove(false);
+    this.launchEvent = null;
+    this.clearRocketEvents();
+  }
+
+  /**
+   * Returns the cooldown of the active combat phase.
+   * @returns {number} The cooldown in milliseconds.
+   */
+  getAttackCooldown() {
+    return RobotCatPhaseSystem.getSettings(this.robotCat).attackCooldownMs;
   }
 
   /**

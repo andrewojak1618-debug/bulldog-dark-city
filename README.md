@@ -4,6 +4,10 @@
 
 > **A cinematic 2D Action Platformer about survival, mutation and hope.**
 
+## Live Demo
+
+[Play Bulldog: Dark City in your browser](https://andrewojak1618-debug.github.io/bulldog-dark-city/)
+
 ## 🎮 Spielidee
 
 **BULLDOG: DARK CITY** ist ein düsteres 2D-Jump-and-Run-Actionspiel, das in

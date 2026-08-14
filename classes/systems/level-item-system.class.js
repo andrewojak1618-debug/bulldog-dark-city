@@ -119,6 +119,53 @@ export class LevelItemSystem {
   }
 
   /**
+   * Drops one item from a world object onto its configured target height.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.GameObjects.Group} group - The Phaser group to process.
+   * @param {{x: number, y: number}} source - The defeated source object.
+   * @param {object} settings - The item drop settings.
+   * @returns {Phaser.Physics.Arcade.Sprite} The dropped item instance.
+   */
+  static addDrop(scene, group, source, settings) {
+    const placement = this.createDropPlacement(source, settings);
+    const item = this.createItem(scene, placement);
+    group.add(item);
+    this.playDropTween(scene, item, settings);
+    return item;
+  }
+
+  /**
+   * Creates one runtime item placement from a defeated source object.
+   * @param {{x: number, y: number}} source - The defeated source object.
+   * @param {object} settings - The item drop settings.
+   * @returns {{type: string, x: number, y: number, size: number}} The placement.
+   */
+  static createDropPlacement(source, settings) {
+    return {
+      type: settings.type,
+      x: source.x + settings.offsetX,
+      y: source.y + settings.offsetY,
+      size: settings.size,
+    };
+  }
+
+  /**
+   * Animates a dropped item onto the configured ground height.
+   * @param {Phaser.Scene} scene - The active Phaser scene.
+   * @param {Phaser.Physics.Arcade.Sprite} item - The dropped item instance.
+   * @param {object} settings - The item drop settings.
+   * @returns {void} No value is returned.
+   */
+  static playDropTween(scene, item, settings) {
+    scene.tweens.add({
+      targets: item,
+      y: settings.targetY,
+      duration: settings.durationMs,
+      ease: settings.ease,
+    });
+  }
+
+  /**
    * Creates item.
    * @param {Phaser.Scene} scene - The active Phaser scene.
    * @param {object} placement - The placement value.

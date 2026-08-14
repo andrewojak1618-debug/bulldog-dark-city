@@ -11,8 +11,11 @@ const FIRST_PATROL_MIN_X = BOX.xPositions[0] + BOX_HALF_WIDTH + CAT_HALF_WIDTH;
 const FIRST_PATROL_MAX_X = BOX.xPositions[1] - BOX_HALF_WIDTH - CAT_HALF_WIDTH;
 const SECOND_PATROL_MIN_X = BOX.xPositions[1] + BOX_HALF_WIDTH + CAT_HALF_WIDTH;
 const SECOND_PATROL_MAX_X = BOX.xPositions[2] - BOX_HALF_WIDTH - CAT_HALF_WIDTH;
-const SECOND_PATROL_CENTER_X =
-  (SECOND_PATROL_MIN_X + SECOND_PATROL_MAX_X) / 2;
+const SECOND_PATROL_SPAN = SECOND_PATROL_MAX_X - SECOND_PATROL_MIN_X;
+const SECOND_PATROL_LEFT_SPAWN_X =
+  SECOND_PATROL_MIN_X + SECOND_PATROL_SPAN / 4;
+const SECOND_PATROL_RIGHT_SPAWN_X =
+  SECOND_PATROL_MAX_X - SECOND_PATROL_SPAN / 4;
 const DETECTION_HEIGHT_TOLERANCE = BOX.collisionHeight;
 
 /**
@@ -124,7 +127,13 @@ export const MUTANT_CAT = Object.freeze({
       initialDirection: 1,
     }),
     Object.freeze({
-      spawnX: SECOND_PATROL_CENTER_X,
+      spawnX: SECOND_PATROL_LEFT_SPAWN_X,
+      minX: SECOND_PATROL_MIN_X,
+      maxX: SECOND_PATROL_MAX_X,
+      initialDirection: 1,
+    }),
+    Object.freeze({
+      spawnX: SECOND_PATROL_RIGHT_SPAWN_X,
       minX: SECOND_PATROL_MIN_X,
       maxX: SECOND_PATROL_MAX_X,
       initialDirection: -1,
@@ -151,10 +160,10 @@ export const MUTANT_CAT = Object.freeze({
   attackHitRange: 120,
   attackDamage: 20,
   attackImpactFrame: 2,
-  attackCooldownMs: 2_400,
+  attackCooldownMs: 1_600,
   deadFrameRate: 5,
   biteHitRange: 125,
   biteGroundLevelTolerance: 100,
-  biteHitsToDefeat: 6,
+  biteHitsToDefeat: 7,
   hitReactionMs: 220,
 });

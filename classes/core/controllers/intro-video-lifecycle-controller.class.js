@@ -54,7 +54,7 @@ export class IntroVideoLifecycleController {
     return {
       created: () => this.handleFirstFrame(),
       playing: () => this.handlePlaying(),
-      stalled: () => this.handleStalled(),
+      stalled: (_video, event) => this.handleStalled(event),
       locked: () => this.handleLocked(),
       complete: () => this.finish(),
       failure: () => this.failSafely(),
@@ -94,8 +94,9 @@ export class IntroVideoLifecycleController {
    * Handles playing.
    */
   handlePlaying() {
-    if (this.isFinished || !this.isFrameReady || this.isPlaybackActive) return;
+    if (this.isFinished || !this.isFrameReady) return;
     this.clearWatchdogs();
+    if (this.isPlaybackActive) return;
     this.activatePlayback(false);
   }
 
@@ -111,11 +112,64 @@ export class IntroVideoLifecycleController {
   /**
    * Handles stalled.
    */
-  handleStalled() {
-    if (this.isFinished) return;
+  handleStalled(event) {
+    if (this.isFinished || this.isBenignSuspend(event)) return;
+    this.stalledAtTime = this.getMediaTime();
+    this.startStallVerification();
+  }
+
+  /**
+   * Checks for the harmless suspend signal emitted after buffering.
+   * @param {Event} event - The native media event.
+   * @returns {boolean} Whether playback can remain visible.
+   */
+  isBenignSuspend(event) {
+    return event?.type === "suspend"
+      && this.isFrameReady
+      && this.isPlaybackActive;
+  }
+
+  /**
+   * Starts a short verification window for browser stall signals.
+   */
+  startStallVerification() {
+    this.stallVerificationTimer?.remove(false);
+    this.stallVerificationTimer = this.scene.time.delayedCall(
+      MENU_START_TRANSITION.video.stallVerificationDelay,
+      () => this.verifyStalledPlayback(),
+    );
+  }
+
+  /**
+   * Verifies whether playback actually stopped progressing.
+   */
+  verifyStalledPlayback() {
+    this.stallVerificationTimer = null;
+    if (this.isFinished || this.didPlaybackContinue()) return;
     this.deactivatePlayback();
     LoadingOverlay.show(MENU_START_TRANSITION.video.stalledText);
     this.startStalledWatchdog();
+  }
+
+  /**
+   * Checks whether the native media element continued playback.
+   * @returns {boolean} Whether playback continued after the stall signal.
+   */
+  didPlaybackContinue() {
+    const media = this.video.video;
+    if (!media || media.paused || media.ended) return false;
+    const currentTime = this.getMediaTime();
+    if (currentTime === null || this.stalledAtTime === null) return false;
+    return currentTime > this.stalledAtTime + 0.01;
+  }
+
+  /**
+   * Returns the native media playback position.
+   * @returns {number|null} The current playback position when available.
+   */
+  getMediaTime() {
+    const currentTime = this.video.video?.currentTime;
+    return Number.isFinite(currentTime) ? currentTime : null;
   }
 
   /**
@@ -132,6 +186,7 @@ export class IntroVideoLifecycleController {
    * Handles deactivate playback.
    */
   deactivatePlayback() {
+    if (!this.isPlaybackActive) return;
     this.isPlaybackActive = false;
     this.callbacks.onInactive();
   }
@@ -210,8 +265,11 @@ export class IntroVideoLifecycleController {
   clearWatchdogs() {
     this.startupTimer?.remove(false);
     this.stalledTimer?.remove(false);
+    this.stallVerificationTimer?.remove(false);
     this.startupTimer = null;
     this.stalledTimer = null;
+    this.stallVerificationTimer = null;
+    this.stalledAtTime = null;
   }
 
   /**

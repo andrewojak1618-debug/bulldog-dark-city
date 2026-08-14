@@ -11,6 +11,8 @@ import { LevelThreeObstacleSystem } from
 import { RobotCatSystem } from "../../systems/robot-cat-system.class.js";
 import { RobotCatCombatSystem } from "../../systems/robot-cat-combat-system.class.js";
 import { RobotCatAttackSystem } from "../../systems/robot-cat-attack-system.class.js";
+import { RobotCatPhaseSystem } from
+  "../../systems/robot-cat-phase-system.class.js";
 import { ThrowBoneSystem } from "../../systems/throw-bone-system.class.js";
 import { BackgroundMusicSystem } from "../../systems/background-music-system.class.js";
 import { LevelSceneSystem } from "../../systems/level-scene-system.class.js";
@@ -132,6 +134,7 @@ export class LevelThreeScene extends Phaser.Scene {
       this.robotCat,
       this.player,
       this.healthSystem,
+      this.platforms,
     );
     this.createThrowBoneSystem();
   }
@@ -311,6 +314,10 @@ export class LevelThreeScene extends Phaser.Scene {
    */
   createRobotCatHealth() {
     this.robotCatHealth = new HealthSystem(ROBOT_CAT_COMBAT.maximumHealth);
+    this.robotCatPhaseSystem = RobotCatPhaseSystem.attach(
+      this.robotCat,
+      this.robotCatHealth,
+    );
     new BossPhaseHealthBar(this, this.robotCatHealth);
   }
 

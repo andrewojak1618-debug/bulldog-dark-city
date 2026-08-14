@@ -77,7 +77,10 @@ export class DogCatcherSystem {
    */
   static onceDefeated(group, callback) {
     group?.getChildren().forEach((dogCatcher) => {
-      dogCatcher.once(DOG_CATCHER_EVENTS.defeated, callback);
+      dogCatcher.once(
+        DOG_CATCHER_EVENTS.defeated,
+        () => callback(dogCatcher),
+      );
     });
   }
 
